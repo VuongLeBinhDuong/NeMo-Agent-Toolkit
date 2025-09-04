@@ -14,6 +14,78 @@
         },
         {
             "pattern": "^https://www\\.mysql\\.com"
+        },
+        {
+            "pattern": "^https://wandb\\.ai"
+        },
+        {
+            "pattern": "^https://modelcontextprotocol\\.io"
+        },
+        {
+            "pattern": "^https://docs\\.ragas\\.io"
+        },
+        {
+            "pattern": "^https://mem0\\.ai"
+        },
+        {
+            "pattern": "^https://docs\\.rapids\\.ai"
+        },
+        {
+            "pattern": "^https://docs\\.pydantic\\.dev"
+        },
+        {
+            "pattern": "^https://serpapi\\.com"
+        },
+        {
+            "pattern": "^https://app\\.galileo\\.ai"
+        },
+        {
+            "pattern": "^https://min\\.io"
+        },
+        {
+            "pattern": "^https://git-lfs\\.github\\.com"
+        },
+        {
+            "pattern": "^https://developercertificate\\.org"
+        },
+        {
+            "pattern": "^https://vale\\.sh"
+        },
+        {
+            "pattern": "^https://docs\\.smith\\.langchain\\.com"
+        },
+        {
+            "pattern": "^https://milvus\\.io"
+        },
+        {
+            "pattern": "^https://redis\\.io"
+        },
+        {
+            "pattern": "^https://www\\.getzep\\.com"
+        },
+        {
+            "pattern": "^https://v2docs\\.galileo\\.ai"
+        },
+        {
+            "pattern": "^https://python\\.langchain\\.com"
+        },
+        {
+            "pattern": "^https://api\\.python\\.langchain\\.com"
+        },
+        {
+            "pattern": "^https://docs\\.vllm\\.ai"
+        },
+        {
+            "pattern": "^https://docs\\.arize\\.com"
+        },
+        {
+            "pattern": "^https://www\\.nvidia\\.com"
+        },
+        {
+            "pattern": "^https://www\\.langchain\\.com"
+        },
+        {
+            "pattern": "^https://www\\.crewai\\.com"
         }
     ]
 }

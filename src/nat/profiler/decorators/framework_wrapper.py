@@ -32,6 +32,7 @@ _library_instrumented = {
     "crewai": False,
     "semantic_kernel": False,
     "agno": False,
+    "adk": False,
 }
 
 callback_handler_var: ContextVar[Any | None] = ContextVar("callback_handler_var", default=None)
@@ -95,6 +96,13 @@ def set_framework_profiler_handler(
                 handler.instrument()
                 _library_instrumented["agno"] = True
                 logger.info("Agno callback handler registered")
+
+            if LLMFrameworkEnum.ADK in frameworks and not _library_instrumented["adk"]:
+                from nat.plugins.adk.adk_callback_handler import ADKProfilerHandler  # noqa E501
+                handler = ADKProfilerHandler()
+                handler.instrument()
+                _library_instrumented["adk"] = True
+                logger.info("ADK callback handler registered")
 
             # IMPORTANT: actually call the wrapped function as an async context manager
             async with func(workflow_config, builder) as result:
