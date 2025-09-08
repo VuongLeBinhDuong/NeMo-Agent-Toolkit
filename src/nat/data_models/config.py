@@ -20,6 +20,7 @@ import typing
 from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import Discriminator
+from pydantic import Field
 from pydantic import ValidationError
 from pydantic import ValidationInfo
 from pydantic import ValidatorFunctionWrapHandler
@@ -137,8 +138,8 @@ def _process_validation_error(err: ValidationError, handler: ValidatorFunctionWr
 
 class TelemetryConfig(BaseModel):
 
-    logging: dict[str, LoggingBaseConfig] = {}
-    tracing: dict[str, TelemetryExporterBaseConfig] = {}
+    logging: dict[str, LoggingBaseConfig] = Field(default_factory=dict)
+    tracing: dict[str, TelemetryExporterBaseConfig] = Field(default_factory=dict)
 
     @field_validator("logging", "tracing", mode="wrap")
     @classmethod
@@ -242,34 +243,34 @@ class Config(HashableBaseModel):
     general: GeneralConfig = GeneralConfig()
 
     # Functions Configuration
-    functions: dict[str, FunctionBaseConfig] = {}
+    functions: dict[str, FunctionBaseConfig] = Field(default_factory=dict)
 
     # Function Groups Configuration
-    function_groups: dict[str, FunctionGroupBaseConfig] = {}
+    function_groups: dict[str, FunctionGroupBaseConfig] = Field(default_factory=dict)
 
     # LLMs Configuration
-    llms: dict[str, LLMBaseConfig] = {}
+    llms: dict[str, LLMBaseConfig] = Field(default_factory=dict)
 
     # Embedders Configuration
-    embedders: dict[str, EmbedderBaseConfig] = {}
+    embedders: dict[str, EmbedderBaseConfig] = Field(default_factory=dict)
 
     # Memory Configuration
-    memory: dict[str, MemoryBaseConfig] = {}
+    memory: dict[str, MemoryBaseConfig] = Field(default_factory=dict)
 
     # Object Stores Configuration
-    object_stores: dict[str, ObjectStoreBaseConfig] = {}
+    object_stores: dict[str, ObjectStoreBaseConfig] = Field(default_factory=dict)
 
     # Retriever Configuration
-    retrievers: dict[str, RetrieverBaseConfig] = {}
+    retrievers: dict[str, RetrieverBaseConfig] = Field(default_factory=dict)
 
     # TTC Strategies
-    ttc_strategies: dict[str, TTCStrategyBaseConfig] = {}
+    ttc_strategies: dict[str, TTCStrategyBaseConfig] = Field(default_factory=dict)
 
     # Workflow Configuration
     workflow: FunctionBaseConfig = EmptyFunctionConfig()
 
     # Authentication Configuration
-    authentication: dict[str, AuthProviderBaseConfig] = {}
+    authentication: dict[str, AuthProviderBaseConfig] = Field(default_factory=dict)
 
     # Evaluation Options
     eval: EvalConfig = EvalConfig()
