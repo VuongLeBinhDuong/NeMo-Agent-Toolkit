@@ -1,0 +1,2 @@
+{"id": "q1", "question": "Tài liệu AIMS nói về chủ đề chính gì?", "expected": "Mô tả mục tiêu/phạm vi AIMS", "source_hint": "AIMS.pdf"}
+{"id": "q2", "question": "Những thành phần chính được liệt kê là gì?", "expected": "Danh sách thành phần chính", "source_hint": "AIMS.pdf"}

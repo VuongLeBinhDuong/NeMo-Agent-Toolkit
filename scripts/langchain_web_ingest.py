@@ -67,10 +67,15 @@ async def main(*,
     else:
         logger.info("Collection '%s' does not exist, will be created when documents are added", collection_name)
 
+    # De-duplicate URLs while preserving order
+    urls = list(dict.fromkeys(urls))
+
     filenames = [
         get_file_path_from_url(url, base_path)[0] for url in urls
         if os.path.exists(get_file_path_from_url(url, base_path)[0])
     ]
+    # De-duplicate filenames as well
+    filenames = list(dict.fromkeys(filenames))
     urls_to_scrape = [url for url in urls if get_file_path_from_url(url, base_path)[0] not in filenames]
     if filenames:
         logger.info("Loading %s from cache", filenames)
@@ -84,8 +89,13 @@ async def main(*,
     doc_ids = []
     for filename in filenames:
 
+        # Skip if the cached file was removed in a previous pass
+        if not os.path.exists(filename):
+            logger.info("Skipping missing cached file %s", filename)
+            continue
+
         logger.info("Parsing %s into documents", filename)
-        loader = BSHTMLLoader(filename)
+        loader = BSHTMLLoader(filename, open_encoding="utf-8")
         splitter = RecursiveCharacterTextSplitter()
         docs = loader.load()
         docs = splitter.split_documents(docs)
@@ -124,15 +134,17 @@ if __name__ == "__main__":
     DEFAULT_URI = "http://localhost:19530"
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--urls", default=CUDA_URLS, action="append", help="Urls to scrape for RAG context")
+    parser.add_argument("--urls", nargs="*", help="Urls to scrape for RAG context. If omitted, uses CUDA_URLS default.")
     parser.add_argument("--collection_name", "-n", default=CUDA_COLLECTION_NAME, help="Collection name for the data.")
     parser.add_argument("--milvus_uri", "-u", default=DEFAULT_URI, help="Milvus host URI")
     parser.add_argument("--clean_cache", default=False, help="If true, deletes local files", action="store_true")
     args = parser.parse_args()
 
+    selected_urls = args.urls if args.urls and len(args.urls) > 0 else CUDA_URLS
+
     asyncio.run(
         main(
-            urls=args.urls,
+            urls=selected_urls,
             milvus_uri=args.milvus_uri,
             collection_name=args.collection_name,
             clean_cache=args.clean_cache,
