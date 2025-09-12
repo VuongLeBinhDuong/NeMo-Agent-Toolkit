@@ -1,0 +1,42 @@
+[
+  {
+    "id": "q1",
+    "question": "What is the main topic of the AIMS document?",
+    "expected": "Description of AIMS project objectives, scope and methodology",
+    "source_hint": "AIMS.pdf",
+    "difficulty": "easy",
+    "type": "document_lookup"
+  },
+  {
+    "id": "q2",
+    "question": "Who is the IT employee with the highest salary?", 
+    "expected": "Hoang Van E with salary 18,000,000 VND",
+    "source_hint": "sample_data.csv",
+    "difficulty": "easy",
+    "type": "data_analysis"
+  },
+  {
+    "id": "q3",
+    "question": "How many employees are in the Marketing department?",
+    "expected": "3 Marketing employees",
+    "source_hint": "sample_data.csv", 
+    "difficulty": "medium",
+    "type": "statistical_analysis"
+  },
+  {
+    "id": "q4",
+    "question": "Quy định nào trong tài liệu QuyDinh.docx liên quan đến bảo mật thông tin?",
+    "expected": "Các quy định cụ thể về bảo mật thông tin từ tài liệu quy định",
+    "source_hint": "QuyDinh.docx",
+    "difficulty": "medium", 
+    "type": "regulation_lookup"
+  },
+  {
+    "id": "q5",
+    "question": "What information does the Excel file IT3191E_AnhND.xlsx contain?",
+    "expected": "Description of content and structure of the Excel file",
+    "source_hint": "IT3191E_AnhND.xlsx",
+    "difficulty": "easy",
+    "type": "excel_analysis"
+  }
+]

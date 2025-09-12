@@ -1,0 +1,42 @@
+[
+  {
+    "id": "q1",
+    "question": "Analyze the AIMS document methodology and evaluate how well the proposed approach aligns with modern AI research standards. What potential gaps or improvements could be identified?",
+    "expected": "Critical analysis of AIMS methodology comparing to current AI standards, identifying specific gaps and suggesting concrete improvements",
+    "source_hint": "AIMS.pdf",
+    "difficulty": "hard",
+    "type": "critical_analysis"
+  },
+  {
+    "id": "q2",
+    "question": "Calculate the salary distribution variance across all departments and identify which department has the most equitable compensation structure. Provide statistical analysis including mean, median, and standard deviation for each department.", 
+    "expected": "Statistical analysis showing salary variance by department with calculations: IT dept mean/median/std dev, Marketing dept stats, HR dept stats, and conclusion about most equitable department",
+    "source_hint": "sample_data.csv",
+    "difficulty": "hard",
+    "type": "advanced_statistical_analysis"
+  },
+  {
+    "id": "q3",
+    "question": "Perform a comprehensive workforce analysis: What percentage of total employees does each department represent, what is the average tenure by department, and which department shows the highest salary-to-experience ratio?",
+    "expected": "Multi-dimensional analysis showing: department percentages of total workforce, average tenure calculations by department, salary-to-experience ratios with ranking",
+    "source_hint": "sample_data.csv", 
+    "difficulty": "hard",
+    "type": "comprehensive_workforce_analysis"
+  },
+  {
+    "id": "q4",
+    "question": "Phân tích toàn diện các quy định bảo mật trong QuyDinh.docx: xác định mức độ tuân thủ theo tiêu chuẩn ISO 27001, đánh giá các lỗ hổng tiềm ẩn và đề xuất cải tiến cụ thể để nâng cao tính bảo mật.",
+    "expected": "Phân tích chi tiết các quy định bảo mật so với tiêu chuẩn ISO 27001, nhận diện cụ thể các lỗ hổng, đề xuất ít nhất 3-5 cải tiến với mức độ ưu tiên và timeline thực hiện",
+    "source_hint": "QuyDinh.docx",
+    "difficulty": "hard", 
+    "type": "compliance_security_analysis"
+  },
+  {
+    "id": "q5",
+    "question": "Conduct a detailed data quality assessment of IT3191E_AnhND.xlsx: identify data patterns, anomalies, missing values, and correlations between different metrics. Provide actionable insights for data improvement and optimization recommendations.",
+    "expected": "Comprehensive data quality report including: data completeness analysis, identification of outliers/anomalies, correlation analysis between key metrics, specific data quality issues found, and 3-5 actionable recommendations for data optimization",
+    "source_hint": "IT3191E_AnhND.xlsx",
+    "difficulty": "hard",
+    "type": "advanced_data_quality_analysis"
+  }
+]

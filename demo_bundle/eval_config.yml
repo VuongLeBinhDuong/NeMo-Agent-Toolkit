@@ -1,0 +1,64 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES.
+# SPDX-License-Identifier: Apache-2.0
+
+# Mini evaluation configuration - 3 questions, 1 metric
+general:
+  use_uvloop: true
+
+embedders:
+  milvus_embedder:
+    _type: nim
+    model_name: nvidia/nv-embedqa-e5-v5
+    truncate: "END"
+
+retrievers:
+  my_retriever:
+    _type: milvus_retriever
+    uri: http://localhost:19530
+    collection_name: "my_docs"
+    embedding_model: milvus_embedder
+    top_k: 3
+
+functions:
+  my_retriever_tool:
+    _type: nat_retriever
+    retriever: my_retriever
+    topic: Retrieve company documents
+
+llms:
+  nim_llm:
+    _type: nim
+    model_name: meta/llama-3.1-70b-instruct
+    temperature: 0.0
+    max_tokens: 512  # Reduced tokens to minimize API usage
+    api_key: $NVIDIA_API_KEY
+
+    # Judge LLM for evaluation (best performing model)
+  mixtral_judge_llm:
+    _type: nim
+    model_name: mistralai/mixtral-8x22b-instruct-v0.1
+    temperature: 0.0
+    max_tokens: 512
+    api_key: $NVIDIA_API_KEY
+
+workflow:
+  _type: react_agent
+  tool_names:
+    - my_retriever_tool
+  llm_name: nim_llm
+  verbose: true
+  parse_agent_response_max_retries: 1  # Reduced retries
+
+eval:
+  general:
+    output_dir: ./eval/output2/
+    dataset:
+      _type: json
+      file_path: ./eval/questions2.json  
+      
+  evaluators:
+    # Single lightweight metric
+    rag_accuracy:
+      _type: ragas
+      metric: AnswerAccuracy
+      llm_name: mixtral_judge_llm

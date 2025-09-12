@@ -35,14 +35,17 @@ $ingestScript = Join-Path (Join-Path $bundleRoot 'scripts') 'ingest_documents_to
 if (-not (Test-Path $ingestScript)) { throw "Ingest script not found: $ingestScript" }
 if (-not (Test-Path $DataDir)) { New-Item -ItemType Directory -Path $DataDir | Out-Null }
 
-# Ingest DOCX first to avoid schema conflicts (DOCX has simpler metadata)
+# Ingest documents in order: DOCX, Excel, then others to manage schema conflicts
 $files = @()
 $files += Get-ChildItem -Path $DataDir -Filter *.docx -Recurse -ErrorAction SilentlyContinue
 $files += Get-ChildItem -Path $DataDir -Filter *.doc -Recurse -ErrorAction SilentlyContinue
+$files += Get-ChildItem -Path $DataDir -Filter *.xlsx -Recurse -ErrorAction SilentlyContinue
+$files += Get-ChildItem -Path $DataDir -Filter *.xls -Recurse -ErrorAction SilentlyContinue
+$files += Get-ChildItem -Path $DataDir -Filter *.csv -Recurse -ErrorAction SilentlyContinue
 $files += Get-ChildItem -Path $DataDir -Filter *.pdf -Recurse -ErrorAction SilentlyContinue
 
 if (-not $files) {
-  Write-Warning "No PDF, DOC, or DOCX files found in '$DataDir'. Add document files to this folder and re-run."
+  Write-Warning "No PDF, DOC, DOCX, XLSX, XLS, or CSV files found in '$DataDir'. Add document files to this folder and re-run."
   exit 0
 }
 

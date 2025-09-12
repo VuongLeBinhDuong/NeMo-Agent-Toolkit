@@ -1,0 +1,176 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES.
+# SPDX-License-Identifier: Apache-2.0
+
+"""
+Enhanced evaluation runner for demo_bundle RAG system.
+Provides detailed analysis and reporting capabilities.
+"""
+
+import json
+import os
+import sys
+from pathlib import Path
+from datetime import datetime
+import argparse
+
+def load_evaluation_results(output_dir: str):
+    """Load and parse evaluation results from NAT eval output"""
+    output_path = Path(output_dir)
+    
+    # Look for evaluation results files
+    results_files = list(output_path.glob("*.json"))
+    
+    if not results_files:
+        print(f"❌ No evaluation results found in {output_dir}")
+        return None
+    
+    print(f"📊 Found {len(results_files)} evaluation result files")
+    
+    all_results = {}
+    for file_path in results_files:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            all_results[file_path.stem] = data
+    
+    return all_results
+
+def analyze_results(results_data):
+    """Analyze evaluation results and generate insights"""
+    print("\n🔍 EVALUATION ANALYSIS")
+    print("=" * 50)
+    
+    # Extract metrics from results
+    metrics_summary = {}
+    
+    for eval_name, data in results_data.items():
+        print(f"\n📈 {eval_name.upper()} Results:")
+        
+        if isinstance(data, list):
+            # Handle list of evaluation items
+            scores = []
+            for item in data:
+                if 'eval_score' in item:
+                    score = item['eval_score']
+                    scores.append(score)
+                    print(f"  Question {item.get('id', 'N/A')}: {score:.3f}")
+            
+            if scores:
+                avg_score = sum(scores) / len(scores)
+                min_score = min(scores)
+                max_score = max(scores)
+                
+                metrics_summary[eval_name] = {
+                    'avg': avg_score,
+                    'min': min_score,
+                    'max': max_score,
+                    'count': len(scores)
+                }
+                
+                print(f"  📊 Average: {avg_score:.3f}")
+                print(f"  📊 Range: {min_score:.3f} - {max_score:.3f}")
+    
+    return metrics_summary
+
+def generate_report(metrics_summary, output_dir):
+    """Generate a comprehensive evaluation report"""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    report_path = Path(output_dir) / f"evaluation_report_{timestamp}.md"
+    
+    with open(report_path, 'w', encoding='utf-8') as f:
+        f.write("# Demo Bundle RAG Evaluation Report\n\n")
+        f.write(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+        
+        f.write("## Summary Metrics\n\n")
+        f.write("| Metric | Average | Min | Max | Questions |\n")
+        f.write("|--------|---------|-----|-----|----------|\n")
+        
+        overall_scores = []
+        for metric_name, stats in metrics_summary.items():
+            f.write(f"| {metric_name} | {stats['avg']:.3f} | {stats['min']:.3f} | {stats['max']:.3f} | {stats['count']} |\n")
+            overall_scores.append(stats['avg'])
+        
+        if overall_scores:
+            composite_score = sum(overall_scores) / len(overall_scores)
+            f.write(f"| **COMPOSITE** | **{composite_score:.3f}** | - | - | - |\n")
+        
+        f.write("\n## Performance Analysis\n\n")
+        
+        if overall_scores:
+            if composite_score >= 0.9:
+                f.write("🟢 **Excellent Performance** - System ready for production\n\n")
+            elif composite_score >= 0.8:
+                f.write("🟡 **Good Performance** - Minor optimizations recommended\n\n")
+            elif composite_score >= 0.7:
+                f.write("🟠 **Acceptable Performance** - Significant improvements needed\n\n")
+            else:
+                f.write("🔴 **Poor Performance** - Major issues require attention\n\n")
+        
+        f.write("## Recommendations\n\n")
+        
+        for metric_name, stats in metrics_summary.items():
+            if stats['avg'] < 0.8:
+                f.write(f"- **{metric_name}**: Score {stats['avg']:.3f} below target (0.8+)\n")
+                
+                if 'accuracy' in metric_name.lower():
+                    f.write("  - Consider fine-tuning embedding model for domain\n")
+                    f.write("  - Review ground truth dataset quality\n")
+                elif 'relevance' in metric_name.lower():
+                    f.write("  - Optimize retrieval parameters (top-k, similarity threshold)\n")
+                    f.write("  - Improve document chunking strategy\n")
+                elif 'groundedness' in metric_name.lower():
+                    f.write("  - Enhance prompt engineering for LLM\n")
+                    f.write("  - Add citation verification logic\n")
+        
+        f.write(f"\n---\n*Report generated by demo_bundle evaluation system*\n")
+    
+    print(f"\n📄 Detailed report saved to: {report_path}")
+    return report_path
+
+def main():
+    parser = argparse.ArgumentParser(description="Analyze demo_bundle evaluation results")
+    parser.add_argument(
+        "--output_dir", 
+        default="demo_bundle/eval/output",
+        help="Directory containing evaluation output files"
+    )
+    parser.add_argument(
+        "--run_eval",
+        action="store_true", 
+        help="Run evaluation before analysis"
+    )
+    
+    args = parser.parse_args()
+    
+    # Run evaluation if requested
+    if args.run_eval:
+        print("🚀 Running evaluation...")
+        eval_cmd = f"nat eval --config_file=demo_bundle/eval_config.yml"
+        print(f"Command: {eval_cmd}")
+        
+        exit_code = os.system(eval_cmd)
+        if exit_code != 0:
+            print("❌ Evaluation failed!")
+            sys.exit(1)
+        
+        print("✅ Evaluation completed!")
+    
+    # Load and analyze results
+    results = load_evaluation_results(args.output_dir)
+    
+    if not results:
+        print("❌ No results to analyze")
+        sys.exit(1)
+    
+    # Analyze results
+    metrics = analyze_results(results)
+    
+    # Generate report
+    if metrics:
+        report_path = generate_report(metrics, args.output_dir)
+        print(f"\n✅ Analysis complete! Check {report_path} for detailed insights.")
+    else:
+        print("❌ No metrics found to analyze")
+
+if __name__ == "__main__":
+    main()
