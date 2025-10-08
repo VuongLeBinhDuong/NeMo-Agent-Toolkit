@@ -31,21 +31,21 @@ retrievers:
     top_k: 3
 
 functions:
-  # calculator_multiply:
-  #   _type: calculator_multiply
-  # calculator_inequality:
-  #   _type: calculator_inequality
-  # calculator_divide:
-  #   _type: nat_simple_calculator/calculator_divide
-  # current_datetime:
-  #   _type: current_datetime
-  # calculator_subtract:
-  #   _type: calculator_subtract
-  # wikipedia_search:
-  #   _type: wiki_search
-  #   max_results: 2
-  # web_search:
-  #   _type: nat.plugins.langchain.tools/tavily_internet_search
+  calculator_multiply:
+    _type: calculator_multiply
+  calculator_inequality:
+    _type: calculator_inequality
+  calculator_divide:
+    _type: nat_simple_calculator/calculator_divide
+  current_datetime:
+    _type: current_datetime
+  calculator_subtract:
+    _type: calculator_subtract
+  wikipedia_search:
+    _type: wiki_search
+    max_results: 2
+  web_search:
+    _type: nat.plugins.langchain.tools/tavily_internet_search
   my_retriever_tool:
     _type: nat_retriever
     retriever: my_retriever
@@ -61,13 +61,13 @@ llms:
 workflow:
   _type: react_agent
   tool_names:
-    # - calculator_multiply
-    # - calculator_inequality
-    # - current_datetime
-    # - calculator_divide
-    # - calculator_subtract
-    # - wikipedia_search
-    # - web_search
+    - calculator_multiply
+    - calculator_inequality
+    - current_datetime
+    - calculator_divide
+    - calculator_subtract
+    - wikipedia_search
+    - web_search
     - my_retriever_tool
   llm_name: nim_llm
   verbose: true
