@@ -1,5 +1,5 @@
 param(
-    [string]$ConfigFile = "demo_bundle\eval_config.yml",
+    [string]$ConfigFile = "ai_agent_development\eval_config.yml",
     [switch]$SkipIngestion,
     [switch]$GenerateReport
 )
@@ -20,7 +20,7 @@ try {
     }
 } catch {
     Write-Host "❌ Milvus not available. Starting Milvus..." -ForegroundColor Red
-    & PowerShell -NoProfile -ExecutionPolicy Bypass -File demo_bundle\scripts\start_milvus.ps1
+    & PowerShell -NoProfile -ExecutionPolicy Bypass -File ai_agent_development\scripts\start_milvus.ps1
 }
 
 # Step 2: Ensure documents are ingested (unless skipped)
@@ -50,7 +50,7 @@ except Exception as e:
         
     } catch {
         Write-Host "⚠️ No documents found. Running ingestion..." -ForegroundColor Yellow
-        & PowerShell -NoProfile -ExecutionPolicy Bypass -File demo_bundle\scripts\demo_ingest.ps1
+        & PowerShell -NoProfile -ExecutionPolicy Bypass -File ai_agent_development\scripts\demo_ingest.ps1
     }
 } else {
     Write-Host "`n2️⃣ Skipping document ingestion (--SkipIngestion)" -ForegroundColor Gray
@@ -69,7 +69,7 @@ if (-not $env:NVIDIA_API_KEY) {
 
 # Step 4: Create output directory
 Write-Host "`n4️⃣ Preparing evaluation environment..." -ForegroundColor Yellow
-$outputDir = "demo_bundle\eval\output"
+$outputDir = "ai_agent_development\eval\output"
 if (-not (Test-Path $outputDir)) {
     New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
     Write-Host "✅ Created output directory: $outputDir" -ForegroundColor Green
@@ -95,7 +95,7 @@ try {
 if ($GenerateReport) {
     Write-Host "`n6️⃣ Generating detailed analysis report..." -ForegroundColor Yellow
     try {
-        & python demo_bundle\eval\run_evaluation.py --output_dir $outputDir
+        & python ai_agent_development\eval\run_evaluation.py --output_dir $outputDir
         Write-Host "✅ Analysis report generated!" -ForegroundColor Green
     } catch {
         Write-Host "⚠️ Report generation failed, but evaluation data is available in $outputDir" -ForegroundColor Yellow
