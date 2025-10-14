@@ -21,3 +21,4 @@
 from . import code_generation_tool
 from . import tavily_internet_search
 from . import wikipedia_search
+from . import advanced_code_generation_tool
