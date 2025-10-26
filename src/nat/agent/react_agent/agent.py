@@ -303,22 +303,79 @@ class ReActAgentGraph(DualNodeAgent):
                     logger.debug("%s Successfully parsed structured tool input after quote normalization",
                                  AGENT_LOG_PREFIX)
                 except JSONDecodeError:
-                    # the quote normalization failed, use raw string input
+                    # Try to parse as Python dict literal (eval approach)
+                    try:
+                        import ast
+                        tool_input = ast.literal_eval(tool_input_str)
+                        logger.debug("%s Successfully parsed using ast.literal_eval", AGENT_LOG_PREFIX)
+                    except (ValueError, SyntaxError):
+                        # the quote normalization failed, use raw string input
+                        logger.debug(
+                            "%s Unable to parse structured tool input after quote normalization. Using Action Input as is."
+                            "\nParsing error: %s",
+                            AGENT_LOG_PREFIX,
+                            original_ex)
+                        tool_input = tool_input_str
+            else:
+                # Try to parse as Python dict literal (eval approach)
+                try:
+                    import ast
+                    tool_input = ast.literal_eval(tool_input_str)
+                    logger.debug("%s Successfully parsed using ast.literal_eval", AGENT_LOG_PREFIX)
+                except (ValueError, SyntaxError):
+                    # use raw string input
                     logger.debug(
-                        "%s Unable to parse structured tool input after quote normalization. Using Action Input as is."
+                        "%s Unable to parse structured tool input from Action Input. Using Action Input as is."
                         "\nParsing error: %s",
                         AGENT_LOG_PREFIX,
                         original_ex)
                     tool_input = tool_input_str
-            else:
-                # use raw string input
-                logger.debug(
-                    "%s Unable to parse structured tool input from Action Input. Using Action Input as is."
-                    "\nParsing error: %s",
-                    AGENT_LOG_PREFIX,
-                    original_ex)
-                tool_input = tool_input_str
-
+        if requested_tool.name in ["code_generation_tool"]:
+            # code_generation_tool expects query and programming_language
+            if isinstance(tool_input, str):
+                tool_input = {
+                    "query": tool_input,
+                    "programming_language": ""
+                }
+            elif isinstance(tool_input, dict):
+                if "query" not in tool_input:
+                    tool_input = {
+                        "query": tool_input.get("input_message", tool_input.get("plan", str(tool_input))),
+                        "programming_language": tool_input.get("programming_language", "")
+                    }
+        if requested_tool.name in ["save_file_code"]:
+            # save_file_code expects code_content and file_path
+            if isinstance(tool_input, str):
+                # Check if this looks like instruction text rather than actual code
+                if any(phrase in tool_input.lower() for phrase in ["save the", "generate", "create", "output/", "file"]):
+                    # This looks like instruction text, try to find actual code in previous tool responses
+                    code_content = self._extract_code_from_responses(state.tool_responses)
+                    if code_content:
+                        tool_input = {
+                            "code_content": code_content,
+                            "file_path": self._extract_file_path_from_instruction(tool_input),
+                            "execution_result": ""
+                        }
+                    else:
+                        # Fallback to original behavior
+                        tool_input = {
+                            "code_content": tool_input,
+                            "file_path": "",
+                            "execution_result": ""
+                        }
+                else:
+                    tool_input = {
+                        "code_content": tool_input,
+                        "file_path": "",
+                        "execution_result": ""
+                    }
+            elif isinstance(tool_input, dict):
+                if "code_content" not in tool_input:
+                    tool_input = {
+                        "code_content": tool_input.get("input_message", tool_input.get("plan", str(tool_input))),
+                        "file_path": tool_input.get("file_path", ""),
+                        "execution_result": tool_input.get("execution_result", "")
+                    }
         # Call tool once with the determined input (either parsed dict or raw string)
         tool_response = await self._call_tool(requested_tool,
                                               tool_input,

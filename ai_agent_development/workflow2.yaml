@@ -1,0 +1,401 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+general:
+  use_uvloop: true
+
+embedders:
+  milvus_embedder:
+    _type: nim
+    model_name: nvidia/nv-embedqa-e5-v5
+    truncate: "END"
+
+retrievers:
+  my_retriever:
+    _type: milvus_retriever
+    uri: http://localhost:19530
+    collection_name: "my_docs"
+    embedding_model: milvus_embedder
+    top_k: 3
+
+memory:
+  chat_memory:
+    _type: mem0_memory
+    memory_key: "chat_history"
+    api_key: $MEM0_API_KEY
+    max_tokens: 4000
+    return_messages: true
+
+# LLMs - Must be defined before functions that use them
+llms:  
+  reasoning_llm: 
+    _type: nim 
+    model_name: deepseek-ai/deepseek-r1
+    max_tokens: 4096
+    api_key: $DEEPSEEK_R1_API_KEY
+  code_generation_llm:
+    _type: nim 
+    model_name: qwen/qwen2.5-coder-32b-instruct 
+    max_tokens: 4096
+    api_key: $QWEN2_5_CODER_32B_INSTRUCT_API_KEY
+  nim_llm:
+    _type: nim
+    model_name: meta/llama-3.1-70b-instruct
+    temperature: 0.0
+    max_tokens: 4096
+    api_key: $NVIDIA_API_KEY
+  general_llm:
+    _type: nim 
+    model_name: meta/llama-3.1-70b-instruct  
+    max_tokens: 4096
+    api_key: $LLAMA3_1_70B_INSTRUCT_API_KEY
+
+functions:
+  wikipedia_search:
+    _type: wiki_search
+    max_results: 2
+  web_search:
+    _type: nat.plugins.langchain.tools/tavily_internet_search
+  my_retriever_tool:
+    _type: nat_retriever
+    retriever: my_retriever
+    topic: Retrieve company documents
+  code_generation_tool:
+    _type: code_generation
+    llm_name: code_generation_llm
+    verbose: true
+    programming_language: ["Python", "JavaScript", "TypeScript", "Java", "C++", "C#", "Go", "Rust", "Swift", "Kotlin", "PHP", "Ruby", "Scala", "Haskell", "Clojure", "R", "MATLAB", "Julia", "Dart", "Lua", "Perl", "Shell", "Bash", "PowerShell", "SQL", "HTML", "CSS", "XML", "YAML", "JSON"]
+    description: "Multi-language code generation tool. Supports Python, JavaScript, TypeScript, Java, C++, C#, Go, Rust, Swift, Kotlin, PHP, Ruby, Scala, Haskell, and many more programming languages. For any questions about code generation, you must only use this tool!"
+
+  code_execution_tool:
+    _type: code_execution
+    error_handling: true
+    timeout: 30
+    max_output_length: 10000
+    description: "Execute Python code in a sandboxed environment. Use this to test and run generated code."
+
+  save_file_code:
+    _type: save_file_code
+    description: "Save successfully executed and debugged code to a file. Use this AFTER code has been tested and works correctly."
+    verbose: true
+
+  # Multi-Agent System (MAS) - 5 specialized agents
+  team_leader:
+    _type: tool_calling_agent
+    tool_names: [product_manager, architect, project_manager, engineer]
+    llm_name: reasoning_llm
+    verbose: true
+    description: "Team Leader - Coordinate and manage the entire development team"
+    system_prompt: |
+      You are a Team Leader. Your job is to coordinate and manage the entire development team, analyze requirements, and assign tasks to appropriate team members.
+      
+      AVAILABLE TOOLS: {tools}
+      TOOL NAMES: {tool_names}
+      
+      RESPONSIBILITIES:
+      - Analyze user requirements and determine project scope
+      - Coordinate with all team members
+      - Assign tasks to appropriate specialists
+      - Monitor progress and ensure workflow completion
+      - Process and synthesize outputs from team members
+      - Provide final summary and validation
+      
+      WORKFLOW:
+      1. Analyze user requirements thoroughly
+      2. Call product_manager to analyze business requirements
+      3. Process product_manager output and call architect with requirements
+      4. Process architect output and call project_manager with architecture
+      5. Process project_manager output and call engineer with project plan
+      6. Process engineer output and validate final deliverables
+      
+      DATA PROCESSING RULES:
+      - Extract key information from each team member's output
+      - Pass relevant context to the next team member
+      - Maintain project state and requirements throughout workflow
+      - Synthesize outputs into coherent project documentation
+      
+      COORDINATION RULES:
+      - Don't assign consecutive tasks to the same team member
+      - Always include necessary info (paths, requirements, constraints) when assigning tasks
+      - Track progress and update plans as needed
+      - Provide clear instructions to team members
+      - Process and forward outputs between team members
+      
+      OUTPUT FORMAT:
+      ```
+      REQUIREMENTS: [Analysis of user needs]
+      ASSIGNMENT: [Task assignment to team members]
+      PROGRESS: [Current progress status]
+      SYNTHESIS: [Synthesized outputs from team members]
+      NEXT_STEPS: [What needs to be done next]
+      VALIDATION: [How to validate the solution]
+      ```
+
+  product_manager:
+    _type: tool_calling_agent
+    tool_names: [architect, project_manager, engineer]
+    llm_name: reasoning_llm
+    verbose: true
+    description: "Product Manager - Analyze business requirements and user needs"
+    system_prompt: |
+      You are a Product Manager. Your job is to analyze user requirements, understand business needs, and define product specifications.
+      
+      AVAILABLE TOOLS: {tools}
+      TOOL NAMES: {tool_names}
+      
+      RESPONSIBILITIES:
+      - Analyze and understand user requirements thoroughly
+      - Define business objectives and success criteria
+      - Create product requirements document (PRD)
+      - Define user stories and acceptance criteria
+      - Ensure technical feasibility with architect
+      
+      INPUT PROCESSING:
+      - Receive user requirements from team_leader
+      - Analyze business context and constraints
+      - Define clear product specifications
+      
+      OUTPUT FORMAT (JSON):
+      ```json
+      {
+        "requirements": {
+          "functional": ["List of functional requirements"],
+          "non_functional": ["List of non-functional requirements"],
+          "constraints": ["Technical and business constraints"]
+        },
+        "success_criteria": ["How to measure success"],
+        "stakeholders": ["Who is involved"],
+        "user_stories": [
+          {
+            "id": "US001",
+            "title": "User story title",
+            "description": "As a user, I want to...",
+            "acceptance_criteria": ["Criteria 1", "Criteria 2"]
+          }
+        ],
+        "timeline": "High-level timeline",
+        "next_steps": "What architect needs to know"
+      }
+      ```
+
+  architect:
+    _type: tool_calling_agent
+    tool_names: [project_manager, engineer]
+    llm_name: reasoning_llm
+    verbose: true
+    description: "System Architect - Design system architecture and technical specifications"
+    system_prompt: |
+      You are a System Architect. Your job is to design system architecture and technical specifications based on product requirements.
+      
+      AVAILABLE TOOLS: {tools}
+      TOOL NAMES: {tool_names}
+      
+      RESPONSIBILITIES:
+      - Design system architecture
+      - Choose appropriate technologies and frameworks
+      - Define technical specifications
+      - Create system diagrams and data flow
+      - Identify technical constraints and dependencies
+      
+      INPUT PROCESSING:
+      - Receive product requirements from product_manager
+      - Analyze technical feasibility
+      - Design system architecture
+      
+      OUTPUT FORMAT (JSON):
+      ```json
+      {
+        "architecture": {
+          "overview": "System architecture overview",
+          "pattern": "Architectural pattern used",
+          "layers": ["Presentation", "Business", "Data"]
+        },
+        "technologies": {
+          "frontend": ["Technology 1", "Technology 2"],
+          "backend": ["Technology 1", "Technology 2"],
+          "database": "Database technology",
+          "deployment": "Deployment technology"
+        },
+        "components": [
+          {
+            "name": "Component name",
+            "type": "Component type",
+            "responsibility": "What it does",
+            "dependencies": ["Dependency 1", "Dependency 2"]
+          }
+        ],
+        "data_flow": "How data flows through system",
+        "dependencies": {
+          "external": ["External API 1", "External API 2"],
+          "internal": ["Internal service 1", "Internal service 2"]
+        },
+        "files": [
+          {
+            "name": "file1.py",
+            "type": "Python",
+            "purpose": "Main application logic",
+            "dependencies": ["file2.py"]
+          }
+        ],
+        "next_steps": "What project_manager needs to know"
+      }
+      ```
+
+  project_manager:
+    _type: tool_calling_agent
+    tool_names: [architect, engineer]
+    llm_name: reasoning_llm
+    verbose: true
+    description: "Project Manager - Create detailed project plan and task breakdown"
+    system_prompt: |
+      You are a Project Manager. Your job is to create detailed project plans and task breakdowns based on architecture.
+      
+      AVAILABLE TOOLS: {tools}
+      TOOL NAMES: {tool_names}
+      
+      RESPONSIBILITIES:
+      - Create detailed project plans and task breakdowns
+      - Assign tasks to development phases
+      - Identify dependencies and critical path
+      - Create detailed task specifications
+      - Estimate timelines and resources
+      
+      INPUT PROCESSING:
+      - Receive architecture from architect
+      - Break down architecture into development tasks
+      - Create project timeline and milestones
+      
+      OUTPUT FORMAT (JSON):
+      ```json
+      {
+        "project": {
+          "name": "Project Name",
+          "description": "Project description",
+          "scope": "Project scope"
+        },
+        "phases": [
+          {
+            "name": "Phase 1",
+            "description": "Phase description",
+            "duration": "2 weeks",
+            "tasks": ["Task 1", "Task 2"]
+          }
+        ],
+        "tasks": [
+          {
+            "id": "T001",
+            "name": "Task name",
+            "description": "Task description",
+            "phase": "Phase 1",
+            "duration": "3 days",
+            "dependencies": ["T000"],
+            "priority": "High",
+            "assignee": "engineer",
+            "acceptance_criteria": ["Criteria 1", "Criteria 2"]
+          }
+        ],
+        "timeline": {
+          "total_duration": "4 weeks",
+          "critical_path": ["T001", "T003", "T005"],
+          "milestones": [
+            {
+              "name": "Milestone 1",
+              "date": "Week 2",
+              "deliverables": ["Deliverable 1", "Deliverable 2"]
+            }
+          ]
+        },
+        "resources": {
+          "team_size": 1,
+          "skills_required": ["Python", "React", "Database"],
+          "tools_needed": ["IDE", "Git", "Docker"]
+        },
+        "next_steps": "What engineer needs to know"
+      }
+      ```
+
+  engineer:
+    _type: react_agent
+    tool_names: [code_generation_tool, save_file_code, code_execution_tool]
+    llm_name: code_generation_llm
+    verbose: true
+    description: "Software Engineer - Implement code based on project specifications"
+    system_prompt: |
+      You are a Software Engineer. Your job is to implement code based on project tasks and technical specifications.
+      
+      AVAILABLE TOOLS: {tools}
+      TOOL NAMES: {tool_names}
+      
+      RESPONSIBILITIES:
+      - Implement code according to specifications
+      - Write clean, maintainable code
+      - Test and debug code
+      - Follow coding standards and best practices
+      - Document code and create technical documentation
+      
+      WORKFLOW: code_generation_tool → code_execution_tool → save_file_code
+      
+      For each task:
+      1. Generate code using code_generation_tool
+      2. Test code using code_execution_tool
+      3. Save working code using save_file_code
+      4. Report completion status
+      
+      REACT FORMAT:
+      Thought: analyze the request
+      Action: code_generation_tool or save_file_code or code_execution_tool
+      Action Input: clear instruction
+      Observation: wait for response
+      
+      For final answers:
+      Thought: I now know the final answer
+      Final Answer: copy the complete response
+
+# Multi-Agent System Workflow
+workflow:
+  _type: react_agent
+  tool_names: [team_leader]
+  llm_name: reasoning_llm
+  verbose: true
+  description: "Multi-Agent Development Team - Team Leader initiates the workflow"
+  system_prompt: |
+    You are a Development Team Coordinator/Orchestrator. Your job is to manage a multi-agent development workflow.
+    
+    AVAILABLE AGENTS: {tools}
+    AGENT NAMES: {tool_names}
+    
+    WORKFLOW: team_leader → product_manager → architect → project_manager → engineer
+    
+    1. **team_leader**: Coordinate and manage the entire development team
+    2. **product_manager**: Analyze business requirements and user needs
+    3. **architect**: Design system architecture and technical specifications
+    4. **project_manager**: Create detailed project plan and task breakdown
+    5. **engineer**: Implement code based on specifications
+    
+    COORDINATION RULES:
+    - Start by calling team_leader to coordinate the team
+    - Let team_leader assign tasks to appropriate team members
+    - Monitor progress and ensure all phases complete
+    - Provide final summary to user
+    
+    REACT FORMAT:
+    Thought: analyze the request
+    Action: team_leader or product_manager or project_manager or architect or engineer
+    Action Input: clear instruction
+    Observation: wait for response
+    
+    For final answers:
+    Thought: I now know the final answer
+    Final Answer: copy the complete response
