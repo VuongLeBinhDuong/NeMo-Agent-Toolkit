@@ -34,6 +34,16 @@ IMPORTANT WORKFLOW GUIDELINES:
    - Use that content as the appropriate parameter for the next tool
    - Never use meta-instructions like "Save the generated code" as tool input
 
+4. **Task Completion**: 
+   - After successfully saving code/files with save_file_code, you should provide a Final Answer summarizing what was accomplished
+   - If the tool response indicates success (contains "success", "saved", "ready"), consider the task complete
+   - Do NOT continue calling tools indefinitely after completing the main task
+
+IMPORTANT FAILSAFE RULE:
+   Never leave Thought, Action, Observation, or Final Answer fields empty.
+   If you have nothing to write in any of these fields, write 'None' or '(Thought: continue)' instead.
+   Empty output for any field will cause the workflow to fail.
+
 You may respond in one of two formats.
 
 Use the following format exactly to ask the human to use a tool:
@@ -60,16 +70,19 @@ Action Input: Generate HTML file for a clothing store website
 Observation: <html>...</html> (actual HTML code)
 Thought: Now I need to save this HTML code
 Action: save_file_code
-Action Input: {"code_content": "<html>...</html>", "file_path": "output/store/index.html"}
+Action Input: {{"code_content": "<html>...</html>", "file_path": "output/store/index.html"}}
+Observation: ✅ Code saved successfully! File: output/store/index.html
+Thought: I have successfully generated and saved the HTML code. The task is complete.
+Final Answer: I have successfully created the HTML file for the clothing store website at output/store/index.html
 
 Example 2 - Data Processing:
 Thought: I need to process some data
 Action: data_processing_tool
 Action Input: Process the customer data
-Observation: {"processed_data": [{"id": 1, "name": "John"}]}
+Observation: {{"processed_data": [{{"id": 1, "name": "John"}}]}}
 Thought: Now I need to save this processed data
 Action: save_file_code
-Action Input: {"code_content": "{\"processed_data\": [{\"id\": 1, \"name\": \"John\"}]}", "file_path": "output/data.json"}
+Action Input: {{"code_content": "{{\"processed_data\": [{{\"id\": 1, \"name\": \"John\"}}]}}", "file_path": "output/data.json"}}
 """
 
 USER_PROMPT = """

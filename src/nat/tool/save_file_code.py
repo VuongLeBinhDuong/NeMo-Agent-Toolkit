@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import logging
 import os
 from pathlib import Path
@@ -42,7 +43,7 @@ class SaveFileCodeInput(BaseModel):
     def handle_input(cls, data):
         """Handle various input formats for save_file_code tool."""
         print(f"DEBUG save_file_code: Input data type: {type(data)}")
-        
+
         # Handle string input - treat as code_content
         if isinstance(data, str):
             return {
@@ -56,10 +57,33 @@ class SaveFileCodeInput(BaseModel):
         
         # Handle dict input
         if isinstance(data, dict):
+            code_content = data.get('code_content', '')
+            file_path = data.get('file_path', '')
+            nested_data = None
+
+            if isinstance(code_content, str):
+                stripped_content = code_content.strip()
+                if stripped_content.startswith("{") and stripped_content.endswith("}"):
+                    try:
+                        nested_data = json.loads(stripped_content)
+                    except json.JSONDecodeError:
+                        nested_data = None
+                    if isinstance(nested_data, dict):
+                        code_content = nested_data.get('code_content', code_content)
+                        if not file_path:
+                            file_path = nested_data.get('file_path', file_path)
+
+            def _get_value(key: str, default: str) -> str:
+                if key in data and data[key]:
+                    return data[key]
+                if nested_data and key in nested_data and nested_data[key]:
+                    return nested_data[key]
+                return default
+
             return {
-                "code_content": data.get('code_content', ''),
-                "file_path": data.get('file_path', ''),
-                "execution_result": data.get('execution_result', ''),
+                "code_content": code_content,
+                "file_path": file_path,
+                "execution_result": _get_value('execution_result', ''),
                 "create_directories": data.get('create_directories', True),
                 "encoding": data.get('encoding', 'utf-8'),
                 "add_execution_info": data.get('add_execution_info', True)
@@ -143,16 +167,16 @@ async def save_file_code_tool(config: SaveFileCodeConfig, builder: Builder):
             
             log.info(f'Successfully saved code to: {abs_path} ({file_size} bytes)')
             
-            return f"""✅ Code saved successfully!
+            return f"""Code saved successfully!
 
 **File:** `{abs_path}`
 **Size:** {file_size} bytes
-**Status:** Ready to use! 🎉"""
+**Status:** Ready to use! """
             
         except Exception as e:
             error_msg = f"Error saving code to {input_data.file_path}: {str(e)}"
             log.error(error_msg)
-            return f"""❌ Failed to save code
+            return f"""Failed to save code
 
 **Error:** {error_msg}
 **File path:** {input_data.file_path}"""

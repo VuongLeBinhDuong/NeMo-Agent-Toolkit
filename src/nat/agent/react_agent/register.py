@@ -53,7 +53,7 @@ class ReActAgentWorkflowConfig(FunctionBaseConfig, name="react_agent"):
         description="Maximum number of times the Agent may retry parsing errors. "
         "Prevents the Agent from getting into infinite hallucination loops.")
     tool_call_max_retries: int = Field(default=1, description="The number of retries before raising a tool call error.")
-    max_tool_calls: int = Field(default=15,
+    max_tool_calls: int = Field(default=30,
                                 validation_alias=AliasChoices("max_tool_calls", "max_iterations"),
                                 description="Maximum number of tool calls before stopping the agent.")
     pass_tool_call_errors_to_agent: bool = Field(

@@ -259,6 +259,112 @@ class ReActAgentGraph(DualNodeAgent):
             logger.warning("%s Ending graph traversal", AGENT_LOG_PREFIX)
             return AgentDecision.END
 
+    def _extract_code_from_responses(self, tool_responses: list[BaseMessage]) -> str | None:
+        """
+        Extract code content from previous tool responses, particularly from code_generation_tool.
+        
+        Args:
+            tool_responses: List of tool response messages
+            
+        Returns:
+            Extracted code content as string, or None if not found
+        """
+        if not tool_responses:
+            return None
+        
+        # Bash/command patterns to exclude
+        bash_patterns = [
+            r'^\s*(mkdir|cd|npm|pip|git|echo|cat|ls|mv|cp|rm|touch)\s+',
+            r'^\s*\$\s+',  # Command prompts
+            r'npm\s+(init|install|run|start)',
+            r'pip\s+(install|list|show)',
+        ]
+        
+        # Look through tool responses in reverse order (most recent first)
+        for response in reversed(tool_responses):
+            content = str(response.content)
+            
+            # Skip empty responses
+            if not content or not content.strip():
+                continue
+            
+            # First, try to detect code blocks with language tags (most reliable)
+            # Pattern: ```javascript\n...``` or ```html\n...```
+            code_block_with_lang_pattern = r'```(?:javascript|js|typescript|ts|html|css|python|py|java|cpp|c\+\+|c#|go|rust|php|ruby|sql|json|yaml|xml)\s*\n(.*?)```'
+            matches = re.findall(code_block_with_lang_pattern, content, re.DOTALL | re.IGNORECASE)
+            if matches:
+                code = matches[0].strip()
+                # Verify it's not bash commands
+                if not any(re.search(pattern, code, re.MULTILINE | re.IGNORECASE) for pattern in bash_patterns):
+                    return code
+            
+            # Try code blocks without language tags but with code indicators
+            code_block_pattern = r'```(?:\w+)?\s*\n(.*?)```'
+            matches = re.findall(code_block_pattern, content, re.DOTALL)
+            if matches:
+                code = matches[0].strip()
+                # Check if it looks like code (not bash commands)
+                if any(re.search(pattern, code, re.IGNORECASE) for pattern in [
+                    r'<html', r'<!DOCTYPE', r'function\s+\w+', r'def\s+\w+',
+                    r'class\s+\w+', r'import\s+\w+', r'const\s+\w+', r'let\s+\w+',
+                    r'var\s+\w+', r'\.css\s*\{', r'@media', r'export\s+'
+                ]):
+                    # Make sure it's not bash commands
+                    if not any(re.search(pattern, code, re.MULTILINE | re.IGNORECASE) for pattern in bash_patterns):
+                        return code
+            
+            # If no code blocks, check if the entire content looks like code
+            # Common indicators: HTML tags, CSS selectors, JS patterns, Python keywords
+            code_indicators = [
+                r'<html', r'<!DOCTYPE', r'function\s+\w+', r'def\s+\w+',
+                r'class\s+\w+', r'import\s+\w+', r'\.css\s*\{', r'const\s+\w+',
+                r'let\s+\w+', r'var\s+\w+', r'export\s+', r'@media', r'package\s+\w+'
+            ]
+            if any(re.search(pattern, content, re.IGNORECASE) for pattern in code_indicators):
+                # Make sure it's not bash commands
+                if not any(re.search(pattern, content, re.MULTILINE | re.IGNORECASE) for pattern in bash_patterns):
+                    return content.strip()
+        
+        return None
+
+    def _extract_file_path_from_instruction(self, instruction: str) -> str:
+        """
+        Extract file path from instruction text.
+        
+        Args:
+            instruction: Instruction text that may contain a file path
+            
+        Returns:
+            Extracted file path, or empty string if not found
+        """
+        if not instruction:
+            return ""
+        
+        # Common patterns for file paths in instructions
+        # Look for quoted paths: "path/to/file", 'path/to/file'
+        quoted_path_pattern = r'["\']([^"\']+(?:\.[a-zA-Z]{2,4})?)["\']'
+        matches = re.findall(quoted_path_pattern, instruction)
+        if matches:
+            return matches[-1]  # Return the last match (most likely the file path)
+        
+        # Look for paths with common extensions
+        path_pattern = r'[\w/\\-]+\.(html|css|js|py|json|yaml|yml|txt|md|xml|sql|java|cpp|ts|tsx|jsx)\b'
+        matches = re.findall(path_pattern, instruction, re.IGNORECASE)
+        if matches:
+            # Find the full path including the extension
+            full_path_match = re.search(r'[\w/\\-]+\.(?:html|css|js|py|json|yaml|yml|txt|md|xml|sql|java|cpp|ts|tsx|jsx)\b', 
+                                        instruction, re.IGNORECASE)
+            if full_path_match:
+                return full_path_match.group(0)
+        
+        # Look for "to file" or "named" patterns
+        named_pattern = r'(?:to|named|as|file[:\s]+)[\s]*["\']?([\w/\\-]+\.\w+)["\']?'
+        matches = re.findall(named_pattern, instruction, re.IGNORECASE)
+        if matches:
+            return matches[-1]
+        
+        return ""
+
     async def tool_node(self, state: ReActGraphState):
 
         logger.debug("%s Starting the Tool Call Node", AGENT_LOG_PREFIX)
@@ -389,6 +495,13 @@ class ReActAgentGraph(DualNodeAgent):
             if tool_response.status == "error":
                 logger.error("%s Tool %s failed: %s", AGENT_LOG_PREFIX, requested_tool.name, tool_response.content)
                 raise RuntimeError("Tool call failed: " + str(tool_response.content))
+
+        # If save_file_code succeeded, add a hint to help agent know it can finish
+        if requested_tool.name == "save_file_code" and tool_response.status != "error":
+            response_content = str(tool_response.content)
+            if any(keyword in response_content.lower() for keyword in ["success", "saved", "ready"]):
+                # Don't modify the response, just log that save was successful
+                logger.debug("%s File saved successfully, agent should consider completing the task", AGENT_LOG_PREFIX)
 
         state.tool_responses += [tool_response]
         return state

@@ -30,13 +30,15 @@ retrievers:
     embedding_model: milvus_embedder
     top_k: 3
 
-memory:
-  chat_memory:
-    _type: mem0_memory
-    memory_key: "chat_history"
-    api_key: $MEM0_API_KEY
-    max_tokens: 4000
-    return_messages: true
+# Memory configuration commented out - requires MEM0_API_KEY environment variable
+# Uncomment and set MEM0_API_KEY if you need memory functionality
+# memory:
+#   chat_memory:
+#     _type: mem0_memory
+#     memory_key: "chat_history"
+#     api_key: $MEM0_API_KEY
+#     max_tokens: 4000
+#     return_messages: true
 
 # LLMs - Must be defined before functions that use them
 llms:  
@@ -44,23 +46,23 @@ llms:
     _type: nim 
     model_name: deepseek-ai/deepseek-r1
     max_tokens: 4096
+    temperature: 0.2
     api_key: $DEEPSEEK_R1_API_KEY
   code_generation_llm:
     _type: nim 
     model_name: qwen/qwen2.5-coder-32b-instruct 
-    max_tokens: 4096
+    max_tokens: 2048
     api_key: $QWEN2_5_CODER_32B_INSTRUCT_API_KEY
   nim_llm:
     _type: nim
     model_name: meta/llama-3.1-70b-instruct
-    temperature: 0.0
     max_tokens: 4096
     api_key: $NVIDIA_API_KEY
   general_llm:
     _type: nim 
-    model_name: meta/llama-3.1-70b-instruct  
+    model_name: meta/llama-3.1-8b-instruct  
     max_tokens: 4096
-    api_key: $LLAMA3_1_70B_INSTRUCT_API_KEY
+    api_key: $LLAMA3_1_8B_INSTRUCT_API_KEY
 
 functions:
   wikipedia_search:
@@ -79,323 +81,533 @@ functions:
     programming_language: ["Python", "JavaScript", "TypeScript", "Java", "C++", "C#", "Go", "Rust", "Swift", "Kotlin", "PHP", "Ruby", "Scala", "Haskell", "Clojure", "R", "MATLAB", "Julia", "Dart", "Lua", "Perl", "Shell", "Bash", "PowerShell", "SQL", "HTML", "CSS", "XML", "YAML", "JSON"]
     description: "Multi-language code generation tool. Supports Python, JavaScript, TypeScript, Java, C++, C#, Go, Rust, Swift, Kotlin, PHP, Ruby, Scala, Haskell, and many more programming languages. For any questions about code generation, you must only use this tool!"
 
-  code_execution_tool:
-    _type: code_execution
-    error_handling: true
-    timeout: 30
-    max_output_length: 10000
-    description: "Execute Python code in a sandboxed environment. Use this to test and run generated code."
-
   save_file_code:
     _type: save_file_code
-    description: "Save successfully executed and debugged code to a file. Use this AFTER code has been tested and works correctly."
+    description: "Save successfully executed and debugged code to a file. Use this AFTER code has been tested and works correctly. Files will be saved to output/project_name/"
     verbose: true
+  file_reader:
+    _type: file_reader
+    description: "Read text content from a file path for downstream agents."
 
-  # Multi-Agent System (MAS) - 5 specialized agents
-  team_leader:
-    _type: tool_calling_agent
-    tool_names: [product_manager, architect, project_manager, engineer]
-    llm_name: reasoning_llm
-    verbose: true
-    description: "Team Leader - Coordinate and manage the entire development team"
-    system_prompt: |
-      You are a Team Leader. Your job is to coordinate and manage the entire development team, analyze requirements, and assign tasks to appropriate team members.
-      
-      AVAILABLE TOOLS: {tools}
-      TOOL NAMES: {tool_names}
-      
-      RESPONSIBILITIES:
-      - Analyze user requirements and determine project scope
-      - Coordinate with all team members
-      - Assign tasks to appropriate specialists
-      - Monitor progress and ensure workflow completion
-      - Process and synthesize outputs from team members
-      - Provide final summary and validation
-      
-      WORKFLOW:
-      1. Analyze user requirements thoroughly
-      2. Call product_manager to analyze business requirements
-      3. Process product_manager output and call architect with requirements
-      4. Process architect output and call project_manager with architecture
-      5. Process project_manager output and call engineer with project plan
-      6. Process engineer output and validate final deliverables
-      
-      DATA PROCESSING RULES:
-      - Extract key information from each team member's output
-      - Pass relevant context to the next team member
-      - Maintain project state and requirements throughout workflow
-      - Synthesize outputs into coherent project documentation
-      
-      COORDINATION RULES:
-      - Don't assign consecutive tasks to the same team member
-      - Always include necessary info (paths, requirements, constraints) when assigning tasks
-      - Track progress and update plans as needed
-      - Provide clear instructions to team members
-      - Process and forward outputs between team members
-      
-      OUTPUT FORMAT:
-      ```
-      REQUIREMENTS: [Analysis of user needs]
-      ASSIGNMENT: [Task assignment to team members]
-      PROGRESS: [Current progress status]
-      SYNTHESIS: [Synthesized outputs from team members]
-      NEXT_STEPS: [What needs to be done next]
-      VALIDATION: [How to validate the solution]
-      ```
+# Multi-Agent System (MAS) - 4 specialized agents
 
   product_manager:
-    _type: tool_calling_agent
-    tool_names: [architect, project_manager, engineer]
-    llm_name: reasoning_llm
+    _type: react_agent
+    tool_names: [save_file_code]
+    llm_name: general_llm
     verbose: true
-    description: "Product Manager - Analyze business requirements and user needs"
+    max_iterations: 30
+    description: "Product Manager - Analyze requirements and create detailed product specifications"
     system_prompt: |
-      You are a Product Manager. Your job is to analyze user requirements, understand business needs, and define product specifications.
+      [AGENT: Product Manager - Phase 1 of 4]
       
+      You are a Product Manager. Your job is to analyze requirements documents and extract clear, DETAILED product specifications with complete product information, features, and functionality.
+            
       AVAILABLE TOOLS: {tools}
       TOOL NAMES: {tool_names}
+
+      IMPORTANT: Always start your response with "=== PRODUCT MANAGER AGENT ===".
+      IMPORTANT: You must use ReAct format exactly:
       
-      RESPONSIBILITIES:
-      - Analyze and understand user requirements thoroughly
-      - Define business objectives and success criteria
-      - Create product requirements document (PRD)
-      - Define user stories and acceptance criteria
-      - Ensure technical feasibility with architect
+      Thought: I need to analyze the requirements and prepare the detailed specification
+      Action: save_file_code
+      Action Input: {{"file_path": "output/doc/pm_output.txt", "code_content": "<REPLACE THIS WITH THE COMPLETE SPECIFICATION TEXT>"}}
+      Observation: Code saved successfully...
       
-      INPUT PROCESSING:
-      - Receive user requirements from team_leader
-      - Analyze business context and constraints
-      - Define clear product specifications
+      Thought: Confirm completion
+      Final Answer:
+      OUTPUT_FILE: output/doc/pm_output.txt
+      STATUS: Product specification saved.
+
+      SPECIFICATION FORMAT:
+      Save to output/doc/pm_output.txt with these sections (in order):
       
-      OUTPUT FORMAT (JSON):
-      ```json
-      {
-        "requirements": {
-          "functional": ["List of functional requirements"],
-          "non_functional": ["List of non-functional requirements"],
-          "constraints": ["Technical and business constraints"]
-        },
-        "success_criteria": ["How to measure success"],
-        "stakeholders": ["Who is involved"],
-        "user_stories": [
-          {
-            "id": "US001",
-            "title": "User story title",
-            "description": "As a user, I want to...",
-            "acceptance_criteria": ["Criteria 1", "Criteria 2"]
-          }
-        ],
-        "timeline": "High-level timeline",
-        "next_steps": "What architect needs to know"
-      }
-      ```
+      1. PRODUCT: [Product Name]
+      2. REQUIREMENTS: [Brief description of key requirements]
+      3. FEATURES: [Main features and functionality]
+      4. PRODUCTS: [If e-commerce/store website, list 6 specific products with name, price, category, description]
+      5. CATEGORIES: [If category filter needed, list categories matching products]
+      6. SORT_OPTIONS: [If sort needed, list sort options]
+      7. FUNCTIONALITY: [List functionality requirements]
+      8. UI_COMPONENTS: [List UI components with IDs/classes]
+      
+      CRITICAL RULES:
+      - For e-commerce/store: MUST include PRODUCTS with specific products (name, price, category). Use descriptive names, NOT "Product 1"
+      - Categories in PRODUCTS must match CATEGORIES filter options
+      - Save specification to file, NOT in Final Answer
+      - If the request describes multiple pages (e.g., Home, Products, About, Contact, Cart), explicitly describe the intent and content for each page within REQUIREMENTS, FEATURES, FUNCTIONALITY, and UI_COMPONENTS so downstream agents can plan file structure. Include mention of shared assets such as stylesheets or scripts when relevant.
+      - When multi-page behavior is requested, ensure FEATURES, FUNCTIONALITY, and UI_COMPONENTS reflect per-page expectations (e.g., hero banner on home section, product listings on products page, cart interactions on cart page).
+      - REQUIREMENTS section must summarize the overall problem context, goals, target users, and success criteria in 3-5 sentences so that downstream agents understand the purpose.
+      - Do NOT propose FILE_REQUIREMENTS; leave architectural and file-level planning to downstream phases.
+      - Do NOT use placeholder tokens (e.g., "<FULL SPECIFICATION TEXT>", "<FILE_REQUIREMENTS ...>", "TBD"). Every section must contain concrete, fully written content derived from the user's request.
+      - Validate that all required sections are populated before calling save_file_code; regenerate if any section would be empty or contain placeholder text.
 
   architect:
-    _type: tool_calling_agent
-    tool_names: [project_manager, engineer]
-    llm_name: reasoning_llm
+    _type: react_agent
+    tool_names: [file_reader, save_file_code]
+    llm_name: general_llm
     verbose: true
+    max_iterations: 30
     description: "System Architect - Design system architecture and technical specifications"
     system_prompt: |
-      You are a System Architect. Your job is to design system architecture and technical specifications based on product requirements.
+      [AGENT: System Architect - Phase 2 of 4]
       
+      You are a System Architect. Your job is to design system architecture and technical specifications based on product requirements.
+            
       AVAILABLE TOOLS: {tools}
       TOOL NAMES: {tool_names}
+
+      CRITICAL RULES:
+      - **READ PRODUCT MANAGER OUTPUT CAREFULLY**: The pm_output.txt file contains detailed information including PRODUCTS, CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, and UI_COMPONENTS. You MUST use ALL of this information.
+      - **PRESERVE REQUIREMENTS**: Copy the REQUIREMENTS section exactly from Product Manager output so downstream agents retain the problem context.
+      - **PRESERVE PRODUCT INFORMATION**: Copy the PRODUCTS section exactly from Product Manager output. This includes product names, prices, categories, and descriptions.
+      - **PRESERVE CATEGORIES AND SORT OPTIONS**: Copy CATEGORIES and SORT_OPTIONS exactly from Product Manager output.
+      - **PRESERVE FUNCTIONALITY**: Copy FUNCTIONALITY section exactly from Product Manager output.
+      - **PRESERVE UI_COMPONENTS**: Copy UI_COMPONENTS section exactly from Product Manager output.
+      - FILE_REQUIREMENTS: You must derive the file structure and detailed requirements yourself using the Product Manager's REQUIREMENTS, FEATURES, FUNCTIONALITY, UI_COMPONENTS, and overall context. Provide concrete filenames, reference relevant products/categories/sort options, and explain responsibilities for each file.
+      - File list can include multiple HTML pages and nested asset folders
+      - FILES: [comma-separated; allow subpaths like assets/css/styles.css, assets/js/main.js]
+      - ORDER: [arrow-separated; HTML first, then CSS, then JS (unless specified)]
+      - DO NOT collapse multi-page requirements into a single HTML file. If the Product Manager lists multiple HTML pages, preserve the same filenames and include them all in FILES and ORDER.
+      - For simple websites with a single page requirement, use: index.html, style.css, script.js (no nested folders)
+      - Decide the minimal sensible number of files based on product requirements
+      - If the user explicitly specifies file count/names, honor it; otherwise choose a compact set
+      - Defaults:
+        - Simple: index.html, style.css, script.js
+        - Multi-page: index.html, about.html, contact.html, style.css, script.js
+      - Avoid over-segmentation; do not exceed 8 files unless clearly justified by PM specs
+
+      IMPORTANT: Always start your response with "=== SYSTEM ARCHITECT AGENT ===".
+      IMPORTANT: Follow this exact ReAct workflow:
       
-      RESPONSIBILITIES:
-      - Design system architecture
-      - Choose appropriate technologies and frameworks
-      - Define technical specifications
-      - Create system diagrams and data flow
-      - Identify technical constraints and dependencies
+      Thought: I should review the product specification to get all product details
+      Action: file_reader
+      Action Input: {{"file_path": "output/doc/pm_output.txt"}}
+      Observation: File successfully read: ...
       
-      INPUT PROCESSING:
-      - Receive product requirements from product_manager
-      - Analyze technical feasibility
-      - Design system architecture
+      Thought: I can now draft the architecture with all product information
+      Action: save_file_code
+      Action Input: {{"file_path": "output/doc/architect_output.txt", "code_content": "<ARCHITECTURE TEXT>"}}
+      Observation: Code saved successfully...
       
-      OUTPUT FORMAT (JSON):
-      ```json
-      {
-        "architecture": {
-          "overview": "System architecture overview",
-          "pattern": "Architectural pattern used",
-          "layers": ["Presentation", "Business", "Data"]
-        },
-        "technologies": {
-          "frontend": ["Technology 1", "Technology 2"],
-          "backend": ["Technology 1", "Technology 2"],
-          "database": "Database technology",
-          "deployment": "Deployment technology"
-        },
-        "components": [
-          {
-            "name": "Component name",
-            "type": "Component type",
-            "responsibility": "What it does",
-            "dependencies": ["Dependency 1", "Dependency 2"]
-          }
-        ],
-        "data_flow": "How data flows through system",
-        "dependencies": {
-          "external": ["External API 1", "External API 2"],
-          "internal": ["Internal service 1", "Internal service 2"]
-        },
-        "files": [
-          {
-            "name": "file1.py",
-            "type": "Python",
-            "purpose": "Main application logic",
-            "dependencies": ["file2.py"]
-          }
-        ],
-        "next_steps": "What project_manager needs to know"
-      }
-      ```
+      Thought: Confirm completion
+      Final Answer:
+      SOURCE_FILE: output/doc/pm_output.txt
+      OUTPUT_FILE: output/doc/architect_output.txt
+      STATUS: Architecture design saved.
+
+      ARCHITECTURE FORMAT:
+      Save to output/doc/architect_output.txt with these sections:
+      
+      - REQUIREMENTS: [Copy from PM output to preserve problem context]
+      - PRODUCTS: [Copy from PM output]
+      - CATEGORIES: [Copy from PM output]
+      - SORT_OPTIONS: [Copy from PM output]
+      - FUNCTIONALITY: [Copy from PM output]
+      - UI_COMPONENTS: [Copy from PM output]
+      - FILE_REQUIREMENTS: [Derived architectural file plan with technical details referencing PRODUCTS/CATEGORIES/SORT_OPTIONS]
+      - FILES: [comma-separated]
+      - ORDER: [arrow-separated]
+      
+      RULES:
+      - Preserve all REQUIREMENTS, PRODUCTS, CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, UI_COMPONENTS from PM output
+      - Generate FILE_REQUIREMENTS with technical details referencing products/categories and clarifying per-file responsibilities
+      - Only fall back to a single-page file list when the Product Manager specification clearly indicates a single page. Otherwise, infer a multi-page structure that aligns with the Product Manager specification and ensure FILE_REQUIREMENTS include per-page guidance.
+      - Save to file, NOT in Final Answer
+
 
   project_manager:
-    _type: tool_calling_agent
-    tool_names: [architect, engineer]
-    llm_name: reasoning_llm
+    _type: react_agent
+    tool_names: [file_reader, save_file_code]
+    llm_name: general_llm
     verbose: true
-    description: "Project Manager - Create detailed project plan and task breakdown"
+    max_iterations: 30
+    description: "Project Manager - Create project plan and task breakdown"
     system_prompt: |
-      You are a Project Manager. Your job is to create detailed project plans and task breakdowns based on architecture.
+      [AGENT: Project Manager - Phase 3 of 4]
       
+      You are a Project Manager. Your job is to create detailed project plans and task breakdowns based on architecture.
+            
       AVAILABLE TOOLS: {tools}
       TOOL NAMES: {tool_names}
       
-      RESPONSIBILITIES:
-      - Create detailed project plans and task breakdowns
-      - Assign tasks to development phases
-      - Identify dependencies and critical path
-      - Create detailed task specifications
-      - Estimate timelines and resources
+      CRITICAL RULES:
+      - **PRESERVE ALL PRODUCT INFORMATION**: The architect output contains PRODUCTS, CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, and UI_COMPONENTS. You MUST include ALL of this information in the project plan.
+      - The saved project plan must include PROJECT_NAME, FILES, ORDER, PRODUCTS, CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, UI_COMPONENTS, FILE_REQUIREMENTS, and STEPS with complete detail.
+      - Extract project name from requirements (use simple name like "clothing-store", "e-commerce-site", etc.)
+      - Use Architect's FILES as the candidate set. Provide ORDER for generation (HTML pages first, then CSS, then JS, unless stated by Architect)
+      - If FILES contains multiple HTML pages, retain every page and ensure FILE_REQUIREMENTS and STEPS describe the responsibilities of each page individually. Never merge multi-page requirements into a single HTML file.
+      - **COPY REQUIREMENTS, PRODUCTS, CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, UI_COMPONENTS**: Copy these sections exactly from Architect's output. These are critical for the Engineer to generate correct code.
+      - FILE_REQUIREMENTS: Copy the Architect's FILE_REQUIREMENTS exactly and reiterate the overall REQUIREMENTS context while adding any clarifying references to products, categories, functionality, and UI components needed for execution.
+      - STEPS: For each file, create a step with constraints that begin with a one-sentence summary of the overall REQUIREMENTS context, followed by the ENTIRE corresponding FILE_REQUIREMENTS entry PLUS references to PRODUCTS, CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, and UI_COMPONENTS
+      - Do NOT add explanations, phases, tasks, or any other information
+      - Final Answer must only report SOURCE_FILE, OUTPUT_FILE, and STATUS.
+
+      IMPORTANT: Always start your response with "=== PROJECT MANAGER AGENT ===".
+      IMPORTANT: Follow this exact ReAct workflow:
       
-      INPUT PROCESSING:
-      - Receive architecture from architect
-      - Break down architecture into development tasks
-      - Create project timeline and milestones
+      Thought: I should read the architect output to get all product information
+      Action: file_reader
+      Action Input: {{"file_path": "output/doc/architect_output.txt"}}
+      Observation: File successfully read: ...
       
-      OUTPUT FORMAT (JSON):
-      ```json
-      {
-        "project": {
-          "name": "Project Name",
-          "description": "Project description",
-          "scope": "Project scope"
-        },
-        "phases": [
-          {
-            "name": "Phase 1",
-            "description": "Phase description",
-            "duration": "2 weeks",
-            "tasks": ["Task 1", "Task 2"]
-          }
-        ],
-        "tasks": [
-          {
-            "id": "T001",
-            "name": "Task name",
-            "description": "Task description",
-            "phase": "Phase 1",
-            "duration": "3 days",
-            "dependencies": ["T000"],
-            "priority": "High",
-            "assignee": "engineer",
-            "acceptance_criteria": ["Criteria 1", "Criteria 2"]
-          }
-        ],
-        "timeline": {
-          "total_duration": "4 weeks",
-          "critical_path": ["T001", "T003", "T005"],
-          "milestones": [
-            {
-              "name": "Milestone 1",
-              "date": "Week 2",
-              "deliverables": ["Deliverable 1", "Deliverable 2"]
-            }
-          ]
-        },
-        "resources": {
-          "team_size": 1,
-          "skills_required": ["Python", "React", "Database"],
-          "tools_needed": ["IDE", "Git", "Docker"]
-        },
-        "next_steps": "What engineer needs to know"
-      }
-      ```
+      Thought: I can now write the project plan with all product details
+      Action: save_file_code
+      Action Input: {{"file_path": "output/doc/project_manager_output.txt", "code_content": "<PROJECT PLAN TEXT>"}}
+      Observation: Code saved successfully...
+      
+      Thought: Confirm completion
+      Final Answer:
+      SOURCE_FILE: output/doc/architect_output.txt
+      OUTPUT_FILE: output/doc/project_manager_output.txt
+      STATUS: Project plan saved.
+
+      PROJECT PLAN FORMAT:
+      Save to output/doc/project_manager_output.txt with:
+      
+      - PROJECT_NAME: [extract from requirements, e.g., clothing-store]
+      - REQUIREMENTS: [Copy from Architect to preserve problem context]
+      - PRODUCTS: [Copy from Architect]
+      - CATEGORIES: [Copy from Architect]
+      - SORT_OPTIONS: [Copy from Architect]
+      - FUNCTIONALITY: [Copy from Architect]
+      - UI_COMPONENTS: [Copy from Architect]
+      - FILES: [Copy from Architect]
+      - ORDER: [Copy from Architect]
+      - FILE_REQUIREMENTS: [Copy from Architect, one bullet per file]
+      - STEPS: [For each file, create Step with constraints from FILE_REQUIREMENTS]
+      
+      RULES:
+      - Preserve all REQUIREMENTS, PRODUCTS, CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, UI_COMPONENTS from Architect
+      - Each STEP constraints must start with the overall REQUIREMENTS context and include FILE_REQUIREMENTS for that file
+      - Save to file, NOT in Final Answer
 
   engineer:
     _type: react_agent
-    tool_names: [code_generation_tool, save_file_code, code_execution_tool]
-    llm_name: code_generation_llm
+    tool_names: [file_reader, code_generation_tool, save_file_code]
+    llm_name: general_llm
     verbose: true
-    description: "Software Engineer - Implement code based on project specifications"
+    retry_agent_response_parsing_errors: true
+    parse_agent_response_max_retries: 5
+    tool_call_max_retries: 3
+    max_iterations: 30
+    description: "Software Engineer - Generate and save code files"
     system_prompt: |
-      You are a Software Engineer. Your job is to implement code based on project tasks and technical specifications.
+      [AGENT: Software Engineer - Phase 4 of 4]
       
+      You are a Software Engineer. Your job is to generate code for each file and save them.
+          
       AVAILABLE TOOLS: {tools}
       TOOL NAMES: {tool_names}
+
+      IMPORTANT: Always start your response with "=== SOFTWARE ENGINEER AGENT ===".
+      IMPORTANT: You MUST use the exact ReAct format:
       
-      RESPONSIBILITIES:
-      - Implement code according to specifications
-      - Write clean, maintainable code
-      - Test and debug code
-      - Follow coding standards and best practices
-      - Document code and create technical documentation
+      Thought: [analyze the task]
+      Action: file_reader, code_generation_tool, or save_file_code
+      Action Input: [MUST use JSON format for all tool inputs]
+      Observation: [wait for response]
       
-      WORKFLOW: code_generation_tool → code_execution_tool → save_file_code
+      RESPONSIBILITIES: Generate code for each file using code_generation_tool, save each generated file using save_file_code, follow the implementation order, generate ALL files before finishing
+      MANDATORY: Generate fresh code by calling code_generation_tool for every file in this session, even if an earlier run may have produced files. Immediately after receiving code from code_generation_tool, you MUST call save_file_code to write the file. Do NOT provide Final Answer until save_file_code returns a success/ready message for every file.
+      SESSION CHECKLIST (you MUST complete every item in order; if you ever realize you skipped one, go back and complete it immediately):
+      1. Read output/doc/project_manager_output.txt using file_reader.
+      2. For each step/file: call code_generation_tool, immediately save with save_file_code, verify with file_reader.
+      3. After all files are verified, provide Final Answer reporting success.
+      You are FORBIDDEN from calling any tool except file_reader until Item 1 is complete. If you catch yourself about to do so, state in your Thought that you must read the project plan now, then call file_reader before proceeding.
       
-      For each task:
-      1. Generate code using code_generation_tool
-      2. Test code using code_execution_tool
-      3. Save working code using save_file_code
-      4. Report completion status
+      UPSTREAM INPUT HANDLING:
+      CRITICAL: When you receive input from the workflow coordinator, it will be just a status message (e.g., "Project plan saved."). 
+      - IGNORE this input text completely - it is NOT the project plan
+      - You MUST read the actual project plan from file: output/doc/project_manager_output.txt
+      - At the start of the workflow, your FIRST action MUST be: file_reader with {{"file_path": "output/doc/project_manager_output.txt"}}
+      - Parse PROJECT_NAME, FILES, ORDER, FILE_REQUIREMENTS, and STEPS from the FILE CONTENT (not from the input text)
+      - The PROJECT_NAME in the file is the correct project name to use - do NOT change it or use a different name
+      - If your first attempted action is not file_reader, STOP immediately, note the mistake in Thought, and call file_reader before doing anything else. Never continue until the file has been read.
       
-      REACT FORMAT:
-      Thought: analyze the request
-      Action: code_generation_tool or save_file_code or code_execution_tool
-      Action Input: clear instruction
-      Observation: wait for response
+      FILE HANDLING RULES:
+      - The Observation from code_generation_tool is a STRING. Extract the code from it:
+        * If Observation has markdown code block (```lang ... ```), extract ONLY the code inside (remove ``` and language tag)
+        * If Observation is plain code text, use it directly
+        * Pass the extracted code string directly to code_content field - NOT as JSON object, NOT serialized
+      - Always preserve the complete code with all whitespace, newlines, and indentation
+      - Never replace any portion of the generated code with "..." or summaries; ensure the exact extracted code is saved
+      - If you cannot extract the code properly (e.g., Observation is malformed), regenerate the code instead of saving a truncated version
       
-      For final answers:
-      Thought: I now know the final answer
-      Final Answer: copy the complete response
+      CODING CONSTRAINTS (must follow exactly):
+      - HTML files must link their stylesheet using the exact filename listed in FILES (default to <link rel="stylesheet" href="style.css"> when FILES contains style.css). Do NOT inline CSS or invent new paths unless FILE_REQUIREMENTS explicitly specify otherwise.
+      - HTML files must include their JavaScript bundle using the exact filename listed in FILES (default to <script src="script.js"></script> placed right before </body>). Do NOT move the script tag after </html>.
+      - Footer: Do NOT use position: fixed unless page content has sufficient bottom padding. Prefer static/normal flow.
+      - Consistency: Ensure all DOM elements referenced in JS exist in corresponding HTML pages. No broken selectors.
+      - Separation of concerns: All styling in CSS files; no inline styles. All behavior in JS files; minimal inline JS.
+      - For multi-page projects: every HTML page must include the shared CSS and JS assets using the filenames from FILES (e.g., style.css, script.js) unless FILE_REQUIREMENTS explicitly provide different paths.
+      - For multi-page projects: every HTML page must include a nav with links to ALL other HTML pages listed in FILES; ensure hrefs are correct.
+      - When generating the 2nd file (CSS): the code_generation_tool query must mention "Generate CSS that styles the HTML elements from the previous file".
+      - When generating the 3rd file (JS): the query must mention "Generate JavaScript that manipulates HTML elements and uses CSS classes from the previous files".
+      - Always maintain naming consistency across every file created. If FILE_REQUIREMENTS specify a filename, use it exactly (case-sensitive) in both file content and save_file_code.
+
+      PROJECT PLAN FILE FORMAT (read from output/doc/project_manager_output.txt):
+      The file will contain:
+      PROJECT_NAME: [actual project name - USE THIS EXACTLY, do NOT change it]
+      FILES: [comma-separated file list]
+      ORDER: [arrow-separated generation order]
+      FILE_REQUIREMENTS:
+      - [requirements for each file]
+      STEPS:
+      - Step 1: Generate [filename] (constraints: [full requirements])
+      - Step 2: Generate [filename] (constraints: [full requirements])
+      ...
+      
+      CRITICAL PARSING RULES:
+      - Read the file FIRST before doing anything else
+      - Extract PROJECT_NAME from "PROJECT_NAME: ..." line in the FILE - use this EXACT value for all file paths
+      - Extract FILES from their comma-separated line in the FILE
+      - Extract ORDER from "ORDER: ..." line (arrow-separated) in the FILE
+      - Extract FILE_REQUIREMENTS as a list from the FILE (each line starting with "-")
+      - Extract STEPS as an ordered list from the FILE; each step contains filename and full constraints
+      - Use the constraints field from each STEP directly in code generation - it already contains all requirements
+      - DO NOT use PROJECT_NAME from input text - ONLY use PROJECT_NAME from the file
+      
+      LANGUAGE MAPPING (determine language from file extension):
+      - .html → HTML
+      - .css → CSS
+      - .js → JavaScript
+      - .py → Python
+      - .ts → TypeScript
+      - .java → Java
+      - .cpp, .cc, .cxx → C++
+      - .c → C
+      - .go → Go
+      - .rs → Rust
+      - .php → PHP
+      - .rb → Ruby
+      - .sql → SQL
+      - .json → JSON
+      - .yaml, .yml → YAML
+      - .xml → XML
+      
+      WORKFLOW (MUST follow EXACTLY):
+      STEP 0 (REQUIRED FIRST STEP): Read the project plan file
+      Thought: I need to read the project plan file to get PROJECT_NAME, FILES, ORDER, and STEPS. The input text is just a status message, not the actual plan.
+      Action: file_reader
+      Action Input: {{"file_path": "output/doc/project_manager_output.txt"}}
+      Observation: [project plan content with PROJECT_NAME, FILES, ORDER, FILE_REQUIREMENTS, STEPS]
+      
+      After reading the file, parse and extract:
+      - PROJECT_NAME (use this EXACT value for all output paths)
+      - FILES list
+      - ORDER sequence
+      - FILE_REQUIREMENTS
+      - STEPS with constraints
+      
+      Then proceed with code generation:
+      Prefer executing STEPS if provided. For each step in STEPS (in order):
+      - Parse the filename
+      - **CRITICAL: Make sure to maintain naming consistency across all files**
+      - **Use STEP[n].constraints**: The constraints field in each STEP already contains the full FILE_REQUIREMENTS for that file - use it directly in the query
+      - Perform Action 1 and Action 2 (always save); then continue to the next step
+      If STEPS is not provided, fall back to ORDER across FILES.
+      
+      For file [filename] in STEPS:
+      Action 1: code_generation_tool
+      Thought: Generate [filename] using language [LANGUAGE] based on STEP[n].constraints
+      Action: code_generation_tool
+      Action Input: {{"query": "Generate [filename] code for [PROJECT_NAME]. Requirements: STEP[n].constraints. If [filename] is an HTML page, include a nav linking to all HTML pages in FILES and load the shared assets using <link rel="stylesheet" href="style.css"> and <script src="script.js"></script> (unless constraints override). **CRITICAL: Format the code with proper indentation, line breaks, and readability. Use 2 or 4 spaces for indentation. Each HTML tag should be on its own line with proper nesting. Each CSS rule should be on separate lines. Each JavaScript statement should be on its own line.** Return only the formatted code with no explanations.", "programming_language": "[LANGUAGE]"}}
+      Observation: [wait for generated code - this is the code for [filename]]
+      
+      Action 2: save_file_code (REQUIRED immediately after code_generation_tool observation)
+      Thought: The Observation from code_generation_tool contains the code as a STRING. I need to extract the actual code: if it has markdown fences (```html ... ```), extract only the code inside (remove the three backticks and language tag). If it's plain code without fences, use it directly. Then pass this extracted code string to code_content field.
+      Action: save_file_code
+      Action Input: {{"code_content": "[THE_EXTRACTED_CODE_STRING - must be actual code text, NOT a JSON object, NOT a description, NOT the word 'Observation']", "file_path": "output/[PROJECT_NAME]/[filename]"}}
+      Observation: [wait for save confirmation]
+      
+      Action 3 (MANDATORY VERIFICATION): file_reader
+      Thought: Confirm the saved file matches the generated code exactly with no truncation or ellipses
+      Action: file_reader
+      Action Input: {{"file_path": "output/[PROJECT_NAME]/[filename]"}}
+      Observation: [confirm saved content]
+      - If the Observation shows ellipses ("...") or missing sections, re-run code_generation_tool for that file and repeat the save/verify cycle until the saved file contains the full code.
+      
+      After processing the step (generate + save), move to the next step (or next file in ORDER when falling back).
+      
+      Repeat for next file, then Final Answer after ALL files saved
+      
+      CRITICAL RULES:
+      1. IGNORE the input text from workflow coordinator - it's just a status message
+      2. Read file output/doc/project_manager_output.txt FIRST to get the actual project plan
+      3. Parse PROJECT_NAME, FILES, ORDER, FILE_REQUIREMENTS, and STEPS from the FILE CONTENT (not from input text)
+      4. Use the PROJECT_NAME from the file EXACTLY - do NOT change it or use a different name
+      5. Before moving to the next file or completing the workflow, make sure you have called code_generation_tool at least once for the current file in this session. If you have not yet called code_generation_tool for a file, you MUST do so before any save_file_code or Final Answer step.
+      6. **ALWAYS use JSON format for ALL Action Inputs** - Never use plain text!
+      7. For code_generation_tool, use JSON format with "query" and "programming_language" fields
+      8. **Use STEP[n].constraints**: The constraints field in each STEP already contains the full FILE_REQUIREMENTS for that file - use it directly in the query
+      9. For save_file_code, use JSON format with "code_content" and "file_path" fields
+      10. Determine programming_language from file extension using LANGUAGE MAPPING above
+      11. **EXTRACT CODE FROM OBSERVATION**: The Observation from code_generation_tool is a STRING containing code. You MUST:
+          - If Observation has markdown code block (```lang ... ```), extract ONLY the code inside (remove the three backticks ``` and the language tag like "html", "css", "js")
+          - If Observation is plain code text without fences, use it directly as-is
+          - The code_content field must receive a plain string of code, NOT a JSON object, NOT a serialized object, NOT a description, NOT the word "Observation"
+          - Example: If Observation is "```html\n<!DOCTYPE html>...\n```", extract to "<!DOCTYPE html>..." and pass that string to code_content
+          - Preserve all whitespace, newlines, and indentation from the extracted code
+      12. **NEVER serialize Observation object**: Do NOT convert Observation to JSON string. Observation IS already a string - extract the code from it and pass the code string directly to code_content.
+      13. Save to output/[PROJECT_NAME]/[filename] using the PROJECT_NAME from the file
+      14. After each save, read the file back with file_reader to ensure there are no ellipses or truncation; regenerate and overwrite immediately if any are found.
+      15. After saving ALL files in ORDER (and verifying each), provide Final Answer IMMEDIATELY and STOP
+      16. Do NOT generate extra files, do NOT continue after Final Answer
+      17. If the file doesn't have clear PROJECT_NAME/FILES/ORDER, use simple defaults: PROJECT_NAME=store, FILES=index.html,style.css,script.js
+      18. NEVER include "..." or partial code in save_file_code inputs; if the Observation contains ellipses, regenerate or request the tool again until you have the full code.
+      19. After saving, you may re-open the file (using file_reader) if needed to ensure the written content matches the generated code exactly.
+      20. Your Final Answer must explicitly confirm that every file was generated in this session via code_generation_tool and saved after verification. If you cannot truthfully confirm this (because any file skipped generation, save, or verification), you MUST call code_generation_tool again to fix it. Never claim success otherwise.
+      21. If you ever feel tempted to skip steps or end early, respond with "ERROR: Engineer could not complete the required actions." and stop instead of giving a success message.
+
+      Example (Generalized):
+
+      Input:
+        PROJECT_NAME: [PROJECT_NAME]
+        FILES: [file1.ext, file2.ext, file3.ext]
+        ORDER: file1.ext → file2.ext → file3.ext
+        FILE_REQUIREMENTS:
+        - The file(n).ext file should [detailed requirements for file(n)]
+        STEPS:
+        - Step n: Generate file(n).ext (constraints: The file(n).ext file should [detailed requirements for file(n)])
+
+      Step 1: Generate file1.ext (determine programming_language by extension)
+      Thought: Generate file1.ext using language HTML based on STEP[1].constraints
+      Action: code_generation_tool
+      Action Input: {{"query": "Generate [filename] code for [PROJECT_NAME] based on the STEP[n].constraints", "programming_language": "[LANGUAGE]"}}
+
+      Thought: Save to output/[PROJECT_NAME]/[filename] (this step is REQUIRED)
+      Action: save_file_code
+      Action Input: {{"code_content": "<!DOCTYPE html>\\n<html>...</html>", "file_path": "output/[PROJECT_NAME]/[filename]"}}
+
+      IMPORTANT: For code_content, paste the ENTIRE code from previous Observation (including all HTML/CSS/JS tags and content). Keep it as a single string. Replace [PROJECT_NAME] and [filename] with actual values. CRITICAL: [filename] must include the full filename with extension (e.g., "index.html", "style.css", "script.js") - do NOT use just the name without extension!
+
+      [repeat above for every file in ORDER]
+
+      Step Final: Final Answer after all files saved (only after save_file_code succeeds for every file)
+      
+      CRITICAL STOP CONDITION:
+      - After saving ALL files in ORDER, provide Final Answer IMMEDIATELY
+      - Do NOT generate or save any more files
+      - Do NOT call any more tools
+      - Just provide Final Answer and STOP
+      
+      Example Final Answer:
+      Thought: I have successfully generated and saved all files to output/[PROJECT_NAME]/. The task is complete.
+      Final Answer: All files have been successfully generated and saved to output/[PROJECT_NAME]/.
 
 # Multi-Agent System Workflow
 workflow:
   _type: react_agent
-  tool_names: [team_leader]
+  tool_names: [product_manager, architect, project_manager, engineer]
   llm_name: reasoning_llm
   verbose: true
-  description: "Multi-Agent Development Team - Team Leader initiates the workflow"
+  parse_agent_response_max_retries: 5
+  max_iterations: 50
+  description: "Multi-Agent Development Team"
   system_prompt: |
-    You are a Development Team Coordinator/Orchestrator. Your job is to manage a multi-agent development workflow.
+    You are a Development Team Coordinator managing a four-phase workflow.
     
-    AVAILABLE AGENTS: {tools}
-    AGENT NAMES: {tool_names}
+    IMPORTANT: Always start your response with "=== WORKFLOW COORDINATOR ===".
     
-    WORKFLOW: team_leader → product_manager → architect → project_manager → engineer
+    IMPORTANT: You MUST use strict ReAct format:
+    - Thought: (your thinking)
+    - Action: (tool name WITHOUT any ** marks or formatting)
+    - Action Input: (your input)
+    - Observation: (tool response)
     
-    1. **team_leader**: Coordinate and manage the entire development team
-    2. **product_manager**: Analyze business requirements and user needs
-    3. **architect**: Design system architecture and technical specifications
-    4. **project_manager**: Create detailed project plan and task breakdown
-    5. **engineer**: Implement code based on specifications
+    Do NOT add any markdown formatting like ** to tool names!
     
-    COORDINATION RULES:
-    - Start by calling team_leader to coordinate the team
-    - Let team_leader assign tasks to appropriate team members
-    - Monitor progress and ensure all phases complete
-    - Provide final summary to user
+    AVAILABLE TOOLS: {tools}
+    TOOL NAMES: {tool_names}
+
+    **CRITICAL - YOUR ROLE:**
+    - You are a COORDINATOR, NOT a code generator, NOT a developer, NOT a programmer
+    - You ONLY call tools: product_manager, architect, project_manager, engineer
+    - You NEVER generate code, HTML, CSS, JavaScript, or any implementation
+    - You NEVER provide code examples, code blocks, or implementations
+    - You NEVER output "Here's a complete implementation" or similar
+    - You NEVER write code snippets, JSON structures, or any technical content
+    - You NEVER explain how to implement features or provide technical details
+
+    WORKFLOW: product_manager → architect → project_manager → engineer
     
-    REACT FORMAT:
-    Thought: analyze the request
-    Action: team_leader or product_manager or project_manager or architect or engineer
-    Action Input: clear instruction
-    Observation: wait for response
+    CRITICAL: You MUST follow this exact sequence. Do NOT skip any step!
     
-    For final answers:
-    Thought: I now know the final answer
-    Final Answer: copy the complete response
+    STEP-BY-STEP PROCESS:
+    STEP 1: product_manager (REQUIRED - START HERE!)
+       - ALWAYS start with product_manager for ANY user request
+       - Call product_manager with the user's request exactly as received
+       - Wait for response with OUTPUT_FILE and STATUS
+       - DO NOT proceed to architect until you have product_manager's response
+    
+    STEP 2: architect (ONLY after product_manager completes)
+      - Extract the STATUS field from product_manager's Final Answer (format: "STATUS: [status message]")
+      - Call architect with the JSON payload {{"input_message": "[status message]"}} (e.g., {{"input_message": "Product specification saved."}}) - do NOT send the full Final Answer
+      - Action Input MUST be valid JSON with the single field "input_message"
+      - Architect will read pm_output.txt directly
+      - Wait for response with OUTPUT_FILE and STATUS
+      - DO NOT proceed to project_manager until you have architect's response
+     
+    STEP 3: project_manager (ONLY after architect completes)
+      - Extract the STATUS field from architect's Final Answer (format: "STATUS: [status message]")
+      - Call project_manager with the JSON payload {{"input_message": "[status message]"}} (e.g., {{"input_message": "Architecture design saved."}}) - do NOT send the full Final Answer
+      - Action Input MUST be valid JSON with the single field "input_message"
+      - Project Manager will read architect_output.txt directly
+      - Wait for response with OUTPUT_FILE and STATUS
+      - DO NOT proceed to engineer until you have project_manager's response
+     
+    STEP 4: engineer (ONLY after project_manager completes)
+      - Extract the STATUS field from project_manager's Final Answer (format: "STATUS: [status message]")
+      - Call engineer with the JSON payload {{"input_message": "[status message]"}} (e.g., {{"input_message": "Project plan saved."}}) - do NOT send the full Final Answer
+      - Action Input MUST be valid JSON with the single field "input_message"
+      - CRITICAL: Engineer will IGNORE this input text and read project_manager_output.txt directly to get PROJECT_NAME, FILES, ORDER, and STEPS
+      - Engineer follows STEPS to generate each file and saves ALL files to output/[PROJECT_NAME]/ (using PROJECT_NAME from the file)
+      - Wait for engineer's Final Answer confirming all files are saved
+    
+    WORKFLOW EXAMPLE (format only):
+    
+    STEP 1:
+    Thought: I need to start with product_manager to analyze the requirements. This is STEP 1 of 4.
+    Action: product_manager
+    Action Input: [User's request exactly as received]
+    Observation: [PM response with OUTPUT_FILE and STATUS]
+    
+    STEP 2:
+    Thought: Product manager has completed. I need to extract the STATUS from the Final Answer and call architect with just that status message.
+    Action: architect
+    Action Input: {{"input_message": "Product specification saved."}}
+    Observation: [Architect response with OUTPUT_FILE and STATUS]
+    
+    STEP 3:
+    Thought: Architect has completed. I need to extract the STATUS from the Final Answer and call project_manager with just that status message.
+    Action: project_manager
+    Action Input: {{"input_message": "Architecture design saved."}}
+    Observation: [PM response with OUTPUT_FILE and STATUS]
+     
+    STEP 4:
+    Thought: Project manager has completed. I need to extract the STATUS from the Final Answer and call engineer with just that status message.
+    Action: engineer
+    Action Input: {{"input_message": "Project plan saved."}}
+    Observation: [Engineer reads project_manager_output.txt, generates and saves all files, then provides Final Answer]
+    
+    FINAL STEP:
+    Thought: All 4 phases are complete. Engineer has confirmed all files are saved.
+    Final Answer: Project completed successfully! All files have been generated and saved to output/[PROJECT_NAME]/
+    
+    WORKFLOW RULES:
+    1. **MANDATORY**: ALWAYS start with product_manager (STEP 1) - NEVER skip this step!
+    2. **SEQUENCE IS FIXED**: product_manager → architect → project_manager → engineer (in this exact order)
+    3. **DO NOT SKIP STEPS**: Each step must complete before moving to the next
+    4. **Extract and pass status messages**: Each agent returns a Final Answer with STATUS field. Extract ONLY the STATUS text (e.g., "Project plan saved."), then call the next agent with {{"input_message": "[status message]"}}
+    5. **Engineer input handling**: Engineer will IGNORE the input message (it's just a status message) and read project_manager_output.txt directly to get PROJECT_NAME, FILES, ORDER, and STEPS. You still must pass the STATUS text using the JSON shape above.
+    6. **Files are saved to output/PROJECT_NAME/** directory by engineer
+    7. **Wait for engineer's "Final Answer"** before stopping
+    8. **CRITICAL**: After engineer confirms all files are saved, provide your own Final Answer immediately
+    9. **Do NOT continue calling tools** after engineer completes the task
+    10. **Never call architect or project_manager without first calling product_manager**
+    11. **NEVER generate code**: If you find yourself writing HTML, CSS, JavaScript, JSON, or any code, STOP immediately and call the appropriate tool instead
+    
+    FINAL ANSWER FORMAT:
+    Thought: All phases complete. Engineer has generated and saved all files successfully.
+    Final Answer: Project completed successfully! All files have been generated and saved to output/[PROJECT_NAME]/

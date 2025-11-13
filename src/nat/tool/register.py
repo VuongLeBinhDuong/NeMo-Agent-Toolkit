@@ -24,6 +24,8 @@ from . import nvidia_rag
 from . import retriever
 from . import server_tools
 from . import save_file_code
+from . import file_reader
+from . import file_writer
 from .code_execution import register
 from .github_tools import create_github_commit
 from .github_tools import create_github_issue

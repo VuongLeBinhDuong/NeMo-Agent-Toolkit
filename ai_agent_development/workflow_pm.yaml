@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+general:
+  use_uvloop: true
+
+llms:
+  general_llm:
+    _type: nim
+    model_name: meta/llama-3.1-8b-instruct
+    max_tokens: 4096
+    api_key: $LLAMA3_1_8B_INSTRUCT_API_KEY
+
+functions:
+  save_file_code:
+    _type: save_file_code
+    description: "Save successfully executed and debugged code to a file. Use this AFTER code has been tested and works correctly. Files will be saved to output/project_name/"
+    verbose: true
+  product_manager:
+    _type: react_agent
+    tool_names: [save_file_code]
+    llm_name: general_llm
+    verbose: true
+    max_iterations: 30
+    description: "Product Manager - Analyze requirements and create detailed product specifications"
+    system_prompt: |
+      Product Manager persona for MAS workflow. Coordinator will supply detailed instructions.
+      AVAILABLE TOOLS: {tools}
+      TOOL NAMES: {tool_names}
+
+workflow:
+  _type: nat_mas_agents/product_manager_phase
+  product_manager: product_manager
+

@@ -1,0 +1,23 @@
+Create a food store homepage: header (logo/menu/search/cart with count + total), hero (banner + CTA), 8-product grid “Add to Cart”. Plain HTML/CSS/JS only; hardcode products in HTML; search by name, category filter (All/BBQ/Stir-fry/Soup/Dessert), sort (popular/price asc/desc), responsive layout, add “HOT/NEW” badges on product cards.
+
+Create a simple clothing store homepage — include header (logo/menu/search/cart with count+subtotal), hero section, and a 6‑product grid with “Add to Cart”. Use plain HTML/CSS/JS only (no libraries), products hardcoded in HTML; include search by name, category filter (All/Men/Women/Kids), and sort (featured/price asc/desc), responsive layout.
+
+Prompt 1 – Tech Gadget Store
+
+Create a tech gadget store homepage that includes a header (logo, menu, search bar, and cart with count and subtotal), a hero banner with a CTA, and a 9-product grid featuring phones, tablets, and laptops. Each product should have an image, name, description, price, and an “Add to Cart” button. Use only HTML, CSS, and vanilla JS, and hardcode the products directly in HTML. Add filtering by category (All/Phone/Tablet/Laptop), sorting (featured/price asc/price desc), and a live search by name. Include badges like “SALE” or “NEW” on selected items. The layout must be responsive and adjust from 3-column to 1-column on small screens.
+
+Prompt 2 – Organic Grocery Shop
+
+Build a modern organic grocery homepage using plain HTML/CSS/JS only. It should include a sticky header with the store logo, navigation links, a live search bar, and a cart summary showing total items and cost. The hero section should display a wide banner promoting “Fresh & Local” products with a “Shop Now” button. Below it, create a product grid of 10 items (categories: Fruits, Vegetables, Beverages, Bakery). Add a dropdown to filter by category, another dropdown to sort by price or popularity, and a toggle to show only “Discounted” items. When users click “Add to Cart,” update the cart count and total instantly. The design should be fully responsive and have a clean, eco-themed aesthetic.
+
+Prompt 3 – Home Decor & Furniture Store
+
+Design a home decor and furniture store landing page using pure HTML, CSS, and JavaScript (no libraries). Include a header (logo, navigation menu, search bar, category filter, cart counter), a large hero image with a promotional message, and a responsive grid displaying 12 furniture/decor products. Each card must show an image, product name, price, and an “Add to Cart” button. Implement client-side filtering by type (All/Furniture/Lighting/Decor) and sorting options (popular, price ascending, price descending). Add “HOT” and “TRENDING” badges on select items. Ensure that the product grid adapts for desktop, tablet, and mobile layouts, with smooth hover effects.
+
+Prompt 4 – Online Pet Supply Store
+
+Create a pet supply shop homepage using HTML, CSS, and JavaScript (no frameworks). It should have a top bar with logo, menu, search input, and a cart indicator showing count and total cost. The hero section should have a full-width banner featuring “Everything for Your Pet” with a CTA button. Below, make a responsive grid of 8 products (categories: Dog, Cat, Bird, Fish). Each product card should include an image, name, price, description, and “Add to Cart” button. Allow users to filter products by category, search by keyword, and sort by featured or price. Show “NEW” or “BESTSELLER” tags on some cards. The layout should be clean, mobile-friendly, and visually warm (using soft tones).
+
+Prompt 5 – Fashion & Accessories Marketplace
+
+Build a fashion marketplace homepage combining clothing and accessories. The page must include a fixed header (brand logo, menu items, search bar, category selector, and cart summary with live updates), a hero section with an image carousel and call-to-action buttons, and a 12-product gallery showing items like shirts, dresses, shoes, and bags. Implement category filters (All/Men/Women/Accessories), search by name, sorting by newest or price, and an interactive “Add to Cart” function updating count + subtotal dynamically. Mark certain products with “HOT” or “NEW” labels. Use plain HTML, CSS, and JavaScript only — no libraries — and make the layout fully responsive across devices.
