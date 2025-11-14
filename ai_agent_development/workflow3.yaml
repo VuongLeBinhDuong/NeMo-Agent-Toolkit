@@ -94,53 +94,94 @@ functions:
   product_manager:
     _type: react_agent
     tool_names: [save_file_code]
-    llm_name: general_llm
+    llm_name: nim_llm
     verbose: true
+    retry_agent_response_parsing_errors: true
+    parse_agent_response_max_retries: 3
+    tool_call_max_retries: 2
     max_iterations: 30
     description: "Product Manager - Analyze requirements and create detailed product specifications"
     system_prompt: |
       Product Manager persona for MAS workflow. Coordinator will supply detailed instructions.
       AVAILABLE TOOLS: {tools}
       TOOL NAMES: {tool_names}
+      QUALITY GUARDRAILS:
+        - Provide specific, measurable success criteria and delivery timelines.
+        - Align PRODUCTS, CATEGORIES, and SORT_OPTIONS exactly with customer requirements.
+        - Never use placeholder items ("Product 1") or omit shared header/footer/cart constraints.
 
   architect:
     _type: react_agent
     tool_names: [file_reader, save_file_code]
-    llm_name: general_llm
+    llm_name: nim_llm
     verbose: true
+    retry_agent_response_parsing_errors: true
+    parse_agent_response_max_retries: 3
+    tool_call_max_retries: 2
     max_iterations: 30
     description: "System Architect - Design system architecture and technical specifications"
     system_prompt: |
       System Architect persona for MAS workflow. Coordinator will supply detailed instructions.
       AVAILABLE TOOLS: {tools}
       TOOL NAMES: {tool_names}
+      QUALITY GUARDRAILS:
+        - Copy REQUIREMENTS/PRODUCTS/CATEGORIES/SORT_OPTIONS verbatim from the PM content.
+        - FILE_REQUIREMENTS must list per-file responsibilities plus shared header/footer/cart assets.
+        - Explicitly state that HTML must link shared styles.css/script.js and forbid inline CSS/JS.
 
   project_manager:
     _type: react_agent
     tool_names: [file_reader, save_file_code]
-    llm_name: general_llm
+    llm_name: nim_llm
     verbose: true
+    retry_agent_response_parsing_errors: true
+    parse_agent_response_max_retries: 3
+    tool_call_max_retries: 2
     max_iterations: 30
     description: "Project Manager - Create project plan and task breakdown"
     system_prompt: |
       Project Manager persona for MAS workflow. Coordinator will supply detailed instructions.
       AVAILABLE TOOLS: {tools}
       TOOL NAMES: {tool_names}
+      QUALITY GUARDRAILS:
+        - STEPS must restate the overall context plus the exact FILE_REQUIREMENTS bullet for that file.
+        - Reference shared assets (header, footer, nav, cart, styles.css, script.js) wherever applicable.
+        - Ensure each constraint is a full sentence with concrete expectations (no generic restatements).
 
   engineer:
     _type: react_agent
     tool_names: [file_reader, code_generation_tool, save_file_code]
-    llm_name: general_llm
+    llm_name: nim_llm
     verbose: true
     retry_agent_response_parsing_errors: true
     parse_agent_response_max_retries: 5
-    tool_call_max_retries: 3
+    tool_call_max_retries: 3  
     max_iterations: 30
     description: "Software Engineer - Generate and save code files"
     system_prompt: |
       Software Engineer persona for MAS workflow. Coordinator will supply detailed instructions.
       AVAILABLE TOOLS: {tools}
       TOOL NAMES: {tool_names}
+
+  tester:
+    _type: react_agent
+    tool_names: [file_reader, save_file_code]
+    llm_name: nim_llm
+    verbose: true
+    retry_agent_response_parsing_errors: true
+    parse_agent_response_max_retries: 3
+    tool_call_max_retries: 2
+    max_iterations: 30
+    description: "QA Tester - Validate generated artifacts and report findings"
+    system_prompt: |
+      QA Tester persona for MAS workflow. Coordinator will supply detailed instructions.
+      AVAILABLE TOOLS: {tools}
+      TOOL NAMES: {tool_names}
+      QUALITY GUARDRAILS:
+        - Use file_reader on every artifact referenced (HTML, CSS, JS, docs) before making assertions.
+        - Record findings with explicit severity labels and cite the requirement being verified.
+        - If a required artifact is missing or unreadable, mark it as High severity immediately.
+        - Conclude with clear PASS/FAIL language in SIGN_OFF.
 
   # Phase functions that wrap agents and handle file I/O
   product_manager_phase:
@@ -158,6 +199,10 @@ functions:
   engineer_phase:
     _type: nat_mas_agents/engineer_phase
     engineer: engineer
+    
+  tester_phase:
+    _type: nat_mas_agents/tester_phase
+    tester: tester
 
 # Multi-Agent System Workflow
 workflow:
@@ -167,3 +212,4 @@ workflow:
   architect: architect_phase
   project_manager: project_manager_phase
   engineer: engineer_phase
+  tester: tester_phase

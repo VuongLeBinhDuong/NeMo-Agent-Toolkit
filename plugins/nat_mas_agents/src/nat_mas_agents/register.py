@@ -11,6 +11,7 @@ from . import product_manager_phase
 from . import architect_phase
 from . import project_manager_phase
 from . import engineer_phase
+from . import tester_phase
 
 logger = logging.getLogger(__name__)
 

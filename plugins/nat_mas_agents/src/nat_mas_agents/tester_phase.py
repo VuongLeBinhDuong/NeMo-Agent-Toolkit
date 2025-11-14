@@ -13,15 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Coordinator that orchestrates the MAS multi-agent workflow via Python."""
+"""MAS workflow tester phase implementation."""
 
 import logging
 import re
 import textwrap
 from pathlib import Path
 from typing import Awaitable, Callable
-
-from pydantic import BaseModel, Field
 
 from nat.builder.builder import Builder
 from nat.builder.function_info import FunctionInfo
@@ -30,55 +28,50 @@ from nat.data_models.component_ref import FunctionRef
 from nat.data_models.function import FunctionBaseConfig
 
 
-ARCHITECT_BRIEF = """
-=== SYSTEM ARCHITECT BRIEF ===
-You are Phase 2 System Architect. You MUST follow strict ReAct format:
+TESTER_BRIEF = """
+=== QA TESTER BRIEF ===
+You are Phase 5 QA Tester. You MUST follow strict ReAct format:
 
-Thought: describe reasoning and the files to be created (plain text, no JSON)
+Thought: describe reasoning, which files you will inspect, and what validations you will run (plain text, no JSON)
 Action: save_file_code
-Action Input: {{"file_path": "output/doc/architect_output.txt", "code_content": "<FULL ARCHITECTURE DOCUMENT>"}}
+Action Input: {{"file_path": "output/doc/tester_output.txt", "code_content": "<FULL QA REPORT>"}}
 Observation: Success message from tool (verbatim, no edits)
 Thought: Confirm completion
 Final Answer:
-OUTPUT_FILE: output/doc/architect_output.txt
-STATUS: Architecture design saved.
+OUTPUT_FILE: output/doc/tester_output.txt
+STATUS: Test report saved.
 
 Hard requirements:
 - Call save_file_code exactly once.
 - Action Input MUST be valid JSON with double-quoted keys/values, no trailing commas, no Markdown fences.
-- Replace <FULL ARCHITECTURE DOCUMENT> with the complete architecture body (no placeholders).
-- The files to be created are reasoned by the architect in the Thought section.
+- Replace <FULL QA REPORT> with the complete QA report body (no placeholders).
+- Use file_reader to inspect any artifact referenced in the report; call it separately per file.
+- If a file cannot be found/read, explicitly flag it as a High severity finding.
 - After the Observation from save_file_code, immediately provide the Final Answer block exactly as shown.
-- Do NOT output the architecture document as plain text anywhere else and do not include PREVIOUS_STATUS.
 
-Architecture body must include sections in order:
-REQUIREMENTS: (paste verbatim from EXTRACTED_PM_CONTENT)
-PRODUCTS: (paste verbatim from EXTRACTED_PM_CONTENT)
-CATEGORIES: (paste verbatim from EXTRACTED_PM_CONTENT)
-SORT_OPTIONS: (paste verbatim from EXTRACTED_PM_CONTENT)
-FUNCTIONALITY: (paste verbatim from EXTRACTED_PM_CONTENT)
-UI_COMPONENTS: (paste verbatim from EXTRACTED_PM_CONTENT)
-SHARED_COMPONENTS: (paste verbatim from EXTRACTED_PM_CONTENT - must include header with search bar and cart section)
-SHARED_ASSETS: (list shared files/resources such as global stylesheets, scripts, data sources if needed)
-FILE_REQUIREMENTS: (derive per-file responsibilities with DETAILED requirements; one bullet per file. CRITICAL: For HTML files, specify that products must be hardcoded directly in HTML (not loaded from JSON). For header component, specify it must include: logo, menu/nav links, search bar input field, cart section with item count display and subtotal display. For script.js, specify it must implement: filtering by category, sorting by options, live search functionality, localStorage cart operations (add, remove, update quantity), add to cart button handlers, quantity controls, total calculations, cart display updates. For styles.css, specify responsive product grid that adjusts from 3 columns to 1 column on mobile.)
-FILES: (comma-separated list of files that will be generated)
-ORDER: (arrow-separated order in which files should be produced)
+QA report body must include sections in order:
+PROJECT_NAME:
+SCOPE: (summarize what was tested, including directories and key requirements covered)
+VERIFICATIONS: (bullet list describing each verification performed; reference requirement IDs or sections)
+FINDINGS: (bullet list, format "Severity [High|Medium|Low] - description - Impact/Recommendation")
+RECOMMENDATIONS: (bullet list of concrete follow-up actions)
+SIGN_OFF: (one sentence concluding pass/fail status)
 """
 
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_AGENT_STATUSES = {
-    "product_manager": "Product specification saved",
-    "architect": "Architecture design saved",
-    "project_manager": "Project plan saved",
+    "engineer": "Code generation completed",
+    "tester": "Test report saved",
 }
 
 
-class MASWorkflowArchitectPhaseConfig(FunctionBaseConfig, name="architect_phase"):
-    """Configuration for the MAS workflow architect phase."""
+class MASWorkflowTesterPhaseConfig(FunctionBaseConfig, name="tester_phase"):
+    """Configuration for the MAS workflow tester phase."""
 
-    architect: FunctionRef
+    tester: FunctionRef
+
 
 def _extract_status(agent_name: str, output_text: str) -> str:
     """Extract STATUS line from an agent's output."""
@@ -160,76 +153,97 @@ def _extract_content_from_file_reader_response(response: str) -> str:
     """Extract actual content from file_reader response."""
     content_marker = "Content:"
     content_idx = response.find(content_marker)
-    
+
     if content_idx == -1:
         logger.warning("No 'Content:' marker found in file_reader response, returning as-is")
         return response
-    
-    # Extract everything after "Content:" and the newline
-    extracted = response[content_idx + len(content_marker):].lstrip('\n\r')
-    logger.info(f'Successfully extracted content (length: {len(extracted)} chars)')
+
+    extracted = response[content_idx + len(content_marker) :].lstrip("\n\r")
+    logger.info("Successfully extracted content (length: %s chars)", len(extracted))
     return extracted
 
 
-@register_function(config_type=MASWorkflowArchitectPhaseConfig)
-async def mas_architect_phase(config: MASWorkflowArchitectPhaseConfig, builder: Builder):
-    """Register the MAS workflow architect phase as a NAT function."""
+def _extract_project_name(content: str) -> str:
+    """Extract PROJECT_NAME from project manager content."""
+    for line in content.splitlines():
+        if line.strip().startswith("PROJECT_NAME:"):
+            name = line.split(":", 1)[1].strip()
+            if name:
+                return name
+    return "project_output"
 
-    architect_fn = builder.get_function(config.architect)
-    
-    # Get file_reader tool
+
+@register_function(config_type=MASWorkflowTesterPhaseConfig)
+async def mas_tester_phase(config: MASWorkflowTesterPhaseConfig, builder: Builder):
+    """Register the MAS workflow tester phase as a NAT function."""
+
+    tester_fn = builder.get_function(config.tester)
+
     try:
         file_reader_fn = builder.get_function("file_reader")
-    except Exception as e:
-        logger.warning(f"Could not get file_reader function: {e}. Will let agent handle file reading.")
+    except Exception as exc:  # pragma: no cover - defensive logging
+        logger.warning("Could not get file_reader function: %s. QA agent must read files manually.", exc)
         file_reader_fn = None
 
     async def _response_fn(user_request: str) -> str:
-        logger.info("Starting MAS workflow for request: %s", user_request)
+        logger.info("Starting QA tester phase for request: %s", user_request)
 
-        # STEP 1: Read PM spec file
-        pm_file_path = "output/doc/pm_output.txt"
+        # STEP 1: Read project manager output file for context
+        pm_file_path = "output/doc/project_manager_output.txt"
         pm_content = None
-        
+
         if file_reader_fn:
             try:
-                logger.info(f"Step 1: Reading PM spec from {pm_file_path}")
+                logger.info("Reading project manager content from %s", pm_file_path)
                 from nat.tool.file_reader import FileReaderInput
+
                 file_reader_input = FileReaderInput(file_path=pm_file_path)
                 file_reader_response = await file_reader_fn.ainvoke(file_reader_input)
-                
-                # STEP 2: Extract content from file_reader response
-                logger.info("Step 2: Extracting content from file_reader response")
+
                 pm_content = _extract_content_from_file_reader_response(file_reader_response)
-                logger.info(f"Extracted PM content (length: {len(pm_content)} chars)")
-            except Exception as e:
-                logger.warning(f"Error reading PM file directly: {e}. Will let agent handle it.")
+            except Exception as exc:  # pragma: no cover - defensive logging
+                logger.warning("Error reading project manager file directly: %s. Agent must load file manually.", exc)
                 pm_content = None
         else:
-            logger.info("file_reader not available, will let agent handle file reading")
+            logger.info("file_reader not available, tester agent must load project_manager_output.txt manually.")
 
-        # STEP 3: Invoke architect with extracted content
-        logger.info("Step 3: Invoking architect agent")
-        
+        project_name = _extract_project_name(pm_content or "")
+        artifacts_dir = f"output/{project_name}"
+
+        tester_message = [
+            TESTER_BRIEF.strip(),
+            "",
+            f"PREVIOUS_STATUS: {DEFAULT_AGENT_STATUSES['engineer']}",
+            f"PROJECT_ARTIFACTS_DIR: {artifacts_dir}",
+            "IMPORTANT:",
+            "- Use file_reader to inspect any artifacts inside the directory above.",
+            "- Verify requirements, categories, filters, shared header/footer, and cart behaviors.",
+            "- If artifacts_dir does not exist, document it as a High severity finding.",
+        ]
+
         if pm_content:
-            # Include extracted content in the brief
-            architect_message = (
-                f"{ARCHITECT_BRIEF.strip()}\n\n"
-                f"PREVIOUS_STATUS: {DEFAULT_AGENT_STATUSES['product_manager']}\n\n"
-                f"EXTRACTED_PM_CONTENT:\n{pm_content}\n\n"
-                "IMPORTANT: Use the EXTRACTED_PM_CONTENT above to extract sections. "
+            tester_message.extend(
+                [
+                    "",
+                    "EXTRACTED_PROJECT_MANAGER_CONTENT:",
+                    pm_content,
+                ]
             )
         else:
-            # Fallback to original behavior
-            architect_message = (
-                f"{ARCHITECT_BRIEF.strip()}\n\nPREVIOUS_STATUS: {DEFAULT_AGENT_STATUSES['product_manager']}"
-                "\nRemember to load output/doc/pm_output.txt before drafting the architecture."
+            tester_message.extend(
+                [
+                    "",
+                    "Unable to inline project manager content. Load output/doc/project_manager_output.txt before testing.",
+                ]
             )
-        
-        architect_output = await _invoke_agent("architect", architect_fn.ainvoke, architect_message)
-        architect_status = _extract_status("architect", architect_output)
 
-        logger.info("MAS workflow completed; returning architect output")
-        return architect_output
+        tester_payload = "\n".join(tester_message)
+
+        tester_output = await _invoke_agent("tester", tester_fn.ainvoke, tester_payload)
+        tester_status = _extract_status("tester", tester_output)
+
+        logger.info("QA tester phase completed with status: %s", tester_status)
+        return tester_output
 
     yield FunctionInfo.create(single_fn=_response_fn)
+

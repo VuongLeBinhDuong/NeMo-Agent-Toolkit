@@ -44,26 +44,25 @@ Hard requirements:
 - Call save_file_code exactly once.
 - Action Input MUST be valid JSON with double-quoted keys/values, no trailing commas, no Markdown fences.
 - Replace <FULL PROJECT PLAN> with the complete project plan body (no placeholders).
+- The constraints are reasoned by the project manager in the Thought section.
 - After the Observation from save_file_code, immediately provide the Final Answer block exactly as shown.
 - Do NOT output the project plan as plain text anywhere else.
 
 Project plan body must include sections in order:
 PROJECT_NAME: (short slug derived from requirements, lowercase, hyphen separated)
 REQUIREMENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-PRODUCTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-CATEGORIES: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-SORT_OPTIONS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-FUNCTIONALITY: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-UI_COMPONENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
+SHARED_COMPONENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
+SHARED_ASSETS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
 FILES: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
 ORDER: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
 FILE_REQUIREMENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-STEPS: (one entry per file in numeric order. CRITICAL: Each step must be on a separate line. Format: "Step N: [filename]" followed by " Constraints: [constraints text]" on the same line. Each step should be on its own line, not all steps on one line. The constraints should contain (1) one-sentence restatement of overall REQUIREMENTS context, (2) the exact FILE_REQUIREMENTS bullet, and (3) explicit references to relevant PRODUCTS/CATEGORIES/SORT_OPTIONS/FUNCTIONALITY/UI_COMPONENTS. Use plain sentences, no JSON)
+STEPS: (one entry per file in numeric order. CRITICAL: Each step must be on a separate line. Format: "Step N: [filename]" followed by " Constraints: [constraints text]" on the same line. The constraints should contain (1) one-sentence restatement of overall REQUIREMENTS context, (2) the exact FILE_REQUIREMENTS bullet with ALL details, (3) explicit references to relevant PRODUCTS (list actual product names/prices from PRODUCTS section), CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, UI_COMPONENTS, and (4) for HTML files: specify that products must be hardcoded directly in the HTML (not loaded from JSON), list the actual products to include, for header: specify it must include search bar input and cart section with item count and subtotal, for script.js: specify it must implement filtering, sorting, search, localStorage cart operations, add to cart, quantity controls, totals. Use plain sentences, no JSON)
 Example format:
 STEPS:
-Step 1: index.html Constraints: [full constraints text here]
-Step 2: styles.css Constraints: [full constraints text here]
-Step 3: app.js Constraints: [full constraints text here]
+Step 1: filename1 Constraints: [full constraints text here]
+Step 2: filename2 Constraints: [full constraints text here]
+Step 3: filename3 Constraints: [full constraints text here]
+...
 """
 
 logger = logging.getLogger(__name__)

@@ -155,6 +155,11 @@ Hard requirements:
 - Use STEP[n].constraints directly in code generation - it already contains all FILE_REQUIREMENTS for that file.
 - Extract PROJECT_NAME from EXTRACTED_PROJECT_MANAGER_CONTENT and use this EXACT value for all file paths - do NOT change it.
 - Always maintain naming consistency across every file created. If FILE_REQUIREMENTS specify a filename, use it exactly (case-sensitive) in both file content and save_file_code.
+- Honor PAGE_REQUIREMENTS, SUCCESS_CRITERIA, SHARED_COMPONENTS, SHARED_ASSETS, and FILE_REQUIREMENTS sections: ensure each file implements its page-level requirements, reuses shared components/assets, and meets the success criteria.
+- CRITICAL: For HTML files with products, products MUST be hardcoded directly in the HTML markup (not loaded from JSON or dynamically). Use the actual product names, prices, categories, and descriptions from the PRODUCTS section in constraints.
+- CRITICAL: For header component in all HTML files, it MUST include: (1) logo/brand name, (2) navigation menu with links to all pages, (3) search bar input field (e.g., <input type="text" id="search-input" placeholder="Search...">), (4) cart section showing item count (e.g., <span id="cart-count">0</span> items) and subtotal (e.g., <span id="cart-subtotal">$0.00</span>).
+- CRITICAL: For script.js, it MUST implement: (1) category filtering functionality, (2) sorting by price/name options, (3) live search that filters products as user types, (4) localStorage operations for cart (getItem, setItem, removeItem), (5) add to cart button event handlers, (6) quantity increase/decrease controls, (7) total price calculations, (8) cart display updates (item count and subtotal in header), (9) cart page functionality (load from localStorage, display items, update quantities, calculate totals).
+- CRITICAL: For styles.css, it MUST include responsive product grid that displays 3 columns on desktop and 1 column on mobile (use CSS Grid or Flexbox with media queries).
 - Action Inputs MUST be valid JSON with double-quoted keys/values, no trailing commas, no Markdown fences.
 - Replace placeholders ([filename], [PROJECT_NAME], [FULL STEP CONSTRAINTS], [LANGUAGE], [EXTRACTED CODE]) with real values.
 - Action Input must be inline JSON with proper double quotes, no ```json``` fences.

@@ -51,15 +51,20 @@ Specification body (save to file) must include sections in order:
 PRODUCT:
 REQUIREMENTS: (3-5 sentences covering context, goals, users, success criteria)
 FEATURES: (bullet list)
-PRODUCTS: (items with name, price, category, description; categories must match filters)
-CATEGORIES:
-SORT_OPTIONS:
-FUNCTIONALITY: (bullet list of behavioural requirements)
-UI_COMPONENTS: (bullet list with identifiers/classes)
+PRODUCTS: (CRITICAL: List at least 6-10 real products with specific names, exact prices, categories, and detailed descriptions. Format: "Product Name: $XX.XX, Category Name, Full description text". Products must be hardcoded directly in HTML, not loaded from JSON.)
+CATEGORIES: (list all unique categories from PRODUCTS above)
+SORT_OPTIONS: (list sorting options like "Price: Low to High", "Price: High to Low", "Name: A to Z", etc.)
+FUNCTIONALITY: (bullet list of behavioural requirements including: products hardcoded in HTML, localStorage for cart, filtering, sorting, search, etc.)
+UI_COMPONENTS: (bullet list with identifiers/classes including: header with logo/menu/search/cart, footer, product cards, etc.)
+PAGE_REQUIREMENTS: (bullet list of per-page requirements with specific details)
+SUCCESS_CRITERIA: (bullet list of measurable outcomes/KPIs)
+SHARED_COMPONENTS: (bullet list including: responsive header with logo, menu, search bar, cart section showing item count and subtotal, footer)
 
 Additional rules:
-- Never use placeholder text (TBD, lorem ipsum, etc.).
-- Ensure PRODUCTS, CATEGORIES, SORT_OPTIONS align.
+- Never use placeholder text (TBD, lorem ipsum, "Product 1", "Product 2", etc.). Use real product names and details.
+- Ensure PRODUCTS, CATEGORIES, SORT_OPTIONS align perfectly.
+- CRITICAL: Products must be hardcoded directly in HTML files, not loaded dynamically from JSON. This is a hard requirement.
+- SHARED_COMPONENTS must explicitly mention: header with search bar and cart section (item count + subtotal).
 - Output spec only via save_file_code (not in Final Answer).
 - Write the specification as plain text (no JSON/object literals). Use "- " for bullet items and separate sections with a blank line.
 - Keep all tool JSON inline (no ``` fences or extra formatting).

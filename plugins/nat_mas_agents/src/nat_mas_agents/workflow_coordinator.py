@@ -18,6 +18,7 @@
 import logging
 import re
 import textwrap
+import time
 from pathlib import Path
 from typing import Awaitable, Callable
 
@@ -51,15 +52,20 @@ Specification body (save to file) must include sections in order:
 PRODUCT:
 REQUIREMENTS: (3-5 sentences covering context, goals, users, success criteria)
 FEATURES: (bullet list)
-PRODUCTS: (items with name, price, category, description; categories must match filters)
-CATEGORIES:
-SORT_OPTIONS:
-FUNCTIONALITY: (bullet list of behavioural requirements)
-UI_COMPONENTS: (bullet list with identifiers/classes)
+PRODUCTS: (CRITICAL: List at least 6-10 real products with specific names, exact prices, categories, and detailed descriptions. Format: "Product Name: $XX.XX, Category Name, Full description text". Products must be hardcoded directly in HTML, not loaded from JSON.)
+CATEGORIES: (list all unique categories from PRODUCTS above)
+SORT_OPTIONS: (list sorting options like "Price: Low to High", "Price: High to Low", "Name: A to Z", etc.)
+FUNCTIONALITY: (bullet list of behavioural requirements including: products hardcoded in HTML, localStorage for cart, filtering, sorting, search, etc.)
+UI_COMPONENTS: (bullet list with identifiers/classes including: header with logo/menu/search/cart, footer, product cards, etc.)
+PAGE_REQUIREMENTS: (bullet list of per-page requirements with specific details)
+SUCCESS_CRITERIA: (bullet list of measurable outcomes/KPIs)
+SHARED_COMPONENTS: (bullet list including: responsive header with logo, menu, search bar, cart section showing item count and subtotal, footer)
 
 Additional rules:
-- Never use placeholder text (TBD, lorem ipsum, etc.).
-- Ensure PRODUCTS, CATEGORIES, SORT_OPTIONS align.
+- Never use placeholder text (TBD, lorem ipsum, "Product 1", "Product 2", etc.). Use real product names and details.
+- Ensure PRODUCTS, CATEGORIES, SORT_OPTIONS align perfectly.
+- CRITICAL: Products must be hardcoded directly in HTML files, not loaded dynamically from JSON. This is a hard requirement.
+- SHARED_COMPONENTS must explicitly mention: header with search bar and cart section (item count + subtotal).
 - Output spec only via save_file_code (not in Final Answer).
 - Write the specification as plain text (no JSON/object literals). Use "- " for bullet items and separate sections with a blank line.
 - Keep all tool JSON inline (no ``` fences or extra formatting).
@@ -69,7 +75,7 @@ ARCHITECT_BRIEF = """
 === SYSTEM ARCHITECT BRIEF ===
 You are Phase 2 System Architect. You MUST follow strict ReAct format:
 
-Thought: describe reasoning (plain text, no JSON)
+Thought: describe reasoning and the files to be created (plain text, no JSON)
 Action: save_file_code
 Action Input: {{"file_path": "output/doc/architect_output.txt", "code_content": "<FULL ARCHITECTURE DOCUMENT>"}}
 Observation: Success message from tool (verbatim, no edits)
@@ -82,6 +88,7 @@ Hard requirements:
 - Call save_file_code exactly once.
 - Action Input MUST be valid JSON with double-quoted keys/values, no trailing commas, no Markdown fences.
 - Replace <FULL ARCHITECTURE DOCUMENT> with the complete architecture body (no placeholders).
+- The files to be created are reasoned by the architect in the Thought section.
 - After the Observation from save_file_code, immediately provide the Final Answer block exactly as shown.
 - Do NOT output the architecture document as plain text anywhere else and do not include PREVIOUS_STATUS.
 
@@ -92,9 +99,11 @@ CATEGORIES: (paste verbatim from EXTRACTED_PM_CONTENT)
 SORT_OPTIONS: (paste verbatim from EXTRACTED_PM_CONTENT)
 FUNCTIONALITY: (paste verbatim from EXTRACTED_PM_CONTENT)
 UI_COMPONENTS: (paste verbatim from EXTRACTED_PM_CONTENT)
-FILE_REQUIREMENTS: (derive per-file responsibilities, use "- " bullets)
-FILES: (comma-separated list, e.g. "index.html, styles.css, app.js")
-ORDER: (arrow-separated, e.g. "index.html -> styles.css -> app.js")
+SHARED_COMPONENTS: (paste verbatim from EXTRACTED_PM_CONTENT - must include header with search bar and cart section)
+SHARED_ASSETS: (list shared files/resources such as global stylesheets, scripts, data sources if needed)
+FILE_REQUIREMENTS: (derive per-file responsibilities with DETAILED requirements; one bullet per file. CRITICAL: For HTML files, specify that products must be hardcoded directly in HTML (not loaded from JSON). For header component, specify it must include: logo, menu/nav links, search bar input field, cart section with item count display and subtotal display. For script.js, specify it must implement: filtering by category, sorting by options, live search functionality, localStorage cart operations (add, remove, update quantity), add to cart button handlers, quantity controls, total calculations, cart display updates. For styles.css, specify responsive product grid that adjusts from 3 columns to 1 column on mobile.)
+FILES: (comma-separated list of files that will be generated)
+ORDER: (arrow-separated order in which files should be produced)
 """
 
 PROJECT_MANAGER_BRIEF = """
@@ -114,26 +123,25 @@ Hard requirements:
 - Call save_file_code exactly once.
 - Action Input MUST be valid JSON with double-quoted keys/values, no trailing commas, no Markdown fences.
 - Replace <FULL PROJECT PLAN> with the complete project plan body (no placeholders).
+- The constraints are reasoned by the project manager in the Thought section.
 - After the Observation from save_file_code, immediately provide the Final Answer block exactly as shown.
 - Do NOT output the project plan as plain text anywhere else.
 
 Project plan body must include sections in order:
 PROJECT_NAME: (short slug derived from requirements, lowercase, hyphen separated)
 REQUIREMENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-PRODUCTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-CATEGORIES: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-SORT_OPTIONS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-FUNCTIONALITY: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-UI_COMPONENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
+SHARED_COMPONENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
+SHARED_ASSETS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
 FILES: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
 ORDER: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
 FILE_REQUIREMENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-STEPS: (one entry per file in numeric order. CRITICAL: Each step must be on a separate line. Format: "Step N: [filename]" followed by " Constraints: [constraints text]" on the same line. Each step should be on its own line, not all steps on one line. The constraints should contain (1) one-sentence restatement of overall REQUIREMENTS context, (2) the exact FILE_REQUIREMENTS bullet, and (3) explicit references to relevant PRODUCTS/CATEGORIES/SORT_OPTIONS/FUNCTIONALITY/UI_COMPONENTS. Use plain sentences, no JSON)
+STEPS: (one entry per file in numeric order. CRITICAL: Each step must be on a separate line. Format: "Step N: [filename]" followed by " Constraints: [constraints text]" on the same line. The constraints should contain (1) one-sentence restatement of overall REQUIREMENTS context, (2) the exact FILE_REQUIREMENTS bullet with ALL details, (3) explicit references to relevant PRODUCTS (list actual product names/prices from PRODUCTS section), CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, UI_COMPONENTS, and (4) for HTML files: specify that products must be hardcoded directly in the HTML (not loaded from JSON), list the actual products to include, for header: specify it must include search bar input and cart section with item count and subtotal, for script.js: specify it must implement filtering, sorting, search, localStorage cart operations, add to cart, quantity controls, totals. Use plain sentences, no JSON)
 Example format:
 STEPS:
-Step 1: index.html Constraints: [full constraints text here]
-Step 2: styles.css Constraints: [full constraints text here]
-Step 3: app.js Constraints: [full constraints text here]
+Step 1: filename1 Constraints: [full constraints text here]
+Step 2: filename2 Constraints: [full constraints text here]
+Step 3: filename3 Constraints: [full constraints text here]
+...
 """
 
 ENGINEER_BRIEF = """
@@ -164,6 +172,11 @@ Hard requirements:
 - Use STEP[n].constraints directly in code generation - it already contains all FILE_REQUIREMENTS for that file.
 - Extract PROJECT_NAME from EXTRACTED_PROJECT_MANAGER_CONTENT and use this EXACT value for all file paths - do NOT change it.
 - Always maintain naming consistency across every file created. If FILE_REQUIREMENTS specify a filename, use it exactly (case-sensitive) in both file content and save_file_code.
+- Honor PAGE_REQUIREMENTS, SUCCESS_CRITERIA, SHARED_COMPONENTS, SHARED_ASSETS, and FILE_REQUIREMENTS sections: ensure each file implements its page-level requirements, reuses shared components/assets, and meets the success criteria.
+- CRITICAL: For HTML files with products, products MUST be hardcoded directly in the HTML markup (not loaded from JSON or dynamically). Use the actual product names, prices, categories, and descriptions from the PRODUCTS section in constraints.
+- CRITICAL: For header component in all HTML files, it MUST include: (1) logo/brand name, (2) navigation menu with links to all pages, (3) search bar input field (e.g., <input type="text" id="search-input" placeholder="Search...">), (4) cart section showing item count (e.g., <span id="cart-count">0</span> items) and subtotal (e.g., <span id="cart-subtotal">$0.00</span>).
+- CRITICAL: For script.js, it MUST implement: (1) category filtering functionality, (2) sorting by price/name options, (3) live search that filters products as user types, (4) localStorage operations for cart (getItem, setItem, removeItem), (5) add to cart button event handlers, (6) quantity increase/decrease controls, (7) total price calculations, (8) cart display updates (item count and subtotal in header), (9) cart page functionality (load from localStorage, display items, update quantities, calculate totals).
+- CRITICAL: For styles.css, it MUST include responsive product grid that displays 3 columns on desktop and 1 column on mobile (use CSS Grid or Flexbox with media queries).
 - Action Inputs MUST be valid JSON with double-quoted keys/values, no trailing commas, no Markdown fences.
 - Replace placeholders ([filename], [PROJECT_NAME], [FULL STEP CONSTRAINTS], [LANGUAGE], [EXTRACTED CODE]) with real values.
 - Action Input must be inline JSON with proper double quotes, no ```json``` fences.
@@ -224,6 +237,64 @@ DEFAULT_AGENT_STATUSES = {
     "product_manager": "Product specification saved",
     "architect": "Architecture design saved",
     "project_manager": "Project plan saved",
+    "engineer": "Code generation completed",
+    "tester": "Test report saved",
+}
+
+DOC_VALIDATIONS = {
+    "product_manager": {
+        "file_path": Path("output/doc/pm_output.txt"),
+        "required_sections": [
+            "PRODUCT",
+            "REQUIREMENTS",
+            "FEATURES",
+            "PRODUCTS",
+            "CATEGORIES",
+            "SORT_OPTIONS",
+            "FUNCTIONALITY",
+            "UI_COMPONENTS",
+            "PAGE_REQUIREMENTS",
+            "SUCCESS_CRITERIA",
+            "SHARED_COMPONENTS",
+        ],
+    },
+    "architect": {
+        "file_path": Path("output/doc/architect_output.txt"),
+        "required_sections": [
+            "REQUIREMENTS",
+            "FUNCTIONALITY",
+            "UI_COMPONENTS",
+            "SHARED_COMPONENTS",
+            "SHARED_ASSETS",
+            "FILES",
+            "ORDER",
+            "FILE_REQUIREMENTS",
+        ],
+    },
+    "project_manager": {
+        "file_path": Path("output/doc/project_manager_output.txt"),
+        "required_sections": [
+            "PROJECT_NAME",
+            "REQUIREMENTS",
+            "SHARED_COMPONENTS",
+            "SHARED_ASSETS",
+            "FILES",
+            "ORDER",
+            "FILE_REQUIREMENTS",
+            "STEPS",
+        ],
+    },
+    "tester": {
+        "file_path": Path("output/doc/tester_output.txt"),
+        "required_sections": [
+            "PROJECT_NAME",
+            "SCOPE",
+            "VERIFICATIONS",
+            "FINDINGS",
+            "RECOMMENDATIONS",
+            "SIGN_OFF",
+        ],
+    },
 }
 
 
@@ -234,6 +305,7 @@ class MASWorkflowConfig(FunctionBaseConfig, name="mas_workflow"):
     architect: FunctionRef
     project_manager: FunctionRef
     engineer: FunctionRef
+    tester: FunctionRef
 
 
 def _extract_status(agent_name: str, output_text: str) -> str:
@@ -305,11 +377,44 @@ async def _invoke_agent(
     payload: str,
 ) -> str:
     """Invoke an agent tool and return its string output."""
+    start_time = time.time()
+    logger.info("Calling %s agent (payload length: %d chars)...", agent_name, len(payload))
+    
+    try:
+        result = await agent_call(payload)
+        elapsed_time = time.time() - start_time
+        logger.info("%s agent completed in %.2f seconds", agent_name, elapsed_time)
+        
+        if not isinstance(result, str):
+            raise TypeError(f"Expected {agent_name} output to be a string")
+        logger.info("%s agent returned output (length: %d chars)", agent_name, len(result))
+        return result
+    except Exception as e:
+        elapsed_time = time.time() - start_time
+        logger.error("%s agent failed after %.2f seconds: %s", agent_name, elapsed_time, e, exc_info=True)
+        raise
 
-    result = await agent_call(payload)
-    if not isinstance(result, str):
-        raise TypeError(f"Expected {agent_name} output to be a string")
-    return result
+
+def _validate_document(agent_name: str):
+    """Ensure required sections exist in the agent's saved document."""
+
+    validation = DOC_VALIDATIONS.get(agent_name)
+    if not validation:
+        return
+
+    file_path: Path = validation["file_path"]
+    if not file_path.exists():
+        raise FileNotFoundError(f"{agent_name} expected output file missing: {file_path}")
+
+    content = file_path.read_text(encoding="utf-8")
+    missing_sections = [
+        section for section in validation["required_sections"] if f"{section}:" not in content
+    ]
+    if missing_sections:
+        raise ValueError(
+            f"{agent_name} output missing required sections: {', '.join(missing_sections)}"
+        )
+    logger.debug("Validated %s document at %s", agent_name, file_path)
 
 
 @register_function(config_type=MASWorkflowConfig)
@@ -329,6 +434,7 @@ async def mas_workflow(config: MASWorkflowConfig, builder: Builder):
     architect_phase_fn = builder.get_function(config.architect)
     project_manager_phase_fn = builder.get_function(config.project_manager)
     engineer_phase_fn = builder.get_function(config.engineer)
+    tester_phase_fn = builder.get_function(config.tester)
 
     async def _response_fn(user_request: str) -> str:
         logger.info("Starting MAS workflow for request: %s", user_request)
@@ -336,24 +442,128 @@ async def mas_workflow(config: MASWorkflowConfig, builder: Builder):
         # Phase 1: Product Manager - uses user_request directly
         logger.info("Phase 1: Invoking product_manager_phase")
         pm_output = await product_manager_phase_fn.ainvoke(user_request)
-        pm_status = _extract_status("product_manager", pm_output)
-        logger.info("Product manager phase completed with status: %s", pm_status)
+        try:
+            pm_status = _extract_status("product_manager", pm_output)
+            logger.info("Product manager phase completed with status: %s", pm_status)
+        except ValueError as e:
+            logger.warning("Could not extract product manager status: %s. Continuing to next phase anyway.", e)
+            pm_status = "Product specification saved (status extraction failed)"
+        _validate_document("product_manager")
 
         # Phase 2: Architect - reads pm_output.txt automatically
         logger.info("Phase 2: Invoking architect_phase")
-        architect_output = await architect_phase_fn.ainvoke("")  # user_request ignored, reads file instead
-        architect_status = _extract_status("architect", architect_output)
-        logger.info("Architect phase completed with status: %s", architect_status)
+        phase2_start = time.time()
+        architect_output: str = ""
+        try:
+            architect_output = await architect_phase_fn.ainvoke("")  # user_request ignored, reads file instead
+            phase2_elapsed = time.time() - phase2_start
+            logger.info("Phase 2 (architect_phase) completed in %.2f seconds", phase2_elapsed)
+        except ValueError as e:
+            phase2_elapsed = time.time() - phase2_start
+            if "STATUS line" in str(e):
+                logger.warning(
+                    "Architect phase raised ValueError about STATUS line after %.2f seconds: %s. "
+                    "Assuming file was saved and continuing.",
+                    phase2_elapsed,
+                    e,
+                )
+                architect_status = "Architecture design saved (status extraction failed)"
+            else:
+                logger.error(
+                    "Phase 2 (architect_phase) failed after %.2f seconds with unexpected ValueError: %s",
+                    phase2_elapsed,
+                    e,
+                    exc_info=True,
+                )
+                raise
+        else:
+            try:
+                architect_status = _extract_status("architect", architect_output)
+                logger.info("Architect phase completed with status: %s", architect_status)
+            except ValueError as e:
+                logger.warning("Could not extract architect status: %s. Continuing to next phase anyway.", e)
+                architect_status = "Architecture design saved (status extraction failed)"
+        _validate_document("architect")
 
         # Phase 3: Project Manager - reads architect_output.txt automatically
         logger.info("Phase 3: Invoking project_manager_phase")
-        project_manager_output = await project_manager_phase_fn.ainvoke("")  # user_request ignored, reads file instead
-        project_manager_status = _extract_status("project_manager", project_manager_output)
-        logger.info("Project manager phase completed with status: %s", project_manager_status)
+        phase3_start = time.time()
+        project_manager_output: str = ""
+        try:
+            project_manager_output = await project_manager_phase_fn.ainvoke("")
+            phase3_elapsed = time.time() - phase3_start
+            logger.info("Phase 3 (project_manager_phase) completed in %.2f seconds", phase3_elapsed)
+        except ValueError as e:
+            phase3_elapsed = time.time() - phase3_start
+            if "STATUS line" in str(e):
+                logger.warning(
+                    "Project manager phase raised ValueError about STATUS line after %.2f seconds: %s. "
+                    "Assuming file was saved and continuing.",
+                    phase3_elapsed,
+                    e,
+                )
+                project_manager_status = "Project plan saved (status extraction failed)"
+            else:
+                logger.error(
+                    "Phase 3 (project_manager_phase) failed after %.2f seconds: %s",
+                    phase3_elapsed,
+                    e,
+                    exc_info=True,
+                )
+                raise
+        else:
+            try:
+                project_manager_status = _extract_status("project_manager", project_manager_output)
+                logger.info("Project manager phase completed with status: %s", project_manager_status)
+            except ValueError as e:
+                logger.warning("Could not extract project manager status: %s. Continuing to next phase anyway.", e)
+                project_manager_status = "Project plan saved (status extraction failed)"
+        _validate_document("project_manager")
 
         # Phase 4: Engineer - reads project_manager_output.txt automatically
         logger.info("Phase 4: Invoking engineer_phase")
-        engineer_output = await engineer_phase_fn.ainvoke("")  # user_request ignored, reads file instead
+        engineer_start = time.time()
+        engineer_output = await engineer_phase_fn.ainvoke("") 
+        engineer_elapsed = time.time() - engineer_start
+        logger.info("Phase 4 (engineer_phase) completed in %.2f seconds", engineer_elapsed)
+
+        # # Phase 5: Tester - validates generated deliverables
+        # logger.info("Phase 5: Invoking tester_phase")
+        # phase5_start = time.time()
+        # tester_output: str = ""
+        # try:
+        #     tester_output = await tester_phase_fn.ainvoke("")
+        #     phase5_elapsed = time.time() - phase5_start
+        #     logger.info("Phase 5 (tester_phase) completed in %.2f seconds", phase5_elapsed)
+        # except ValueError as e:
+        #     phase5_elapsed = time.time() - phase5_start
+        #     if "STATUS line" in str(e):
+        #         logger.warning(
+        #             "Tester phase raised ValueError about STATUS line after %.2f seconds: %s. "
+        #             "Assuming file was saved and continuing.",
+        #             phase5_elapsed,
+        #             e,
+        #         )
+        #         tester_status = "Test report saved (status extraction failed)"
+        #     else:
+        #         logger.error(
+        #             "Phase 5 (tester_phase) failed after %.2f seconds: %s",
+        #             phase5_elapsed,
+        #             e,
+        #             exc_info=True,
+        #         )
+        #         raise
+        # else:
+        #     try:
+        #         tester_status = _extract_status("tester", tester_output)
+        #         logger.info("Tester phase completed with status: %s", tester_status)
+        #     except ValueError as e:
+        #         logger.warning("Could not extract tester status: %s. Returning output anyway.", e)
+        #         tester_status = "Test report saved (status extraction failed)"
+        # _validate_document("tester")
+
+        # logger.info("MAS workflow completed; returning tester output")
+        # return tester_output
 
         logger.info("MAS workflow completed; returning engineer output")
         return engineer_output
