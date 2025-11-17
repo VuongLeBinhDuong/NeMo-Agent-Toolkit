@@ -27,7 +27,14 @@ from nat.cli.register_workflow import register_function
 from nat.data_models.component_ref import FunctionRef
 from nat.data_models.function import FunctionBaseConfig
 
-PRODUCT_MANAGER_BRIEF = """
+from .sop_templates import get_sop_summary
+
+
+def _get_product_manager_brief() -> str:
+    """Get product manager brief with SOP templates included."""
+    sop_summary = get_sop_summary()
+    
+    return f"""
 === PRODUCT MANAGER BRIEF ===
 You are Phase 1 Product Manager. You MUST follow strict ReAct format:
 
@@ -60,15 +67,22 @@ PAGE_REQUIREMENTS: (bullet list of per-page requirements with specific details)
 SUCCESS_CRITERIA: (bullet list of measurable outcomes/KPIs)
 SHARED_COMPONENTS: (bullet list including: responsive header with logo, menu, search bar, cart section showing item count and subtotal, footer)
 
+{sop_summary}
+
+CRITICAL: When specifying SHARED_COMPONENTS, reference the SOP templates above for default behaviors.
+The system has standardized implementations for header, footer, cart, filter, sort, and search components.
+
 Additional rules:
 - Never use placeholder text (TBD, lorem ipsum, "Product 1", "Product 2", etc.). Use real product names and details.
 - Ensure PRODUCTS, CATEGORIES, SORT_OPTIONS align perfectly.
 - CRITICAL: Products must be hardcoded directly in HTML files, not loaded dynamically from JSON. This is a hard requirement.
-- SHARED_COMPONENTS must explicitly mention: header with search bar and cart section (item count + subtotal).
+- SHARED_COMPONENTS must explicitly mention: header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal) as per HEADER SOP.
 - Output spec only via save_file_code (not in Final Answer).
 - Write the specification as plain text (no JSON/object literals). Use "- " for bullet items and separate sections with a blank line.
 - Keep all tool JSON inline (no ``` fences or extra formatting).
 """
+
+PRODUCT_MANAGER_BRIEF = _get_product_manager_brief()
 
 logger = logging.getLogger(__name__)
 
@@ -173,9 +187,21 @@ async def mas_product_manager_phase(config: MASWorkflowProductManagerPhaseConfig
             f"{PRODUCT_MANAGER_BRIEF.strip()}\n\nUSER_REQUIREMENT:\n{user_request.strip()}"
         )
         pm_output = await _invoke_agent("product_manager", product_manager_fn.ainvoke, product_manager_message)
-        pm_status = _extract_status("product_manager", pm_output)
-
-        logger.info("MAS workflow completed; returning product manager output with status: %s", pm_status)
+        
+        # Log output for debugging if status extraction fails
+        try:
+            pm_status = _extract_status("product_manager", pm_output)
+            logger.info("MAS workflow completed; returning product manager output with status: %s", pm_status)
+        except ValueError as e:
+            logger.error("Failed to extract STATUS from product_manager output. Output length: %d", len(pm_output))
+            logger.debug("Product manager output (first 500 chars): %s", pm_output[:500])
+            # Try to recover by checking if file was saved
+            if "output/doc/pm_output.txt" in pm_output or "pm_output.txt" in pm_output:
+                logger.warning("File reference found in output, assuming success")
+                pm_status = DEFAULT_AGENT_STATUSES.get("product_manager", "Product specification saved")
+            else:
+                raise
+        
         return pm_output
 
     yield FunctionInfo.create(single_fn=_response_fn)

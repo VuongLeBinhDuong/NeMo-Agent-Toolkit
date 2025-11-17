@@ -12,8 +12,26 @@ from . import architect_phase
 from . import project_manager_phase
 from . import engineer_phase
 from . import tester_phase
+from . import integrator_phase
 
 logger = logging.getLogger(__name__)
+
+# Explicitly import registered functions to ensure decorators execute
+# This helps catch any import errors and ensures registration happens
+try:
+    from .engineer_phase import mas_engineer_phase  # noqa: F401
+except Exception as e:
+    logger.warning(f"Could not import mas_engineer_phase: {e}")
+
+try:
+    from .tester_phase import mas_tester_phase  # noqa: F401
+except Exception as e:
+    logger.warning(f"Could not import mas_tester_phase: {e}")
+
+try:
+    from .integrator_phase import mas_integrator_phase  # noqa: F401
+except Exception as e:
+    logger.warning(f"Could not import mas_integrator_phase: {e}")
 
 
 class MASProductManagerConfig(FunctionBaseConfig, name="mas_product_manager"):

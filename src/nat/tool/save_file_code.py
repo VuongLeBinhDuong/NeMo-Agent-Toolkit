@@ -16,6 +16,7 @@
 import json
 import logging
 import os
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -63,15 +64,74 @@ class SaveFileCodeInput(BaseModel):
 
             if isinstance(code_content, str):
                 stripped_content = code_content.strip()
+                
+                # Try to parse as JSON first (handles escaped JSON strings)
                 if stripped_content.startswith("{") and stripped_content.endswith("}"):
+                    # Try multiple parsing strategies for nested JSON
+                    nested_data = None
+                    
+                    # Strategy 1: Direct JSON parse
                     try:
                         nested_data = json.loads(stripped_content)
                     except json.JSONDecodeError:
-                        nested_data = None
+                        pass
+                    
+                    # Strategy 2: Try parsing after unescaping once
+                    if not nested_data:
+                        try:
+                            unescaped = stripped_content.replace('\\"', '"').replace('\\n', '\n')
+                            nested_data = json.loads(unescaped)
+                        except (json.JSONDecodeError, ValueError):
+                            pass
+                    
+                    # Strategy 3: Try to extract using regex (for malformed JSON)
+                    if not nested_data:
+                        # Match pattern: {"file_path": "...", "code_content": "..."}
+                        # This regex handles escaped quotes in the content
+                        pattern = r'^\s*\{\s*"file_path"\s*:\s*"((?:[^"\\]|\\.)*)"\s*,\s*"code_content"\s*:\s*"((?:[^"\\]|\\.)*)"\s*\}\s*$'
+                        nested_match = re.search(pattern, stripped_content, re.DOTALL)
+                        if nested_match:
+                            extracted_path = nested_match.group(1)
+                            extracted_content = nested_match.group(2)
+                            # Unescape the extracted values
+                            file_path = extracted_path.replace('\\"', '"').replace('\\\\', '\\') if not file_path else file_path
+                            code_content = (extracted_content
+                                          .replace('\\n', '\n')
+                                          .replace('\\t', '\t')
+                                          .replace('\\"', '"')
+                                          .replace('\\r', '\r')
+                                          .replace('\\\\', '\\'))
+                            nested_data = {"file_path": file_path, "code_content": code_content}
+                    
+                    # Strategy 4: Try to find and extract using string manipulation
+                    if not nested_data and '"file_path"' in stripped_content and '"code_content"' in stripped_content:
+                        try:
+                            # Find file_path value
+                            fp_match = re.search(r'"file_path"\s*:\s*"((?:[^"\\]|\\.)*)"', stripped_content)
+                            cc_match = re.search(r'"code_content"\s*:\s*"((?:[^"\\]|\\.)*)"', stripped_content, re.DOTALL)
+                            if fp_match and cc_match:
+                                extracted_path = fp_match.group(1).replace('\\"', '"').replace('\\\\', '\\')
+                                extracted_content = cc_match.group(1)
+                                file_path = extracted_path if not file_path else file_path
+                                code_content = (extracted_content
+                                              .replace('\\n', '\n')
+                                              .replace('\\t', '\t')
+                                              .replace('\\"', '"')
+                                              .replace('\\r', '\r')
+                                              .replace('\\\\', '\\'))
+                                nested_data = {"file_path": file_path, "code_content": code_content}
+                        except (ValueError, AttributeError):
+                            pass
+                    
                     if isinstance(nested_data, dict):
-                        code_content = nested_data.get('code_content', code_content)
-                        if not file_path:
-                            file_path = nested_data.get('file_path', file_path)
+                        # Extract values from nested JSON
+                        nested_code = nested_data.get('code_content')
+                        nested_path = nested_data.get('file_path')
+                        
+                        if nested_code:
+                            code_content = nested_code
+                        if nested_path and not file_path:
+                            file_path = nested_path
 
             def _get_value(key: str, default: str) -> str:
                 if key in data and data[key]:

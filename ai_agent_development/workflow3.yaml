@@ -182,6 +182,24 @@ functions:
         - Record findings with explicit severity labels and cite the requirement being verified.
         - If a required artifact is missing or unreadable, mark it as High severity immediately.
         - Conclude with clear PASS/FAIL language in SIGN_OFF.
+  integrator:
+    _type: react_agent
+    tool_names: [file_reader, save_file_code]
+    llm_name: nim_llm
+    verbose: true
+    retry_agent_response_parsing_errors: true
+    parse_agent_response_max_retries: 3
+    tool_call_max_retries: 2
+    max_iterations: 30
+    description: "Delivery Integrator - Summarize final deliverables after QA passes"
+    system_prompt: |
+      Delivery Integrator persona for MAS workflow. Coordinator will supply detailed instructions.
+      AVAILABLE TOOLS: {tools}
+      TOOL NAMES: {tool_names}
+      QUALITY GUARDRAILS:
+        - Reference QA tester findings and confirm fixes in FIX_HISTORY.
+        - Enumerate all deliverables with relative paths and ensure they exist.
+        - Provide explicit go/no-go SIGN_OFF referencing QA status and outstanding risks.
 
   # Phase functions that wrap agents and handle file I/O
   product_manager_phase:
@@ -203,13 +221,17 @@ functions:
   tester_phase:
     _type: nat_mas_agents/tester_phase
     tester: tester
+  integrator_phase:
+    _type: nat_mas_agents/integrator_phase
+    integrator: integrator
 
 # Multi-Agent System Workflow
 workflow:
   _type: nat_mas_agents/mas_workflow
-  description: "MAS coordinator implemented in nat_mas_agents plugin - chains 4 phase functions sequentially"
+  description: "MAS coordinator implemented in nat_mas_agents plugin - orchestrates multi-phase workflow with QA feedback loop"
   product_manager: product_manager_phase
   architect: architect_phase
   project_manager: project_manager_phase
   engineer: engineer_phase
   tester: tester_phase
+  integrator: integrator_phase

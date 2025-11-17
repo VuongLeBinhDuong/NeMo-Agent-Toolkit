@@ -20,13 +20,14 @@ import re
 import textwrap
 import time
 from pathlib import Path
-from typing import Awaitable, Callable
+from typing import Awaitable, Callable, Optional
 
 from nat.builder.builder import Builder
 from nat.builder.function_info import FunctionInfo
 from nat.cli.register_workflow import register_function
 from nat.data_models.component_ref import FunctionRef
 from nat.data_models.function import FunctionBaseConfig
+from pydantic import Field
 
 PRODUCT_MANAGER_BRIEF = """
 === PRODUCT MANAGER BRIEF ===
@@ -135,7 +136,7 @@ SHARED_ASSETS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
 FILES: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
 ORDER: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
 FILE_REQUIREMENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-STEPS: (one entry per file in numeric order. CRITICAL: Each step must be on a separate line. Format: "Step N: [filename]" followed by " Constraints: [constraints text]" on the same line. The constraints should contain (1) one-sentence restatement of overall REQUIREMENTS context, (2) the exact FILE_REQUIREMENTS bullet with ALL details, (3) explicit references to relevant PRODUCTS (list actual product names/prices from PRODUCTS section), CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, UI_COMPONENTS, and (4) for HTML files: specify that products must be hardcoded directly in the HTML (not loaded from JSON), list the actual products to include, for header: specify it must include search bar input and cart section with item count and subtotal, for script.js: specify it must implement filtering, sorting, search, localStorage cart operations, add to cart, quantity controls, totals. Use plain sentences, no JSON)
+STEPS: (one entry per file in numeric order. CRITICAL: Each step must be on a separate line. Format: "Step N: [filename]" followed by " Constraints: [constraints text]" on the same line. The constraints should contain (1) one-sentence restatement of overall REQUIREMENTS context, (2) the exact FILE_REQUIREMENTS bullet with ALL details, (3) explicit references to relevant PRODUCTS (list actual product names/prices from PRODUCTS section), CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, UI_COMPONENTS, and (4) for HTML files: if "products.json" is in SHARED_ASSETS, specify that HTML must have an empty product container (e.g., <div id="product-container"></div>) where products will be loaded dynamically by JavaScript - DO NOT hardcode products. If "products.json" is NOT in SHARED_ASSETS, specify that products must be hardcoded directly in HTML with data attributes. CRITICAL for multi-page projects: ALL HTML pages MUST have IDENTICAL header structure with exact same IDs (#search-input on input element, not div), same navigation menu with links to all pages, and same footer. For header: specify it must include logo, navigation menu with links to ALL pages, search bar input (#search-input on the input element itself), cart section (#cart-count, #cart-subtotal). For script.js: if "products.json" is in SHARED_ASSETS, specify it must load products from products.json using fetch() and generate product cards dynamically, then implement filtering, sorting, search, localStorage cart operations, add to cart, quantity controls, totals. For multi-page projects, JavaScript must detect current page and initialize appropriate functionality, and all event listeners must check if elements exist before attaching. Use plain sentences, no JSON)
 Example format:
 STEPS:
 Step 1: filename1 Constraints: [full constraints text here]
@@ -239,6 +240,7 @@ DEFAULT_AGENT_STATUSES = {
     "project_manager": "Project plan saved",
     "engineer": "Code generation completed",
     "tester": "Test report saved",
+    "integrator": "Integration summary saved",
 }
 
 DOC_VALIDATIONS = {
@@ -291,7 +293,20 @@ DOC_VALIDATIONS = {
             "SCOPE",
             "VERIFICATIONS",
             "FINDINGS",
+            "PATCHES",
             "RECOMMENDATIONS",
+            "SIGN_OFF",
+        ],
+    },
+    "integrator": {
+        "file_path": Path("output/doc/integrator_output.txt"),
+        "required_sections": [
+            "PROJECT_NAME",
+            "STATUS_SUMMARY",
+            "FIX_HISTORY",
+            "QA_STATUS",
+            "DELIVERABLES",
+            "NEXT_STEPS",
             "SIGN_OFF",
         ],
     },
@@ -306,6 +321,17 @@ class MASWorkflowConfig(FunctionBaseConfig, name="mas_workflow"):
     project_manager: FunctionRef
     engineer: FunctionRef
     tester: FunctionRef
+    integrator: Optional[FunctionRef] = None
+    max_fix_iterations: int = Field(
+        default=2,
+        ge=0,
+        le=5,
+        description="Maximum number of QA-driven fix attempts after the initial engineer run.",
+    )
+    require_pass_before_integrator: bool = Field(
+        default=True,
+        description="If true, integrator phase only runs after QA passes; otherwise it runs regardless.",
+    )
 
 
 def _extract_status(agent_name: str, output_text: str) -> str:
@@ -417,15 +443,92 @@ def _validate_document(agent_name: str):
     logger.debug("Validated %s document at %s", agent_name, file_path)
 
 
+def _extract_section_text(document: str, section_name: str) -> str:
+    """Return the text for a named section in a structured document."""
+
+    if not document:
+        return ""
+
+    # Sections are uppercase labels followed by colon
+    pattern = rf"{section_name}:\s*(.*?)(?=\n[A-Z0-9_ ]+:\s*|\Z)"
+    match = re.search(pattern, document, re.DOTALL)
+    if not match:
+        return ""
+    return match.group(1).strip()
+
+
+def _tester_has_blockers(tester_output: str) -> tuple[bool, str]:
+    """Determine if QA report indicates blockers that require rework."""
+
+    if not tester_output.strip():
+        return True, "Tester output missing; treating as failure."
+
+    sign_off = _extract_section_text(tester_output, "SIGN_OFF")
+    findings = _extract_section_text(tester_output, "FINDINGS")
+
+    sign_off_upper = sign_off.upper() if sign_off else ""
+    findings_upper = findings.upper() if findings else ""
+
+    has_fail_sign_off = "FAIL" in sign_off_upper
+    has_high_severity = "SEVERITY HIGH" in findings_upper or "HIGH -" in findings_upper
+
+    if has_fail_sign_off or has_high_severity:
+        reasons = []
+        if has_fail_sign_off:
+            reasons.append(f"SIGN_OFF indicates failure: {sign_off}")
+        if has_high_severity:
+            reasons.append("High severity findings present.")
+        return True, " ".join(reasons).strip()
+
+    if not sign_off:
+        return True, "Tester output missing SIGN_OFF section."
+
+    return False, ""
+
+
+def _build_rework_payload(tester_output: str, attempt_index: int) -> str:
+    """Create a payload for the engineer using QA tester feedback."""
+
+    scope = _extract_section_text(tester_output, "SCOPE")
+    findings = _extract_section_text(tester_output, "FINDINGS")
+    patches = _extract_section_text(tester_output, "PATCHES")
+    recommendations = _extract_section_text(tester_output, "RECOMMENDATIONS")
+
+    payload = textwrap.dedent(
+        f"""
+        [QA_REWORK_REQUEST_ATTEMPT_{attempt_index}]
+        QA_SCOPE:
+        {scope or 'Scope unavailable.'}
+
+        FINDINGS (fix only these issues):
+        {findings or 'No findings text provided.'}
+
+        PATCHES (follow exactly; do not change unrelated files):
+        {patches or 'Tester did not provide explicit patch guidance; derive minimal edits from findings.'}
+
+        ACTION ITEMS:
+        {recommendations or 'Address each finding precisely, then rerun validations.'}
+
+        IMPORTANT:
+        - Only touch the files referenced above.
+        - After applying fixes, ensure requirements from PROJECT PLAN remain satisfied.
+        """
+    ).strip()
+
+    return f"{payload}\n\nFULL_QA_REPORT:\n{tester_output.strip()}"
+
+
 @register_function(config_type=MASWorkflowConfig)
 async def mas_workflow(config: MASWorkflowConfig, builder: Builder):
     """Register the MAS workflow coordinator as a NAT function.
     
-    This coordinator chains the 4 phase functions sequentially:
+    This coordinator chains the MAS phase functions sequentially and introduces a QA feedback loop:
     1. product_manager_phase - creates product specification from user request
     2. architect_phase - creates architecture design from PM output
     3. project_manager_phase - creates project plan from architect output
     4. engineer_phase - generates code files from project manager output
+    5. tester_phase - validates generated deliverables and issues fix requests
+    6. integrator_phase (optional) - summarizes final deliverables after QA sign-off
     
     Each phase function handles its own file I/O and brief prompts internally.
     """
@@ -435,19 +538,50 @@ async def mas_workflow(config: MASWorkflowConfig, builder: Builder):
     project_manager_phase_fn = builder.get_function(config.project_manager)
     engineer_phase_fn = builder.get_function(config.engineer)
     tester_phase_fn = builder.get_function(config.tester)
+    integrator_phase_fn = None
+    if config.integrator:
+        try:
+            integrator_phase_fn = builder.get_function(config.integrator)
+        except Exception as exc:
+            logger.warning("Could not initialize integrator function: %s", exc)
+            integrator_phase_fn = None
 
     async def _response_fn(user_request: str) -> str:
         logger.info("Starting MAS workflow for request: %s", user_request)
 
         # Phase 1: Product Manager - uses user_request directly
         logger.info("Phase 1: Invoking product_manager_phase")
-        pm_output = await product_manager_phase_fn.ainvoke(user_request)
+        phase1_start = time.time()
+        pm_output: str = ""
         try:
-            pm_status = _extract_status("product_manager", pm_output)
-            logger.info("Product manager phase completed with status: %s", pm_status)
+            pm_output = await product_manager_phase_fn.ainvoke(user_request)
+            phase1_elapsed = time.time() - phase1_start
+            logger.info("Phase 1 (product_manager_phase) completed in %.2f seconds", phase1_elapsed)
         except ValueError as e:
-            logger.warning("Could not extract product manager status: %s. Continuing to next phase anyway.", e)
-            pm_status = "Product specification saved (status extraction failed)"
+            phase1_elapsed = time.time() - phase1_start
+            if "STATUS line" in str(e):
+                logger.warning(
+                    "Product manager phase raised ValueError about STATUS line after %.2f seconds: %s. "
+                    "Assuming file was saved and continuing.",
+                    phase1_elapsed,
+                    e,
+                )
+                pm_status = "Product specification saved (status extraction failed)"
+            else:
+                logger.error(
+                    "Phase 1 (product_manager_phase) failed after %.2f seconds with unexpected ValueError: %s",
+                    phase1_elapsed,
+                    e,
+                    exc_info=True,
+                )
+                raise
+        else:
+            try:
+                pm_status = _extract_status("product_manager", pm_output)
+                logger.info("Product manager phase completed with status: %s", pm_status)
+            except ValueError as e:
+                logger.warning("Could not extract product manager status: %s. Continuing to next phase anyway.", e)
+                pm_status = "Product specification saved (status extraction failed)"
         _validate_document("product_manager")
 
         # Phase 2: Architect - reads pm_output.txt automatically
@@ -520,52 +654,96 @@ async def mas_workflow(config: MASWorkflowConfig, builder: Builder):
                 project_manager_status = "Project plan saved (status extraction failed)"
         _validate_document("project_manager")
 
-        # Phase 4: Engineer - reads project_manager_output.txt automatically
-        logger.info("Phase 4: Invoking engineer_phase")
-        engineer_start = time.time()
-        engineer_output = await engineer_phase_fn.ainvoke("") 
-        engineer_elapsed = time.time() - engineer_start
-        logger.info("Phase 4 (engineer_phase) completed in %.2f seconds", engineer_elapsed)
+        # Phase 4/5: Engineer + QA tester feedback loop
+        max_attempts = max(1, config.max_fix_iterations + 1)
+        attempt = 1
+        qa_passed = False
+        rework_payload = ""
+        engineer_output = ""
+        tester_output = ""
 
-        # # Phase 5: Tester - validates generated deliverables
-        # logger.info("Phase 5: Invoking tester_phase")
-        # phase5_start = time.time()
-        # tester_output: str = ""
-        # try:
-        #     tester_output = await tester_phase_fn.ainvoke("")
-        #     phase5_elapsed = time.time() - phase5_start
-        #     logger.info("Phase 5 (tester_phase) completed in %.2f seconds", phase5_elapsed)
-        # except ValueError as e:
-        #     phase5_elapsed = time.time() - phase5_start
-        #     if "STATUS line" in str(e):
-        #         logger.warning(
-        #             "Tester phase raised ValueError about STATUS line after %.2f seconds: %s. "
-        #             "Assuming file was saved and continuing.",
-        #             phase5_elapsed,
-        #             e,
-        #         )
-        #         tester_status = "Test report saved (status extraction failed)"
-        #     else:
-        #         logger.error(
-        #             "Phase 5 (tester_phase) failed after %.2f seconds: %s",
-        #             phase5_elapsed,
-        #             e,
-        #             exc_info=True,
-        #         )
-        #         raise
-        # else:
-        #     try:
-        #         tester_status = _extract_status("tester", tester_output)
-        #         logger.info("Tester phase completed with status: %s", tester_status)
-        #     except ValueError as e:
-        #         logger.warning("Could not extract tester status: %s. Returning output anyway.", e)
-        #         tester_status = "Test report saved (status extraction failed)"
-        # _validate_document("tester")
+        while attempt <= max_attempts:
+            logger.info("Phase 4: Invoking engineer_phase (attempt %d/%d)", attempt, max_attempts)
+            engineer_start = time.time()
+            engineer_output = await engineer_phase_fn.ainvoke(rework_payload)
+            engineer_elapsed = time.time() - engineer_start
+            logger.info("Phase 4 (engineer_phase) attempt %d completed in %.2f seconds", attempt, engineer_elapsed)
 
-        # logger.info("MAS workflow completed; returning tester output")
-        # return tester_output
+            if tester_phase_fn is None:
+                logger.warning("tester_phase function not configured; skipping QA loop.")
+                break
 
-        logger.info("MAS workflow completed; returning engineer output")
+            logger.info("Phase 5: Invoking tester_phase (QA attempt %d)", attempt)
+            phase5_start = time.time()
+            tester_output = await tester_phase_fn.ainvoke("")
+            phase5_elapsed = time.time() - phase5_start
+            logger.info("Phase 5 (tester_phase) attempt %d completed in %.2f seconds", attempt, phase5_elapsed)
+
+            try:
+                tester_status = _extract_status("tester", tester_output)
+                logger.info("Tester phase completed with status: %s", tester_status)
+            except ValueError as e:
+                logger.warning("Could not extract tester status: %s. Continuing.", e)
+            _validate_document("tester")
+
+            has_blockers, failure_reason = _tester_has_blockers(tester_output)
+            if not has_blockers:
+                qa_passed = True
+                logger.info("QA tester sign-off PASS after attempt %d", attempt)
+                break
+
+            logger.warning(
+                "QA tester reported blockers after attempt %d/%d: %s",
+                attempt,
+                max_attempts,
+                failure_reason or "See tester report for details.",
+            )
+
+            if attempt >= max_attempts:
+                logger.error("Max engineer attempts reached; QA still failing.")
+                break
+
+            attempt += 1
+            rework_payload = _build_rework_payload(tester_output, attempt)
+            logger.info("Scheduling engineer rework attempt %d with targeted QA instructions.", attempt)
+
+        integrator_output = ""
+        if builder and config.integrator:
+            if integrator_phase_fn is None:
+                try:
+                    integrator_phase_fn = builder.get_function(config.integrator)
+                except Exception as exc:
+                    logger.error("Failed to initialize integrator function: %s", exc)
+                    integrator_phase_fn = None
+
+        if integrator_phase_fn and (qa_passed or not config.require_pass_before_integrator):
+            logger.info("Phase 6: Invoking integrator_phase (qa_passed=%s)", qa_passed)
+            integrator_payload_lines = [
+                "FINAL_STATUS_CONTEXT:",
+                f"- QA_PASSED: {qa_passed}",
+                f"- QA_SIGN_OFF: {_extract_section_text(tester_output, 'SIGN_OFF') or 'Unavailable'}",
+                f"- QA_RECOMMENDATIONS: {_extract_section_text(tester_output, 'RECOMMENDATIONS') or 'Unavailable'}",
+                "",
+                "Refer to output/doc/tester_output.txt and project artifacts for details.",
+            ]
+            integrator_payload = "\n".join(integrator_payload_lines)
+
+            try:
+                integrator_output = await integrator_phase_fn.ainvoke(integrator_payload)
+                logger.info("Integrator phase completed.")
+                _validate_document("integrator")
+            except ValueError as exc:
+                logger.warning("Integrator phase raised ValueError: %s", exc)
+            except Exception as exc:
+                logger.error("Integrator phase failed: %s", exc, exc_info=True)
+
+        if integrator_output:
+            logger.info("MAS workflow completed; returning integrator output")
+            return integrator_output
+        if tester_output:
+            logger.info("MAS workflow completed; returning tester output")
+            return tester_output
+        logger.info("MAS workflow completed; returning engineer output (no QA information available)")
         return engineer_output
 
     yield FunctionInfo.create(single_fn=_response_fn)

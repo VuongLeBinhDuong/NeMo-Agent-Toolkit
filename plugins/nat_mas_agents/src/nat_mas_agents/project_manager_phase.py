@@ -27,7 +27,20 @@ from nat.cli.register_workflow import register_function
 from nat.data_models.component_ref import FunctionRef
 from nat.data_models.function import FunctionBaseConfig
 
-PROJECT_MANAGER_BRIEF = """
+from .sop_templates import get_sop_summary
+from .structured_handoff import (
+    format_handoff_for_agent,
+    load_handoff_json,
+    parse_architect_output_to_handoff,
+    save_handoff_json,
+)
+
+
+def _get_project_manager_brief() -> str:
+    """Get project manager brief with SOP templates included."""
+    sop_summary = get_sop_summary()
+    
+    return f"""
 === PROJECT MANAGER BRIEF ===
 You are Phase 3 Project Manager. You MUST follow strict ReAct format:
 
@@ -47,23 +60,85 @@ Hard requirements:
 - The constraints are reasoned by the project manager in the Thought section.
 - After the Observation from save_file_code, immediately provide the Final Answer block exactly as shown.
 - Do NOT output the project plan as plain text anywhere else.
+- CRITICAL: ALL required sections (PROJECT_NAME, REQUIREMENTS, SHARED_COMPONENTS, SHARED_ASSETS, FILES, ORDER, FILE_REQUIREMENTS, STEPS) MUST be included in the output. Missing any section will cause validation to fail.
 
-Project plan body must include sections in order:
+{sop_summary}
+
+CRITICAL: When creating STEPS, reference the SOP templates above for default behaviors.
+Each step's constraints must explicitly reference which shared components/assets it uses.
+
+Project plan body must include sections in order (CRITICAL: Each section must be on its own line with the section name followed by colon):
 PROJECT_NAME: (short slug derived from requirements, lowercase, hyphen separated)
+
 REQUIREMENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-SHARED_COMPONENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-SHARED_ASSETS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-FILES: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-ORDER: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-FILE_REQUIREMENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-STEPS: (one entry per file in numeric order. CRITICAL: Each step must be on a separate line. Format: "Step N: [filename]" followed by " Constraints: [constraints text]" on the same line. The constraints should contain (1) one-sentence restatement of overall REQUIREMENTS context, (2) the exact FILE_REQUIREMENTS bullet with ALL details, (3) explicit references to relevant PRODUCTS (list actual product names/prices from PRODUCTS section), CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, UI_COMPONENTS, and (4) for HTML files: specify that products must be hardcoded directly in the HTML (not loaded from JSON), list the actual products to include, for header: specify it must include search bar input and cart section with item count and subtotal, for script.js: specify it must implement filtering, sorting, search, localStorage cart operations, add to cart, quantity controls, totals. Use plain sentences, no JSON)
+
+SHARED_COMPONENTS: (CRITICAL: This section is REQUIRED. Paste verbatim from EXTRACTED_ARCHITECT_CONTENT. If architect output has SHARED_COMPONENTS section, copy it exactly. This section must exist even if empty.)
+
+SHARED_ASSETS: (CRITICAL: This section is REQUIRED. Paste verbatim from EXTRACTED_ARCHITECT_CONTENT. If architect output has SHARED_ASSETS section, copy it exactly. Be explicit: "styles.css", "script.js", "products.json", etc. This section must exist even if empty.)
+
+FILES: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT - comma-separated list of filenames only, e.g., "index.html, shop.html, cart.html, styles.css, script.js, products.json")
+
+ORDER: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT - arrow-separated order, e.g., "products.json -> index.html -> shop.html -> cart.html -> styles.css -> script.js")
+
+FILE_REQUIREMENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT - one bullet per file with detailed requirements)
+
+STEPS: (one entry per file in numeric order. CRITICAL: Each step must be on a separate line. Format: "Step N: [filename]" followed by " Constraints: [constraints text]" on the same line. The constraints should contain:
+  (1) one-sentence restatement of overall REQUIREMENTS context,
+  (2) the exact FILE_REQUIREMENTS bullet with ALL details,
+  (3) explicit references to relevant PRODUCTS (list actual product names/prices from PRODUCTS section), CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, UI_COMPONENTS,
+  (4) explicit references to SHARED_ASSETS this file uses (e.g., "This HTML file must link to styles.css and script.js"),
+  (5) explicit references to SHARED_COMPONENTS this file implements (e.g., "This file must include the header component with #search-input, #cart-count, #cart-subtotal as per HEADER SOP"),
+  (6) for HTML files: if "products.json" is in SHARED_ASSETS, specify that HTML must have empty product container (e.g., <section id="product-list"></section>) where products will be loaded dynamically by JavaScript - DO NOT hardcode products. If "products.json" is NOT in SHARED_ASSETS, specify that products must be hardcoded directly in HTML with data attributes,
+  (7) for products.json (if in SHARED_ASSETS): specify it must be generated with all products from PRODUCTS section in correct format (array of objects with id, name, price, category, description, image),
+  (8) for script.js: if "products.json" is in SHARED_ASSETS, specify it must load products from products.json using fetch() and generate product cards dynamically, then implement filtering, sorting, search, localStorage cart operations, add to cart, quantity controls, totals. Reference CART, FILTER, SORT, SEARCH SOPs - must implement all standard behaviors exactly as specified,
+  (9) for styles.css: reference component styles from SOPs - modern, beautiful, professional styling for header, footer, product grid, and product cards.
+  Use plain sentences, no JSON)
+
+CRITICAL FORMATTING RULES:
+- ALL sections listed above are REQUIRED and MUST be included in the output
+- SHARED_COMPONENTS and SHARED_ASSETS are MANDATORY sections - they MUST be present even if you need to copy them from architect output
+- Each section header (e.g., "SHARED_COMPONENTS:", "SHARED_ASSETS:", "ORDER:", "FILE_REQUIREMENTS:") MUST be on its own line
+- Do NOT nest sections inside other sections (e.g., do NOT put Order/Requirements inside FILES section)
+- FILES section should only contain comma-separated filenames
+- ORDER section should only contain arrow-separated order (e.g., "file1 -> file2 -> file3")
+- FILE_REQUIREMENTS section should contain one bullet per file with detailed requirements
+- STEPS section should contain step entries with constraints
+- If architect output has SHARED_COMPONENTS or SHARED_ASSETS sections, you MUST include them in your output by copying them exactly
+
 Example format:
+PROJECT_NAME: fashion-marketplace-website
+
+REQUIREMENTS:
+[requirements text]
+
+SHARED_COMPONENTS:
+[shared components text]
+
+SHARED_ASSETS:
+[shared assets text]
+
+FILES:
+index.html, shop.html, cart.html, styles.css, script.js, products.json
+
+ORDER:
+products.json -> index.html -> shop.html -> cart.html -> styles.css -> script.js
+
+FILE_REQUIREMENTS:
+- index.html: [detailed requirements for index.html]
+- shop.html: [detailed requirements for shop.html]
+- cart.html: [detailed requirements for cart.html]
+- styles.css: [detailed requirements for styles.css]
+- script.js: [detailed requirements for script.js]
+- products.json: [detailed requirements for products.json]
+
 STEPS:
-Step 1: filename1 Constraints: [full constraints text here]
-Step 2: filename2 Constraints: [full constraints text here]
-Step 3: filename3 Constraints: [full constraints text here]
+Step 1: products.json Constraints: [full constraints text here with explicit references to shared assets/components]
+Step 2: index.html Constraints: [full constraints text here with explicit references to shared assets/components]
+Step 3: shop.html Constraints: [full constraints text here with explicit references to shared assets/components]
 ...
 """
+
+PROJECT_MANAGER_BRIEF = _get_project_manager_brief()
 
 logger = logging.getLogger(__name__)
 
@@ -208,16 +283,42 @@ async def mas_project_manager_phase(config: MASWorkflowProjectManagerPhaseConfig
         else:
             logger.info("file_reader not available, will let agent handle file reading")
 
-        # STEP 3: Invoke project manager with extracted content
-        logger.info("Step 3: Invoking project manager agent")
+        # STEP 3: Parse architect content into structured handoff
+        architect_handoff = None
+        structured_handoff_text = ""
+        
+        # Try to load PM handoff first
+        pm_handoff = None
+        try:
+            pm_handoff = load_handoff_json("output/doc/pm_handoff.json")
+            logger.info("Loaded PM structured handoff")
+        except Exception as e:
+            logger.warning(f"Could not load PM handoff: {e}")
         
         if architect_content:
-            # Include extracted content in the brief
+            try:
+                architect_handoff = parse_architect_output_to_handoff(architect_content, pm_handoff)
+                structured_handoff_text = format_handoff_for_agent(architect_handoff)
+                logger.info("Created structured handoff from architect output")
+                
+                # Save structured handoff JSON for downstream phases
+                save_handoff_json(architect_handoff, "output/doc/architect_handoff.json")
+            except Exception as e:
+                logger.warning(f"Error creating structured handoff: {e}. Using text-based handoff.")
+                structured_handoff_text = f"EXTRACTED_ARCHITECT_CONTENT:\n{architect_content}\n\n"
+        
+        # STEP 4: Invoke project manager with structured handoff and SOP templates
+        logger.info("Step 4: Invoking project manager agent")
+        
+        if architect_content:
+            # Include structured handoff in the brief
             project_manager_message = (
                 f"{PROJECT_MANAGER_BRIEF.strip()}\n\n"
                 f"PREVIOUS_STATUS: {DEFAULT_AGENT_STATUSES['architect']}\n\n"
-                f"EXTRACTED_ARCHITECT_CONTENT:\n{architect_content}\n\n"
-                "IMPORTANT: Use the EXTRACTED_ARCHITECT_CONTENT above to extract sections. "
+                f"{structured_handoff_text}\n\n"
+                "IMPORTANT: Use the structured handoff data above to extract sections. "
+                "Reference SOP templates for default component behaviors. "
+                "Be explicit in STEPS about which shared assets/components each file uses."
             )
         else:
             # Fallback to original behavior

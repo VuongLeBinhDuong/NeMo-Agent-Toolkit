@@ -470,12 +470,58 @@ class ReActAgentGraph(DualNodeAgent):
                             "execution_result": ""
                         }
                 else:
-                    tool_input = {
-                        "code_content": tool_input,
-                        "file_path": "",
-                        "execution_result": ""
-                    }
+                    # Check if string contains nested JSON (common when input is very long)
+                    nested_json_match = re.search(r'^\s*\{\s*"file_path"\s*:\s*"([^"]+)"\s*,\s*"code_content"\s*:\s*"(.+)"\s*\}\s*$', tool_input, re.DOTALL)
+                    if nested_json_match:
+                        # Extract nested JSON structure
+                        file_path = nested_json_match.group(1)
+                        code_content = nested_json_match.group(2)
+                        # Unescape the code_content
+                        code_content = code_content.replace('\\n', '\n').replace('\\t', '\t').replace('\\"', '"').replace('\\r', '\r')
+                        tool_input = {
+                            "code_content": code_content,
+                            "file_path": file_path,
+                            "execution_result": ""
+                        }
+                    else:
+                        tool_input = {
+                            "code_content": tool_input,
+                            "file_path": "",
+                            "execution_result": ""
+                        }
             elif isinstance(tool_input, dict):
+                # Check if code_content contains nested JSON string
+                code_content = tool_input.get("code_content", "")
+                file_path = tool_input.get("file_path", "")
+                
+                if isinstance(code_content, str) and not file_path:
+                    # Try to extract nested JSON from code_content
+                    nested_json_match = re.search(r'^\s*\{\s*"file_path"\s*:\s*"([^"]+)"\s*,\s*"code_content"\s*:\s*"(.+)"\s*\}\s*$', code_content, re.DOTALL)
+                    if nested_json_match:
+                        file_path = nested_json_match.group(1)
+                        code_content = nested_json_match.group(2)
+                        # Unescape the code_content
+                        code_content = code_content.replace('\\n', '\n').replace('\\t', '\t').replace('\\"', '"').replace('\\r', '\r')
+                        tool_input = {
+                            "code_content": code_content,
+                            "file_path": file_path,
+                            "execution_result": tool_input.get("execution_result", "")
+                        }
+                    else:
+                        # Try JSON parsing for nested structure
+                        stripped = code_content.strip()
+                        if stripped.startswith("{") and stripped.endswith("}"):
+                            try:
+                                nested_data = json.loads(stripped)
+                                if isinstance(nested_data, dict) and "file_path" in nested_data and "code_content" in nested_data:
+                                    tool_input = {
+                                        "code_content": nested_data.get("code_content", code_content),
+                                        "file_path": nested_data.get("file_path", file_path),
+                                        "execution_result": tool_input.get("execution_result", "")
+                                    }
+                            except (json.JSONDecodeError, ValueError):
+                                pass  # Not valid JSON, use original
+                
                 if "code_content" not in tool_input:
                     tool_input = {
                         "code_content": tool_input.get("input_message", tool_input.get("plan", str(tool_input))),

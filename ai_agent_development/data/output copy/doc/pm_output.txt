@@ -1,0 +1,41 @@
+PRODUCT:
+
+USER_REQUIREMENT:
+Create a multi-page Tech Gadget Store website using only HTML, CSS, and vanilla JavaScript. Include a homepage with a hero banner, featured products, and a responsive layout that adjusts from three columns to one. Add a shop page with category filtering, sorting options, and live search. Add a product detail page with images, specifications, badges, and an Add to Cart button. Add a cart page showing items stored in localStorage with quantity controls and totals. All pages must share the same responsive header with logo, menu, search bar, and a cart section showing item count and subtotal, as well as a footer. Products must be hardcoded directly in HTML, and all functionality must work without using any icons or special symbols.
+
+REQUIREMENTS:
+This project aims to create a functional e-commerce website for tech gadgets. The website should be user-friendly, responsive, and accessible. The target users are tech enthusiasts and consumers looking for gadgets online. Success criteria include a fully functional website, proper layout, and correct functionality of features.
+
+FEATURES:
+- Responsive design for desktop and mobile devices
+- Category filtering and sorting options
+- Live search functionality
+- Product detail page with images and specifications
+- Add to Cart button and cart page
+
+PRODUCTS:
+- Product 1: Smartphone, $500, Electronics, A high-end smartphone with advanced features.
+- Product 2: Laptop, $1000, Electronics, A high-performance laptop for gaming and work.
+- Product 3: Headphones, $200, Electronics, Wireless headphones with long battery life.
+
+CATEGORIES:
+- Electronics
+
+SORT_OPTIONS:
+- Price (low to high)
+- Price (high to low)
+- Alphabetical
+
+FUNCTIONALITY:
+- Users can filter products by category
+- Users can sort products by price or alphabetical order
+- Users can search for products by name
+- Users can add products to cart and view cart contents
+
+UI_COMPONENTS:
+- Header with logo, menu, search bar, and cart section
+- Hero banner on homepage
+- Featured products section on homepage
+- Shop page with category filtering and sorting options
+- Product detail page with images and specifications
+- Cart page with quantity controls and totals

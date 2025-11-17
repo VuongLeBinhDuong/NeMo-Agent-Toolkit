@@ -47,6 +47,7 @@ Hard requirements:
 - Replace <FULL QA REPORT> with the complete QA report body (no placeholders).
 - Use file_reader to inspect any artifact referenced in the report; call it separately per file.
 - If a file cannot be found/read, explicitly flag it as a High severity finding.
+- Every finding that requires fixes MUST include a corresponding patch/diff summary in the PATCHES section (reference filenames, line ranges, and expected change; diff snippets encouraged).
 - After the Observation from save_file_code, immediately provide the Final Answer block exactly as shown.
 
 QA report body must include sections in order:
@@ -54,6 +55,7 @@ PROJECT_NAME:
 SCOPE: (summarize what was tested, including directories and key requirements covered)
 VERIFICATIONS: (bullet list describing each verification performed; reference requirement IDs or sections)
 FINDINGS: (bullet list, format "Severity [High|Medium|Low] - description - Impact/Recommendation")
+PATCHES: (bullet list; each entry must specify the file path, diff-style instructions, and minimal edits required to resolve associated findings. Provide ```diff``` snippets when possible.)
 RECOMMENDATIONS: (bullet list of concrete follow-up actions)
 SIGN_OFF: (one sentence concluding pass/fail status)
 """

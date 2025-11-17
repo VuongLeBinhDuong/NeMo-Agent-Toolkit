@@ -27,6 +27,15 @@ from nat.cli.register_workflow import register_function
 from nat.data_models.component_ref import FunctionRef
 from nat.data_models.function import FunctionBaseConfig
 
+from .prompt_sections import SOP_REFERENCE_TEXT, render_prompt_sections
+from .sop_templates import get_sop_summary
+from .structured_handoff import (
+    format_handoff_for_agent,
+    load_handoff_json,
+    parse_project_manager_output_to_handoff,
+    save_handoff_json,
+)
+
 
 def _map_filename_to_programming_language(filename: str) -> str:
     """Map filename extension to programming language format accepted by code_generation_tool."""
@@ -127,13 +136,24 @@ def _map_filename_to_programming_language(filename: str) -> str:
     return filename.capitalize()
 
 
-ENGINEER_BRIEF = """
+def _get_engineer_brief() -> str:
+    """Get engineer brief with SOP templates included."""
+    sop_summary = get_sop_summary()
+    structured_rules = render_prompt_sections()
+    
+    return f"""
 === SOFTWARE ENGINEER BRIEF ===
 You are Phase 4 Software Engineer. You MUST follow strict ReAct format.
 
 NOTE: This prompt is used when automatic code generation is not available. Follow the instructions below to generate and save all files.
 
-Your task: Generate and save all files listed in STEPS from EXTRACTED_PROJECT_MANAGER_CONTENT.
+{sop_summary}
+{structured_rules}
+
+CRITICAL: When generating code, you MUST follow the SOP templates summarized above for default component behaviors.
+DO NOT invent or guess implementations - use the standardized specifications exactly as specified. Reference the SOP module when you need the full text.
+
+Your task: Generate and save all files listed in STEPS from the structured handoff data below.
 
 For each STEP (in order from EXTRACTED_PROJECT_MANAGER_CONTENT):
 
@@ -151,15 +171,89 @@ Thought: confirm completion
 Final Answer: All files have been successfully generated and saved to output/[PROJECT_NAME]/.
 
 Hard requirements:
-- Use PROJECT_NAME, FILES, ORDER, STEPS exactly as defined in EXTRACTED_PROJECT_MANAGER_CONTENT.
+- Use PROJECT_NAME, FILES, ORDER, STEPS exactly as defined in the structured handoff data.
 - Use STEP[n].constraints directly in code generation - it already contains all FILE_REQUIREMENTS for that file.
-- Extract PROJECT_NAME from EXTRACTED_PROJECT_MANAGER_CONTENT and use this EXACT value for all file paths - do NOT change it.
+- Extract PROJECT_NAME from structured handoff and use this EXACT value for all file paths - do NOT change it.
 - Always maintain naming consistency across every file created. If FILE_REQUIREMENTS specify a filename, use it exactly (case-sensitive) in both file content and save_file_code.
-- Honor PAGE_REQUIREMENTS, SUCCESS_CRITERIA, SHARED_COMPONENTS, SHARED_ASSETS, and FILE_REQUIREMENTS sections: ensure each file implements its page-level requirements, reuses shared components/assets, and meets the success criteria.
-- CRITICAL: For HTML files with products, products MUST be hardcoded directly in the HTML markup (not loaded from JSON or dynamically). Use the actual product names, prices, categories, and descriptions from the PRODUCTS section in constraints.
-- CRITICAL: For header component in all HTML files, it MUST include: (1) logo/brand name, (2) navigation menu with links to all pages, (3) search bar input field (e.g., <input type="text" id="search-input" placeholder="Search...">), (4) cart section showing item count (e.g., <span id="cart-count">0</span> items) and subtotal (e.g., <span id="cart-subtotal">$0.00</span>).
-- CRITICAL: For script.js, it MUST implement: (1) category filtering functionality, (2) sorting by price/name options, (3) live search that filters products as user types, (4) localStorage operations for cart (getItem, setItem, removeItem), (5) add to cart button event handlers, (6) quantity increase/decrease controls, (7) total price calculations, (8) cart display updates (item count and subtotal in header), (9) cart page functionality (load from localStorage, display items, update quantities, calculate totals).
-- CRITICAL: For styles.css, it MUST include responsive product grid that displays 3 columns on desktop and 1 column on mobile (use CSS Grid or Flexbox with media queries).
+- Honor REQUIREMENTS, SHARED_COMPONENTS, SHARED_ASSETS, and FILE_REQUIREMENTS from structured handoff: ensure each file implements its requirements, reuses shared components/assets, and meets the success criteria.
+- CRITICAL: For HTML files - Header and Footer MUST be on EVERY page:
+  * EVERY HTML page MUST have IDENTICAL header structure with: logo (clickable, links to homepage), navigation menu (links to ALL pages), search input (#search-input on input element itself), cart section (#cart-count, #cart-subtotal)
+  * EVERY HTML page MUST have IDENTICAL footer structure with: company info, navigation links, contact info, copyright
+  * Header and Footer must be professional, modern, and visually appealing
+  * Header must use flexbox or grid for responsive layout
+  * Footer must use flexbox or grid for responsive layout (3 columns desktop, stacked mobile)
+- CRITICAL: For HTML files with products:
+  * ALWAYS check SHARED_ASSETS first. If "products.json" is listed in SHARED_ASSETS: HTML MUST have an empty container with a clear, consistent ID. 
+  * STANDARD CONTAINER ID: Use id="products-container" (with 's', plural) as the standard. This is the most common and consistent ID to use.
+  * Example: <section id="products-container" class="product-container"></section> or <div id="products-container"></div>
+  * The ID MUST be used consistently in JavaScript. DO NOT hardcode any products in HTML - leave the container completely empty.
+  * If "products.json" is NOT in SHARED_ASSETS: Products MUST be hardcoded directly in the HTML markup with data attributes (data-category, data-price) for filtering/sorting. Use actual product names, prices, categories, and descriptions from PRODUCTS section. The container should still have id="products-container" for JavaScript to reference.
+  * CRITICAL: The container ID in HTML MUST match exactly what JavaScript uses. Use id="products-container" (with 's') consistently in both HTML and JavaScript.
+  * For product listing pages (shop.html, index.html): MUST include filter and sort controls:
+    - Category filter: <select id="filter-select"> or <select id="category-filter"> with options for all categories
+    - Sort dropdown: <select id="sort-select"> or <select id="sort-by"> with sort options (Price: Low to High, Price: High to Low, Name: A to Z, etc.)
+    - These controls should be placed above or near the product container
+- CRITICAL: For products.json (if in SHARED_ASSETS):
+  * Engineer MUST generate products.json file with ALL products from PRODUCTS section
+  * Format: Array of objects, each with id (number), name (string), price (number), category (string), description (string), image (string URL)
+  * Example: [{{"id": 1, "name": "Product Name", "price": 29.99, "category": "Category", "description": "Description", "image": "https://via.placeholder.com/300x300?text=Product"}}]
+  * Save to: output/[PROJECT_NAME]/products.json
+  * CRITICAL: This file MUST be generated BEFORE or ALONG WITH HTML files so JavaScript can load it
+- CRITICAL: For script.js:
+  * CRITICAL: Container ID consistency - Use id="products-container" (with 's', plural) as the standard. Use document.getElementById('products-container') or document.querySelector('#products-container') consistently.
+  * FIRST: Check if "products.json" exists in SHARED_ASSETS. If it does, you MUST load products from products.json using fetch('products.json') on page initialization (DOMContentLoaded). DO NOT hardcode products array in JavaScript.
+  * If "products.json" is in SHARED_ASSETS: 
+    - Use async/await or .then() to load products.json
+    - Parse the JSON response to get the products array:
+      * If response is a direct array (starts with square bracket), use it directly as the products array
+      * If response is an object with a "products" property, extract the products array from that property
+      * You must handle both formats: check if the response is an array, if yes use it directly, if no check for a "products" property and use that, otherwise use an empty array
+    - CRITICAL: If fetch fails (404, network error), you MUST have a fallback: either use hardcoded products array or show error message. Do NOT leave page empty.
+    - Generate product cards dynamically using the loaded products
+    - Insert generated cards into the product container using getElementById with 'products-container' or querySelector with '#products-container'
+    - Use the loaded products for all cart, filter, sort, and search operations
+    - Add data attributes (data-category, data-price) when generating HTML elements for filtering/sorting
+  * If "products.json" is NOT in SHARED_ASSETS: Use hardcoded products array with actual product data from PRODUCTS section in constraints.
+  * MUST follow CART, FILTER, SORT, SEARCH SOPs exactly. Implement all standard behaviors as specified in the SOPs.
+  * CRITICAL: You MUST attach event listeners, but ONLY if elements exist:
+    - ALWAYS check if element exists before attaching listener: First get the element using getElementById or querySelector, then check if it exists (not null), and only then attach the event listener
+    - Filter dropdown: Check for filter-select or category-filter element, if it exists then listen to change events
+    - Sort dropdown: Check for sort-select or sort-by element, if it exists then listen to change events
+    - Search input: Check for search-input element, if it exists then listen to input or keyup events for live search (debounced, 300ms)
+    - Add to cart buttons: Listen to click events on all "Add to Cart" buttons (attach after rendering products)
+  * Cart must use localStorage with key "cart" and update header cart display (#cart-count, #cart-subtotal) automatically on ALL pages.
+  * updateCartDisplay() function: Must be called after every cart operation (add, remove, update quantity) AND on page load
+  * For multi-page projects: JavaScript must detect which page it's on (check window.location.pathname or document.querySelector for page-specific elements) and initialize appropriate functionality:
+    - Product listing pages: Load products from JSON (if available), render product grid, handle filter/sort/search
+    - Cart page: Load cart from localStorage, render cart items, handle remove/update quantity, calculate totals
+    - All pages: Update header cart count and subtotal from localStorage on page load
+  * All event listeners MUST check if elements exist before attaching: First get the element, check if it exists (not null), and only then attach the event listener. This allows the code to work across different pages where some elements may not exist.
+- CRITICAL: For header component - follow HEADER SOP exactly:
+  * Logo (left, clickable, links to homepage/index.html)
+  * Navigation menu (center, links to ALL pages listed in FILES)
+  * Search bar (#search-input on input element itself, not a wrapper div)
+  * Cart section (#cart-count, #cart-subtotal) on right
+  * Modern, professional design with proper spacing and alignment
+  * Responsive: Stacks vertically on mobile, horizontal on desktop
+  * Header background: Light color (#f8f9fa or similar), with border-bottom
+- CRITICAL: For footer component - follow FOOTER SOP exactly:
+  * Company info, navigation links, contact info, copyright
+  * Dark background (#343a40 or similar), light text (#ffffff)
+  * Responsive: 3 columns on desktop, stacked on mobile
+  * Clear visual separation from main content (margin-top: 40px)
+  * Must appear on EVERY HTML page with IDENTICAL structure
+- CRITICAL: For styles.css - create modern, beautiful, professional styling:
+  * Use modern color schemes (avoid harsh colors like bright pink #ff69b4, use professional palettes)
+  * Product cards: Modern card design with subtle shadows (box-shadow: 0 2px 8px rgba(0,0,0,0.1)), rounded corners (border-radius: 8px), smooth hover effects (transform: translateY(-4px), transition: all 0.3s ease)
+  * Responsive product grid: CSS Grid or Flexbox, 3-4 columns on desktop, 2 columns on tablet, 1 column on mobile (use media queries)
+  * Typography: Use modern font stacks (e.g., -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif), proper font sizes and line heights
+  * Buttons: Modern button styles with hover states, proper padding, rounded corners, smooth transitions
+  * Header: Clean, professional design with proper spacing, modern layout (flexbox or grid), responsive
+  * Footer: Clean, modern design with dark background, light text, responsive multi-column layout
+  * Overall: Professional, modern, e-commerce quality design - NOT basic or ugly styling
+  * Include smooth transitions and hover effects throughout
+  * Use proper spacing, padding, and margins for visual hierarchy
+- CRITICAL: Reference SHARED_ASSETS from structured handoff - use exact filenames (e.g., "styles.css", "script.js") when linking in HTML.
 - Action Inputs MUST be valid JSON with double-quoted keys/values, no trailing commas, no Markdown fences.
 - Replace placeholders ([filename], [PROJECT_NAME], [FULL STEP CONSTRAINTS], [LANGUAGE], [EXTRACTED CODE]) with real values.
 - Action Input must be inline JSON with proper double quotes, no ```json``` fences.
@@ -195,8 +289,17 @@ Hard requirements:
 - Footer: Do NOT use position: fixed unless page content has sufficient bottom padding. Prefer static/normal flow.
 - Consistency: Ensure all DOM elements referenced in JS exist in corresponding HTML pages. No broken selectors.
 - Separation of concerns: All styling in CSS files; no inline styles, no <style> tags in HTML. All behavior in JS files; minimal inline JS.
-- For multi-page projects: every HTML page must include the shared CSS and JS assets using the filenames from FILES (e.g., style.css, script.js) unless FILE_REQUIREMENTS explicitly provide different paths.
-- For multi-page projects: every HTML page must include a nav with links to ALL other HTML pages listed in FILES; ensure hrefs are correct.
+- CRITICAL for multi-page projects:
+  * EVERY HTML page MUST have IDENTICAL header structure with EXACT same IDs: #search-input (on the input element itself, not a div), #cart-count, #cart-subtotal
+  * Header MUST include: logo (clickable, links to homepage), navigation menu (links to ALL pages), search input, cart section
+  * EVERY HTML page MUST include navigation menu with links to ALL other HTML pages listed in FILES (e.g., <nav><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="cart.html">Cart</a></nav>)
+  * EVERY HTML page MUST include the same footer structure with company info, navigation links, contact info, copyright
+  * EVERY HTML page MUST link the same CSS and JS files from SHARED_ASSETS
+  * JavaScript must work across ALL pages - check which page you're on and initialize appropriate functionality
+  * Product container IDs must be consistent: use id="products-container" (with 's', plural) consistently across all pages that display products
+  * Cart page must have #cart-items or #cart-container container for cart items
+  * Header and Footer must look professional and modern on ALL pages
+- For multi-page projects: every HTML page must include the shared CSS and JS assets using the exact filenames from SHARED_ASSETS (e.g., "styles.css", "script.js") unless FILE_REQUIREMENTS explicitly provide different paths.
 - CRITICAL: After receiving Observation from code_generation_tool, you MUST write a Thought before the next Action. Never skip the Thought step.
 - The Observation from code_generation_tool is a STRING. Extract the code from it:
   * If Observation has markdown code block (```lang ... ```), extract ONLY the code inside (remove ``` and language tag)
@@ -212,7 +315,11 @@ Hard requirements:
 - Do NOT generate extra files, do NOT continue after Final Answer.
 - Your Final Answer must explicitly confirm that every file was generated in this session via code_generation_tool and saved after verification. If you cannot truthfully confirm this, you MUST call code_generation_tool again to fix it. Never claim success otherwise.
 - If any step cannot be completed, respond with "ERROR: Engineer could not complete the required actions." instead of success message.
+
+{SOP_REFERENCE_TEXT}
 """
+
+ENGINEER_BRIEF = _get_engineer_brief()
 
 logger = logging.getLogger(__name__)
 
@@ -531,13 +638,54 @@ async def mas_engineer_phase(config: MASWorkflowEngineerPhaseConfig, builder: Bu
         # Fallback to agent-based approach
         logger.info("Step 3: Invoking engineer agent")
         
+        # Try to load structured handoffs
+        pm_handoff = None
+        architect_handoff = None
+        project_manager_handoff = None
+        
+        try:
+            pm_handoff = load_handoff_json("output/doc/pm_handoff.json")
+            logger.info("Loaded PM structured handoff")
+        except Exception as e:
+            logger.warning(f"Could not load PM handoff: {e}")
+        
+        try:
+            architect_handoff = load_handoff_json("output/doc/architect_handoff.json")
+            logger.info("Loaded architect structured handoff")
+        except Exception as e:
+            logger.warning(f"Could not load architect handoff: {e}")
+        
         if pm_content:
-            # Include extracted content in the brief
+            try:
+                project_manager_handoff = parse_project_manager_output_to_handoff(pm_content, architect_handoff)
+                structured_handoff_text = format_handoff_for_agent(project_manager_handoff)
+                logger.info("Created structured handoff from project manager output")
+                
+                # Save structured handoff JSON
+                save_handoff_json(project_manager_handoff, "output/doc/project_manager_handoff.json")
+            except Exception as e:
+                logger.warning(f"Error creating structured handoff: {e}. Using text-based handoff.")
+                structured_handoff_text = f"EXTRACTED_PROJECT_MANAGER_CONTENT:\n{pm_content}\n\n"
+        else:
+            structured_handoff_text = ""
+        
+        if pm_content:
+            # Include structured handoff in the brief
+            # Add explicit reminder about checking SHARED_ASSETS for products.json
+            shared_assets_reminder = ""
+            if project_manager_handoff and project_manager_handoff.shared_assets:
+                has_products_json = any(asset.get('name') == 'products.json' for asset in project_manager_handoff.shared_assets)
+                if has_products_json:
+                    shared_assets_reminder = "\n\nCRITICAL REMINDER: products.json is listed in SHARED_ASSETS above. You MUST:\n- HTML: Create empty product container (NO hardcoded products)\n- JavaScript: Load products from products.json using fetch('products.json') on page load\n- Do NOT hardcode products array in JavaScript\n⚠️⚠️⚠️\n\n"
+            
             engineer_message = (
                 f"{ENGINEER_BRIEF.strip()}\n\n"
                 f"PREVIOUS_STATUS: {DEFAULT_AGENT_STATUSES['project_manager']}\n\n"
-                f"EXTRACTED_PROJECT_MANAGER_CONTENT:\n{pm_content}\n\n"
-                "IMPORTANT: Use the EXTRACTED_PROJECT_MANAGER_CONTENT above to extract PROJECT_NAME, FILES, ORDER, and STEPS. "
+                f"{structured_handoff_text}"
+                f"{shared_assets_reminder}"
+                "IMPORTANT: Use the structured handoff data above to extract PROJECT_NAME, FILES, ORDER, and STEPS. "
+                "Reference SOP templates for default component behaviors. "
+                "Be explicit about which shared assets/components each file uses."
             )
         else:
             # Fallback to original behavior

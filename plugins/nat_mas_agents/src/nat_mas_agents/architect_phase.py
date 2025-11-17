@@ -29,8 +29,19 @@ from nat.cli.register_workflow import register_function
 from nat.data_models.component_ref import FunctionRef
 from nat.data_models.function import FunctionBaseConfig
 
+from .sop_templates import get_sop_summary
+from .structured_handoff import (
+    format_handoff_for_agent,
+    parse_pm_output_to_handoff,
+    save_handoff_json,
+)
 
-ARCHITECT_BRIEF = """
+
+def _get_architect_brief() -> str:
+    """Get architect brief with SOP templates included."""
+    sop_summary = get_sop_summary()
+    
+    return f"""
 === SYSTEM ARCHITECT BRIEF ===
 You are Phase 2 System Architect. You MUST follow strict ReAct format:
 
@@ -51,6 +62,11 @@ Hard requirements:
 - After the Observation from save_file_code, immediately provide the Final Answer block exactly as shown.
 - Do NOT output the architecture document as plain text anywhere else and do not include PREVIOUS_STATUS.
 
+{sop_summary}
+
+CRITICAL: When specifying FILE_REQUIREMENTS, reference the SOP templates above for default behaviors.
+DO NOT invent or guess component implementations - use the standardized specifications.
+
 Architecture body must include sections in order:
 REQUIREMENTS: (paste verbatim from EXTRACTED_PM_CONTENT)
 PRODUCTS: (paste verbatim from EXTRACTED_PM_CONTENT)
@@ -59,11 +75,60 @@ SORT_OPTIONS: (paste verbatim from EXTRACTED_PM_CONTENT)
 FUNCTIONALITY: (paste verbatim from EXTRACTED_PM_CONTENT)
 UI_COMPONENTS: (paste verbatim from EXTRACTED_PM_CONTENT)
 SHARED_COMPONENTS: (paste verbatim from EXTRACTED_PM_CONTENT - must include header with search bar and cart section)
-SHARED_ASSETS: (list shared files/resources such as global stylesheets, scripts, data sources if needed)
-FILE_REQUIREMENTS: (derive per-file responsibilities with DETAILED requirements; one bullet per file. CRITICAL: For HTML files, specify that products must be hardcoded directly in HTML (not loaded from JSON). For header component, specify it must include: logo, menu/nav links, search bar input field, cart section with item count display and subtotal display. For script.js, specify it must implement: filtering by category, sorting by options, live search functionality, localStorage cart operations (add, remove, update quantity), add to cart button handlers, quantity controls, total calculations, cart display updates. For styles.css, specify responsive product grid that adjusts from 3 columns to 1 column on mobile.)
-FILES: (comma-separated list of files that will be generated)
-ORDER: (arrow-separated order in which files should be produced)
+SHARED_ASSETS: (list shared files/resources such as global stylesheets, scripts, data sources. 
+  - CRITICAL: Include "products.json" if products should be loaded from JSON file instead of hardcoded in HTML. This is recommended for multi-page projects.
+  - Be specific: "styles.css", "script.js", "products.json", etc.
+  - If products.json is included, engineer MUST generate this file with ALL products from PRODUCTS section in correct format: array of objects with id, name, price, category, description, image)
+FILES: (comma-separated list of files that will be generated. 
+  - CRITICAL: If "products.json" is in SHARED_ASSETS, you MUST include "products.json" in FILES list.
+  - Include all HTML files, CSS files, JS files, and products.json (if in SHARED_ASSETS).
+  - Example: "index.html, shop.html, cart.html, styles.css, script.js, products.json")
+ORDER: (arrow-separated order in which files should be produced.
+  - CRITICAL: If "products.json" is in SHARED_ASSETS, it should be generated EARLY (before or alongside HTML files) so JavaScript can load it.
+  - Recommended order: products.json (if in SHARED_ASSETS) -> HTML files -> CSS -> JS, or products.json -> HTML -> CSS -> JS
+  - Example: "products.json -> index.html -> shop.html -> cart.html -> styles.css -> script.js" OR "index.html -> shop.html -> cart.html -> styles.css -> script.js -> products.json")
+FILE_REQUIREMENTS: (derive per-file responsibilities with DETAILED requirements; one bullet per file. 
+  - For HTML files: 
+    * CRITICAL: EVERY HTML page MUST have IDENTICAL header structure with: logo (clickable, links to homepage), navigation menu (links to ALL pages), search input (#search-input on input element itself), cart section (#cart-count, #cart-subtotal). Header must be professional, modern, and responsive.
+    * CRITICAL: EVERY HTML page MUST have IDENTICAL footer structure with: company info, navigation links, contact info, copyright. Footer must be professional, modern, dark background, light text, responsive (3 columns desktop, stacked mobile).
+    * Products can be EITHER hardcoded directly in HTML OR loaded from products.json file. 
+    * If products.json is in SHARED_ASSETS: HTML MUST have empty product container with id="products-container" (with 's', plural). Example: <section id="products-container" class="product-container"></section>. DO NOT hardcode products in HTML - leave container empty. JavaScript will load products from JSON.
+    * For product listing pages (shop.html, index.html): MUST include filter and sort controls above or near the product container:
+      - Category filter dropdown: <select id="filter-select"> or <select id="category-filter"> with options for all categories
+      - Sort dropdown: <select id="sort-select"> or <select id="sort-by"> with sort options
+    * If products.json is NOT in SHARED_ASSETS: Products MUST be hardcoded directly in HTML markup with data attributes (data-category, data-price) for filtering/sorting.
+  - For products.json (if in SHARED_ASSETS):
+    * Engineer MUST generate this file with ALL products from PRODUCTS section
+    * Format: Array of objects, each with id (number), name (string), price (number), category (string), description (string), image (string URL)
+    * Example: [{{"id": 1, "name": "Product Name", "price": 29.99, "category": "Category", "description": "Description", "image": "https://via.placeholder.com/300x300?text=Product"}}]
+    * Save to: output/[PROJECT_NAME]/products.json
+    * CRITICAL: This file MUST be generated so JavaScript can load it
+  - For script.js: 
+    * CRITICAL: Use id="products-container" (with 's', plural) consistently. Use document.getElementById('products-container') to get the product container.
+    * If products.json exists in SHARED_ASSETS: MUST load products from products.json using fetch('products.json') on DOMContentLoaded
+      - Parse JSON response: Handle both formats - if response is a direct array (starts with square bracket), use it directly; if response is an object with a "products" property, extract the products array from that property; otherwise use empty array
+      - Generate product cards dynamically and insert into #products-container
+      - Handle fetch errors with fallback (hardcoded products or error message)
+    * If products.json NOT in SHARED_ASSETS: Use hardcoded products array or read from HTML
+    * For multi-page projects: JavaScript must detect current page and initialize appropriate functionality (product listing, cart display, etc.)
+    * Reference CART, FILTER, SORT, SEARCH SOPs - must implement all standard behaviors exactly as specified
+    * CRITICAL: All event listeners MUST check if elements exist before attaching: First get the element using getElementById or querySelector, check if it exists (not null), and only then attach the event listener
+    * Event listeners for: #search-input (search), #filter-select or #category-filter (filter), #sort-select or #sort-by (sort)
+    * updateCartDisplay() must be called after every cart operation AND on page load
+    * Cart must update header cart display (#cart-count, #cart-subtotal) on ALL pages
+  - For header component: reference HEADER SOP - must include logo (left, clickable), menu/nav links to ALL pages (center), search bar input (#search-input on the input element itself), cart section (#cart-count, #cart-subtotal) on right. Header structure must be IDENTICAL across all HTML pages. Modern, professional design with proper spacing.
+  - For footer component: reference FOOTER SOP - must include company info, navigation links, contact info, copyright. Footer structure must be IDENTICAL across all HTML pages. Dark background, light text, responsive multi-column layout.
+  - For styles.css: 
+    * Modern, beautiful, professional styling - NOT basic or ugly
+    * Responsive product grid (3-4 columns desktop, 2 columns tablet, 1 column mobile)
+    * Product cards: Modern card design with subtle shadows, rounded corners, smooth hover effects
+    * Header: Clean, professional design with proper spacing, modern layout (flexbox or grid), responsive
+    * Footer: Clean, modern design with dark background, light text, responsive multi-column layout
+    * Reference component styles from SOPs. Styles must work consistently across all pages.
+  - Be explicit about which files/modules implement which components and how they integrate across multiple pages.)
 """
+
+ARCHITECT_BRIEF = _get_architect_brief()
 
 
 logger = logging.getLogger(__name__)
@@ -208,16 +273,34 @@ async def mas_architect_phase(config: MASWorkflowArchitectPhaseConfig, builder: 
         else:
             logger.info("file_reader not available, will let agent handle file reading")
 
-        # STEP 3: Invoke architect with extracted content
-        logger.info("Step 3: Invoking architect agent")
+        # STEP 3: Parse PM content into structured handoff
+        pm_handoff = None
+        structured_handoff_text = ""
         
         if pm_content:
-            # Include extracted content in the brief
+            try:
+                pm_handoff = parse_pm_output_to_handoff(pm_content)
+                structured_handoff_text = format_handoff_for_agent(pm_handoff)
+                logger.info("Created structured handoff from PM output")
+                
+                # Save structured handoff JSON for downstream phases
+                save_handoff_json(pm_handoff, "output/doc/pm_handoff.json")
+            except Exception as e:
+                logger.warning(f"Error creating structured handoff: {e}. Using text-based handoff.")
+                structured_handoff_text = f"EXTRACTED_PM_CONTENT:\n{pm_content}\n\n"
+        
+        # STEP 4: Invoke architect with structured handoff and SOP templates
+        logger.info("Step 4: Invoking architect agent")
+        
+        if pm_content:
+            # Include structured handoff in the brief
             architect_message = (
                 f"{ARCHITECT_BRIEF.strip()}\n\n"
                 f"PREVIOUS_STATUS: {DEFAULT_AGENT_STATUSES['product_manager']}\n\n"
-                f"EXTRACTED_PM_CONTENT:\n{pm_content}\n\n"
-                "IMPORTANT: Use the EXTRACTED_PM_CONTENT above to extract sections. "
+                f"{structured_handoff_text}\n\n"
+                "IMPORTANT: Use the structured handoff data above to extract sections. "
+                "Reference SOP templates for default component behaviors. "
+                "Be explicit about which files/modules implement which shared components and assets."
             )
         else:
             # Fallback to original behavior
