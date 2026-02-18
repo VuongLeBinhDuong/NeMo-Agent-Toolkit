@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - Tech Gadgets Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cart-summary {
+            display: flex;
+            align-items: center;
+        }
+        .cart-summary span {
+            margin-left: 10px;
+        }
+        .cart-container {
+            padding: 20px;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .cart-item img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+        .cart-item .details {
+            flex: 1;
+        }
+        .cart-item .quantity-controls {
+            display: flex;
+            align-items: center;
+        }
+        .cart-item .quantity-controls button {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .cart-item .quantity-controls input {
+            width: 50px;
+            text-align: center;
+            margin: 0 5px;
+        }
+        .cart-total {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Tech Gadgets Website</h1>
+        <div class="cart-summary">
+            <span>Items: <span id="cart-item-count">0</span></span>
+            <span>Subtotal: $<span id="cart-subtotal">0.00</span></span>
+        </div>
+    </header>
+    <div class="cart-container">
+        <h2>Your Cart</h2>
+        <div id="cart-items"></div>
+        <div class="cart-total">Total: $<span id="cart-total">0.00</span></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartItemCount = document.getElementById('cart-item-count');
+            const cartSubtotal = document.getElementById('cart-subtotal');
+            const cartTotal = document.getElementById('cart-total');
+
+            function updateCart() {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                cartItemsContainer.innerHTML = '';
+                let itemCount = 0;
+                let subtotal = 0;
+
+                cart.forEach(item => {
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item';
+                    cartItem.innerHTML = `
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="details">
+                            <h3>${item.name}</h3>
+                            <p>Price: $${item.price.toFixed(2)}</p>
+                        </div>
+                        <div class="quantity-controls">
+                            <button onclick="decreaseQuantity('${item.id}')">-</button>
+                            <input type="number" value="${item.quantity}" min="1" onchange="updateQuantity('${item.id}', this.value)">
+                            <button onclick="increaseQuantity('${item.id}')">+</button>
+                        </div>
+                        <p>Total: $${(item.price * item.quantity).toFixed(2)}</p>
+                    `;
+                    cartItemsContainer.appendChild(cartItem);
+
+                    itemCount += item.quantity;
+                    subtotal += item.price * item.quantity;
+                });
+
+                cartItemCount.textContent = itemCount;
+                cartSubtotal.textContent = subtotal.toFixed(2);
+                cartTotal.textContent = subtotal.toFixed(2);
+            }
+
+            function updateQuantity(id, quantity) {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                const item = cart.find(i => i.id === id);
+                if (item) {
+                    item.quantity = parseInt(quantity, 10);
+                    if (item.quantity <= 0) {
+                        cart.splice(cart.indexOf(item), 1);
+                    }
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    updateCart();
+                }
+            }
+
+            function increaseQuantity(id) {
+                updateQuantity(id, parseInt(document.querySelector(`input[value="${id}"]`).value, 10) + 1);
+            }
+
+            function decreaseQuantity(id) {
+                updateQuantity(id, parseInt(document.querySelector(`input[value="${id}"]`).value, 10) - 1);
+            }
+
+            updateCart();
+        });
+    </script>
+</body>
+</html>

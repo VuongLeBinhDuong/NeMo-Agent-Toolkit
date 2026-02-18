@@ -1,0 +1,121 @@
+{
+  "project_name": "fashion-marketplace-website",
+  "requirements": "- Build a multi-page fashion marketplace website with clean, modern styling and fully responsive behavior.\n- The website should have a fixed header styled with a compact, sticky top bar, flex layout for logo–menu–search–cart alignment, smooth hover effects, and mobile breakpoints that collapse the menu into a toggleable drawer.\n- JavaScript should control the live search, category filtering, sorting, and a dynamic cart badge that updates in real time.",
+  "products": [
+    {
+      "name": "Product 1",
+      "price": 19.99,
+      "category": "Women's Clothing",
+      "description": "This is a high-quality women's clothing item."
+    },
+    {
+      "name": "Product 2",
+      "price": 29.99,
+      "category": "Men's Clothing",
+      "description": "This is a high-quality men's clothing item."
+    },
+    {
+      "name": "Product 3",
+      "price": 39.99,
+      "category": "Accessories",
+      "description": "This is a high-quality accessories item."
+    },
+    {
+      "name": "Product 4",
+      "price": 49.99,
+      "category": "Shoes",
+      "description": "This is a high-quality shoes item."
+    },
+    {
+      "name": "Product 5",
+      "price": 59.99,
+      "category": "Bags",
+      "description": "This is a high-quality bags item."
+    },
+    {
+      "name": "Product 6",
+      "price": 69.99,
+      "category": "Jewelry",
+      "description": "This is a high-quality jewelry item."
+    },
+    {
+      "name": "Product 7",
+      "price": 79.99,
+      "category": "Watches",
+      "description": "This is a high-quality watches item."
+    },
+    {
+      "name": "Product 8",
+      "price": 89.99,
+      "category": "Sunglasses",
+      "description": "This is a high-quality sunglasses item."
+    },
+    {
+      "name": "Product 9",
+      "price": 99.99,
+      "category": "Hats",
+      "description": "This is a high-quality hats item."
+    },
+    {
+      "name": "Product 10",
+      "price": 109.99,
+      "category": "Scarves",
+      "description": "This is a high-quality scarves item."
+    }
+  ],
+  "categories": [
+    "Women's Clothing",
+    "Men's Clothing",
+    "Accessories",
+    "Shoes",
+    "Bags",
+    "Jewelry",
+    "Watches",
+    "Sunglasses",
+    "Hats",
+    "Scarves"
+  ],
+  "sort_options": [
+    "Price: Low to High",
+    "Price: High to Low",
+    "Name: A to Z",
+    "Name: Z to A"
+  ],
+  "files": [
+    {
+      "name": "- index.html   - shop.html   - cart.html   - checkout.html   - about.html   - styles.css   - script.js   - products.json",
+      "type": "json",
+      "path": "output/fashion-marketplace-website/- index.html   - shop.html   - cart.html   - checkout.html   - about.html   - styles.css   - script.js   - products.json"
+    }
+  ],
+  "shared_assets": [
+    {
+      "name": "Global stylesheet (styles.css)",
+      "type": "file",
+      "path": "Global stylesheet (styles.css)"
+    },
+    {
+      "name": "Global script (script.js)",
+      "type": "file",
+      "path": "Global script (script.js)"
+    },
+    {
+      "name": "Products data file (products.json)",
+      "type": "file",
+      "path": "Products data file (products.json)"
+    },
+    {
+      "name": "products.json",
+      "type": "json",
+      "path": "products.json"
+    }
+  ],
+  "shared_components": [
+    "Header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal)",
+    "Footer with company info, navigation links, and contact info",
+    "Product cards with image, name, price, and description",
+    "Cart page with item list, subtotal, and checkout section"
+  ],
+  "tasks": [],
+  "product_data_location": "products.json"
+}

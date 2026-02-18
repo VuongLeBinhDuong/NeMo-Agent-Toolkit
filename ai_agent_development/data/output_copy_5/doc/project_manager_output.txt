@@ -1,0 +1,36 @@
+PROJECT_NAME: clothing-store-homepage
+
+REQUIREMENTS:
+The homepage should have a modern, minimal aesthetic with a clean, spacious, and fully responsive layout. The color tone should be neutral with subtle shadows that match a minimalist fashion brand feel. The page should be easy to navigate and provide a clear call-to-action for users to explore the store.
+
+SHARED_COMPONENTS:
+- Header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal)
+- Footer with company info, navigation links, and contact information
+- Responsive design
+
+SHARED_ASSETS:
+- styles.css (file) at styles.css
+- script.js (file) at script.js
+- products.json (file) at products.json ⚠️ CRITICAL: Products must be loaded from this JSON file, not hardcoded!
+
+FILES:
+index.html, shop.html, cart.html, styles.css, script.js, products.json
+
+ORDER:
+products.json -> index.html -> shop.html -> cart.html -> styles.css -> script.js
+
+FILE_REQUIREMENTS:
+- index.html: The homepage should have a modern, minimal aesthetic with a clean, spacious, and fully responsive layout. The color tone should be neutral with subtle shadows that match a minimalist fashion brand feel. The page should be easy to navigate and provide a clear call-to-action for users to explore the store.
+- shop.html: The shop page should display a list of products with filters and sorting options. The page should be easy to navigate and provide a clear call-to-action for users to add products to their cart.
+- cart.html: The cart page should display a list of products in the user's cart with options to update quantity and remove products. The page should be easy to navigate and provide a clear call-to-action for users to checkout.
+- styles.css: The stylesheet should define a modern, minimal aesthetic with a clean, spacious, and fully responsive layout. The color tone should be neutral with subtle shadows that match a minimalist fashion brand feel.
+- script.js: The script should load products from the products.json file and display them on the shop page. The script should also handle filtering and sorting of products.
+- products.json: The JSON file should contain a list of products with their respective categories, prices, and descriptions.
+
+STEPS:
+Step 1: products.json Constraints: The products.json file should be loaded from the SHARED_ASSETS directory and should contain a list of products with their respective categories, prices, and descriptions. The file should be used by the script.js file to display products on the shop page.
+Step 2: index.html Constraints: The index.html file should use the Header and Footer shared components and should have a modern, minimal aesthetic with a clean, spacious, and fully responsive layout. The color tone should be neutral with subtle shadows that match a minimalist fashion brand feel. The page should be easy to navigate and provide a clear call-to-action for users to explore the store.
+Step 3: shop.html Constraints: The shop.html file should use the Header and Footer shared components and should display a list of products with filters and sorting options. The page should be easy to navigate and provide a clear call-to-action for users to add products to their cart.
+Step 4: cart.html Constraints: The cart.html file should use the Header and Footer shared components and should display a list of products in the user's cart with options to update quantity and remove products. The page should be easy to navigate and provide a clear call-to-action for users to checkout.
+Step 5: styles.css Constraints: The stylesheet should define a modern, minimal aesthetic with a clean, spacious, and fully responsive layout. The color tone should be neutral with subtle shadows that match a minimalist fashion brand feel.
+Step 6: script.js Constraints: The script should load products from the products.json file and display them on the shop page. The script should also handle filtering and sorting of products.

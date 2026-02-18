@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "simple_hello",
+    "objective": "Create a single file hello.txt containing the line 'Hello, MAS V2'.",
+    "repo_root": ".",
+    "expect_success": true
+  },
+  {
+    "task_id": "two_files",
+    "objective": "Create README.md with title 'Test Project' and a file src/main.py that prints 'ok'.",
+    "repo_root": ".",
+    "expect_success": true
+  }
+]

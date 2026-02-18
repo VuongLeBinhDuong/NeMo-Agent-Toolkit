@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Welcome to Clothing Store, your one-stop shop for the latest fashion trends for Men, Women, Kids, and Accessories.">
+    <meta property="og:title" content="Clothing Store - Your Fashion Destination">
+    <meta property="og:description" content="Welcome to Clothing Store, your one-stop shop for the latest fashion trends for Men, Women, Kids, and Accessories.">
+    <meta property="og:image" content="https://example.com/images/logo.png">
+    <meta property="og:url" content="https://example.com/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Clothing Store - Your Fashion Destination">
+    <meta name="twitter:description" content="Welcome to Clothing Store, your one-stop shop for the latest fashion trends for Men, Women, Kids, and Accessories.">
+    <meta name="twitter:image" content="https://example.com/images/logo.png">
+    <meta name="twitter:url" content="https://example.com/">
+    <link rel="canonical" href="https://example.com/">
+    <title>Clothing Store - Your Fashion Destination</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "url": "https://example.com/",
+      "name": "Clothing Store",
+      "description": "Welcome to Clothing Store, your one-stop shop for the latest fashion trends for Men, Women, Kids, and Accessories.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://example.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Clothing Store",
+      "url": "https://example.com/",
+      "logo": "https://example.com/images/logo.png",
+      "sameAs": [
+        "https://www.facebook.com/clothingstore",
+        "https://twitter.com/clothingstore",
+        "https://instagram.com/clothingstore"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://example.com/"
+      }]
+    }
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="header__logo">
+            <a href="index.html" aria-label="Clothing Store Home">
+                <img src="images/logo.png" alt="Clothing Store Logo" loading="lazy" width="100" height="50">
+            </a>
+        </div>
+        <nav class="header__nav" aria-label="Main Navigation">
+            <ul class="header__nav-list">
+                <li class="header__nav-item"><a href="men.html" class="header__nav-link">Men</a></li>
+                <li class="header__nav-item"><a href="women.html" class="header__nav-link">Women</a></li>
+                <li class="header__nav-item"><a href="kids.html" class="header__nav-link">Kids</a></li>
+                <li class="header__nav-item"><a href="accessories.html" class="header__nav-link">Accessories</a></li>
+            </ul>
+        </nav>
+        <div class="header__search">
+            <form class="header__search-form" role="search" aria-label="Search Products">
+                <label for="search-input" class="visually-hidden">Search Products</label>
+                <input type="search" id="search-input" class="header__search-input" placeholder="Search..." aria-controls="products-container" data-js="search-input">
+                <button type="submit" class="header__search-button" aria-label="Submit Search">Search</button>
+            </form>
+        </div>
+        <div class="header__cart" aria-label="Shopping Cart">
+            <button class="header__cart-button" aria-haspopup="true" aria-expanded="false" aria-controls="cart-dropdown" data-js="cart-button">
+                <span class="header__cart-icon">🛒</span>
+                <span class="header__cart-count" id="cart-count">0</span>
+                <span class="header__cart-subtotal" id="cart-subtotal">$0.00</span>
+            </button>
+            <div class="header__cart-dropdown" id="cart-dropdown" aria-hidden="true" role="region" aria-live="polite" data-js="cart-dropdown">
+                <h2 class="header__cart-title">Your Cart</h2>
+                <ul class="header__cart-items" data-js="cart-items">
+                    <!-- Cart items will be dynamically inserted here -->
+                </ul>
+                <div class="header__cart-summary">
+                    <p class="header__cart-summary-total">Total: <span id="cart-summary-total">$0.00</span></p>
+                    <a href="cart.html" class="header__cart-summary-checkout">Checkout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main id="main-content" class="main-content">
+        <section class="hero">
+            <h1 class="hero__title">Welcome to Clothing Store</h1>
+            <p class="hero__description">Discover the latest fashion trends for Men, Women, Kids, and Accessories.</p>
+        </section>
+        <section id="products-container" class="products-container" aria-live="polite" aria-busy="true">
+            <!-- Product cards will be dynamically inserted here by script.js -->
+        </section>
+    </main>
+    <footer class="footer">
+        <section class="footer__company-info">
+            <h2 class="footer__company-title">Clothing Store</h2>
+            <p class="footer__company-description">Your one-stop shop for the latest fashion trends.</p>
+        </section>
+        <nav class="footer__nav" aria-label="Footer Navigation">
+            <ul class="footer__nav-list">
+                <li class="footer__nav-item"><a href="about.html" class="footer__nav-link">About Us</a></li>
+                <li class="footer__nav-item"><a href="contact.html" class="footer__nav-link">Contact Us</a></li>
+                <li class="footer__nav-item"><a href="privacy.html" class="footer__nav-link">Privacy Policy</a></li>
+                <li class="footer__nav-item"><a href="terms.html" class="footer__nav-link">Terms of Service</a></li>
+            </ul>
+        </nav>
+        <section class="footer__contact">
+            <h2 class="footer__contact-title">Contact Information</h2>
+            <p class="footer__contact-address">123 Fashion Street, Style City, ST 12345</p>
+            <p class="footer__contact-phone">Phone: <a href="tel:+1234567890">(123) 456-7890</a></p>
+            <p class="footer__contact-email">Email: <a href="mailto:info@clothingstore.com">info@clothingstore.com</a></p>
+        </section>
+    </footer>
+    <script src="script.js" defer></script>
+</body>
+</html>

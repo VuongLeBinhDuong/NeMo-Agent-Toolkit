@@ -1,0 +1,55 @@
+REQUIREMENTS:
+
+The website must be responsive and work on multiple devices.
+
+The site must feature a shared header with logo, navigation menu, search bar, and a cart section showing item count and subtotal.
+
+The site must have a consistent footer across all pages.
+
+PRODUCTS:
+
+
+CATEGORIES:
+  - Smartphones
+  - Headphones
+
+SORT_OPTIONS:
+  - Price: Low to High
+  - Price: High to Low
+  - Name: A to Z
+
+FUNCTIONALITY:
+
+UI_COMPONENTS:
+
+SHARED_COMPONENTS:
+  - Header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal)
+  - Footer with company info, navigation links, and contact information
+
+SHARED_ASSETS:
+  - styles.css
+  - script.js
+  - products.json
+
+FILES:
+  - index.html
+  - shop.html
+  - cart.html
+  - checkout.html
+  - about.html
+  - styles.css
+  - script.js
+  - products.json
+
+ORDER:
+  - products.json -> index.html -> shop.html -> cart.html -> checkout.html -> about.html -> styles.css -> script.js
+
+FILE_REQUIREMENTS:
+  - index.html: Shared header and footer, product listing page
+  - shop.html: Shared header and footer, product listing page with filter and sort controls
+  - cart.html: Shared header and footer, cart page with cart items and subtotal
+  - checkout.html: Shared header and footer, checkout page with order summary and payment form
+  - about.html: Shared header and footer, about page with company information
+  - styles.css: CSS styles for entire website, including shared components and layout
+  - script.js: JavaScript code for entire website, including cart, filter, sort, and search functionality
+  - products.json: Product data in specified format

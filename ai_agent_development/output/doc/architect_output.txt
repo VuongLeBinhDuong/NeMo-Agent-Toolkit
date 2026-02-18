@@ -1,0 +1,78 @@
+REQUIREMENTS:
+- Build a responsive fashion marketplace website with a clean, modern design.
+- The website should feature a compact sticky header with logo, navigation, search, and a cart badge that updates in real time.
+- JavaScript should handle live search, filtering, sorting, and cart updates.
+- The website should have a full-width hero section displaying sliding banners with text overlays and manual or auto-play controls.
+- Products should be shown in a responsive grid with hover effects, badges, and dynamic rendering based on search and filters.
+- The shop view should add pagination and advanced filters such as category and price range, using a shared global product state.
+- Product details should be displayed in a responsive layout with image switching, option selection, and add-to-cart actions.
+- The cart should appear as a page or slide-out panel with animated transitions, quantity controls, subtotal calculation, and persistent storage via localStorage.
+- CSS should ensure consistent typography, spacing, and responsiveness, while JavaScript should manage all interactivity and state synchronization.
+
+PRODUCTS:
+  - Fashion T-Shirt: $19.99, Clothing, A high-quality fashion t-shirt made from 100% cotton.
+  - Fashion Jeans: $49.99, Clothing, A pair of stylish fashion jeans made from 100% denim.
+  - Fashion Shoes: $79.99, Footwear, A pair of fashionable shoes made from high-quality leather.
+  - Fashion Handbag: $99.99, Accessories, A stylish fashion handbag made from high-quality materials.
+  - Fashion Watch: $129.99, Accessories, A fashionable watch made from high-quality materials.
+  - Fashion Sunglasses: $149.99, Accessories, A pair of fashionable sunglasses made from high-quality materials.
+  - Fashion Belt: $19.99, Accessories, A high-quality fashion belt made from 100% leather.
+  - Fashion Scarf: $29.99, Accessories, A stylish fashion scarf made from high-quality materials.
+  - Fashion Hat: $39.99, Accessories, A fashionable hat made from high-quality materials.
+
+CATEGORIES:
+  - Clothing
+  - Footwear
+  - Accessories
+
+SORT_OPTIONS:
+  - Price: Low to High
+  - Price: High to Low
+  - Name: A to Z
+  - Name: Z to A
+
+FUNCTIONALITY:
+  - Live search
+  - Filtering
+  - Sorting
+  - Cart updates
+  - Product details
+  - Cart panel
+
+UI_COMPONENTS:
+  - Header with logo, navigation, search, and cart badge
+  - Footer with navigation links and copyright information
+  - Cart panel with quantity controls and subtotal calculation
+
+SHARED_COMPONENTS:
+  - Header with logo, navigation, search, and cart badge
+  - Footer with navigation links and copyright information
+  - Cart panel with quantity controls and subtotal calculation
+
+SHARED_ASSETS:
+  - styles.css
+  - script.js
+  - products.json
+
+FILES:
+  - index.html
+  - shop.html
+  - cart.html
+  - checkout.html
+  - about.html
+  - styles.css
+  - script.js
+  - products.json
+
+ORDER:
+  - products.json -> index.html -> shop.html -> cart.html -> checkout.html -> about.html -> styles.css -> script.js
+
+FILE_REQUIREMENTS:
+  - index.html: Header with logo, navigation, search, and cart badge. Hero section with sliding banners.
+  - shop.html: Responsive grid with hover effects, badges, and dynamic rendering based on search and filters.
+  - cart.html: Cart panel with quantity controls and subtotal calculation.
+  - checkout.html: Checkout form with payment and shipping options.
+  - about.html: About page with company information.
+  - styles.css: Consistent typography, spacing, and responsiveness.
+  - script.js: Live search, filtering, sorting, and cart updates.
+  - products.json: All products with their respective id, name, price, category, description, and image properties.

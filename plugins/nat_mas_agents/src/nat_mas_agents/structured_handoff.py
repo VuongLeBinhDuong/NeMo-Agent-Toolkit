@@ -43,6 +43,7 @@ class StructuredHandoff:
         shared_components: list[str] | None = None,
         tasks: list[dict[str, Any]] | None = None,
         product_data_location: str = "",
+        website_type: str = "",
     ):
         """Initialize structured handoff."""
         self.project_name = project_name
@@ -55,6 +56,7 @@ class StructuredHandoff:
         self.shared_components = shared_components or []
         self.tasks = tasks or []
         self.product_data_location = product_data_location
+        self.website_type = website_type
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -69,6 +71,7 @@ class StructuredHandoff:
             "shared_components": self.shared_components,
             "tasks": self.tasks,
             "product_data_location": self.product_data_location,
+            "website_type": self.website_type,
         }
 
     def to_json(self, indent: int = 2) -> str:
@@ -78,8 +81,10 @@ class StructuredHandoff:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "StructuredHandoff":
         """Create from dictionary."""
+        from nat_mas_agents.config import normalize_project_name
+        project_name_raw = data.get("project_name", "")
         return cls(
-            project_name=data.get("project_name", ""),
+            project_name=normalize_project_name(project_name_raw),
             requirements=data.get("requirements", ""),
             products=data.get("products", []),
             categories=data.get("categories", []),
@@ -89,6 +94,7 @@ class StructuredHandoff:
             shared_components=data.get("shared_components", []),
             tasks=data.get("tasks", []),
             product_data_location=data.get("product_data_location", ""),
+            website_type=data.get("website_type", ""),
         )
 
     @classmethod
@@ -181,6 +187,18 @@ def parse_pm_output_to_handoff(content: str) -> StructuredHandoff:
     if current_section:
         _process_section(handoff, current_section, "\n".join(section_content))
 
+    # Fallback: If project_name is still empty, try to generate from WEBSITE_TYPE
+    if not handoff.project_name:
+        import re
+        website_type_match = re.search(r"WEBSITE_TYPE\s*:\s*([a-zA-Z_]+)", content)
+        if website_type_match:
+            website_type = website_type_match.group(1).strip().lower()
+            from nat_mas_agents.config import normalize_project_name
+            # Generate project name from website type: ecommerce_site -> website-type-ecommerce-site
+            fallback_name = f"website-type-{website_type.replace('_', '-')}"
+            handoff.project_name = normalize_project_name(fallback_name)
+            logger.info(f"Generated project_name '{handoff.project_name}' from WEBSITE_TYPE '{website_type}'")
+
     return handoff
 
 
@@ -188,12 +206,34 @@ def _process_section(handoff: StructuredHandoff, section: str, content: str) -> 
     """Process a section of the PM output."""
     content = content.strip()
 
-    if section == "PRODUCT":
-        # Extract product name/description
-        handoff.project_name = content.split("\n")[0].strip() if content else ""
+    if section == "PROJECT_NAME":
+        # Extract project name from PROJECT_NAME section
+        from nat_mas_agents.config import normalize_project_name
+        project_name_raw = content.split("\n")[0].strip() if content else ""
+        handoff.project_name = normalize_project_name(project_name_raw)
+    elif section == "PRODUCT":
+        # Extract product name/description (legacy support)
+        from nat_mas_agents.config import normalize_project_name
+        project_name_raw = content.split("\n")[0].strip() if content else ""
+
+        # Newer PM outputs sometimes embed "PROJECT_NAME: value" as the first
+        # line inside the PRODUCT section. In that case we only want the value
+        # part, not the literal "PROJECT_NAME" prefix, otherwise it turns into
+        # a slug like "project-name-fashion-marketplace".
+        if project_name_raw.upper().startswith("PROJECT_NAME:"):
+            project_name_raw = project_name_raw.split(":", 1)[1].strip()
+
+        # Only set if project_name is not already set
+        if not handoff.project_name and project_name_raw:
+            handoff.project_name = normalize_project_name(project_name_raw)
 
     elif section == "REQUIREMENTS":
         handoff.requirements = content
+
+    elif section == "WEBSITE_TYPE":
+        # Extract website type (information_site, ecommerce_site, web_app)
+        website_type_raw = content.split("\n")[0].strip() if content else ""
+        handoff.website_type = website_type_raw.lower()
 
     elif section == "PRODUCTS":
         # Parse products list
@@ -316,22 +356,24 @@ def parse_architect_output_to_handoff(content: str, pm_handoff: StructuredHandof
     if current_section:
         _process_architect_section(handoff, current_section, "\n".join(section_content))
 
-    # After parsing architect output, save products to JSON in project output directory
-    # and add it to shared_assets if products exist
-    # NOTE: We don't create products.json here because PROJECT_NAME might not be finalized yet.
-    # products.json will be created by engineer phase using the exact PROJECT_NAME from project manager.
-    # We only add it to shared_assets if it's mentioned there.
-    if handoff.products:
-        # Check if products.json is already in shared_assets
+    # After parsing architect output, add products.json to shared_assets ONLY for ecommerce_site
+    # CRITICAL: products.json is ONLY required for ecommerce_site projects
+    # For information_site or web_app, do NOT force products.json unless explicitly requested
+    website_type = handoff.website_type.lower() if handoff.website_type else ""
+    if website_type == "ecommerce_site" and handoff.products:
+        # Only add products.json for ecommerce_site projects
         if not any(asset.get("name") == "products.json" for asset in handoff.shared_assets):
-            # Add products.json to shared_assets (without path, engineer will generate it)
             products_json_asset = {
                 "name": "products.json",
                 "type": "json",
                 "path": "products.json"  # Relative path, engineer will use PROJECT_NAME to create full path
             }
             handoff.shared_assets.append(products_json_asset)
-            logger.info("Added products.json to shared_assets (will be generated by engineer phase)")
+            logger.info("Added products.json to shared_assets for ecommerce_site (will be generated by engineer phase)")
+        # Set product_data_location to products.json
+        handoff.product_data_location = "products.json"
+    elif website_type and website_type != "ecommerce_site":
+        logger.info(f"Skipping products.json for website_type={website_type} (not ecommerce_site)")
 
     return handoff
 
@@ -447,7 +489,9 @@ def _process_pm_section(handoff: StructuredHandoff, section: str, content: str) 
     content = content.strip()
 
     if section == "PROJECT_NAME":
-        handoff.project_name = content.split("\n")[0].strip() if content else ""
+        from nat_mas_agents.config import normalize_project_name
+        project_name_raw = content.split("\n")[0].strip() if content else ""
+        handoff.project_name = normalize_project_name(project_name_raw)
 
     elif section == "STEPS":
         # Parse steps
@@ -587,7 +631,7 @@ def format_handoff_for_agent(handoff: StructuredHandoff) -> str:
     lines.extend(
         [
             "",
-            f"PRODUCT_DATA_LOCATION: {handoff.product_data_location or 'Hardcoded in HTML'}",
+            f"PRODUCT_DATA_LOCATION: {handoff.product_data_location or 'products.json'}",
             "",
             "=== END STRUCTURED HANDOFF ===",
         ]

@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "name": "Wireless Bluetooth Headphones",
+        "price": 59.99,
+        "category": "Electronics",
+        "description": "High-quality wireless headphones with noise cancellation.",
+        "image": "https://example.com/images/headphones.jpg"
+    },
+    {
+        "id": 2,
+        "name": "Smart LED TV",
+        "price": 299.99,
+        "category": "Electronics",
+        "description": "4K Smart LED TV with built-in streaming services.",
+        "image": "https://example.com/images/tv.jpg"
+    },
+    {
+        "id": 3,
+        "name": "Coffee Maker",
+        "price": 49.99,
+        "category": "Home Appliances",
+        "description": "Compact coffee maker for brewing up to 12 cups.",
+        "image": "https://example.com/images/coffee-maker.jpg"
+    },
+    {
+        "id": 4,
+        "name": "Backpack",
+        "price": 39.99,
+        "category": "Fashion",
+        "description": "Water-resistant backpack with multiple compartments.",
+        "image": "https://example.com/images/backpack.jpg"
+    },
+    {
+        "id": 5,
+        "name": "Smart Watch",
+        "price": 199.99,
+        "category": "Electronics",
+        "description": "Fitness tracker with heart rate monitor and GPS.",
+        "image": "https://example.com/images/smart-watch.jpg"
+    }
+]

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your shopping cart on Clothing Store Homepage. View and manage your items before checkout.">
+    <meta property="og:title" content="Shopping Cart - Clothing Store Homepage">
+    <meta property="og:description" content="Your shopping cart on Clothing Store Homepage. View and manage your items before checkout.">
+    <meta property="og:image" content="https://example.com/images/cart-preview.jpg">
+    <meta property="og:url" content="https://example.com/cart.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Shopping Cart - Clothing Store Homepage">
+    <meta name="twitter:description" content="Your shopping cart on Clothing Store Homepage. View and manage your items before checkout.">
+    <meta name="twitter:image" content="https://example.com/images/cart-preview.jpg">
+    <meta name="twitter:url" content="https://example.com/cart.html">
+    <link rel="canonical" href="https://example.com/cart.html">
+    <title>Shopping Cart - Clothing Store Homepage</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Shopping Cart",
+      "description": "Your shopping cart on Clothing Store Homepage. View and manage your items before checkout.",
+      "url": "https://example.com/cart.html",
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [{
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://example.com/index.html"
+        },{
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Shop",
+          "item": "https://example.com/shop.html"
+        },{
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Cart",
+          "item": "https://example.com/cart.html"
+        }]
+      }
+    }
+    </script>
+</head>
+<body>
+    <header role="banner" class="header">
+        <a href="index.html" class="header__logo" aria-label="Return to homepage">Clothing Store</a>
+        <nav class="header__nav" aria-label="Main navigation">
+            <ul class="header__nav-list">
+                <li class="header__nav-item"><a href="index.html" class="header__nav-link">Home</a></li>
+                <li class="header__nav-item"><a href="shop.html" class="header__nav-link">Shop</a></li>
+                <li class="header__nav-item"><a href="cart.html" class="header__nav-link header__nav-link--active">Cart</a></li>
+            </ul>
+        </nav>
+        <div class="header__search">
+            <input type="text" id="search-input" class="header__search-input" placeholder="Search..." aria-label="Search products">
+        </div>
+        <div class="header__cart">
+            <a href="cart.html" class="header__cart-link" aria-label="View shopping cart">
+                <span class="header__cart-icon"></span>
+                <span id="cart-count" class="header__cart-count">0</span>
+            </a>
+        </div>
+    </header>
+
+    <main role="main" class="cart">
+        <h1 class="cart__title">Shopping Cart</h1>
+        <section class="cart__section" aria-labelledby="cart-section-title">
+            <h2 id="cart-section-title" class="cart__section-title">Your Items</h2>
+            <div id="cart-items" class="cart__items" aria-live="polite">
+                <!-- Dynamic content will be inserted here by JavaScript -->
+            </div>
+            <div id="cart-empty" class="cart__empty" hidden>
+                <p>Your cart is empty. <a href="shop.html" class="cart__empty-link">Continue shopping</a>.</p>
+            </div>
+        </section>
+        <section class="cart__section cart__section--summary" aria-labelledby="cart-summary-title">
+            <h2 id="cart-summary-title" class="cart__section-title">Summary</h2>
+            <div class="cart__summary">
+                <div class="cart__summary-item">
+                    <span class="cart__summary-label">Subtotal:</span>
+                    <span id="cart-subtotal" class="cart__summary-value">$0.00</span>
+                </div>
+                <div class="cart__summary-item">
+                    <span class="cart__summary-label">Shipping:</span>
+                    <span class="cart__summary-value">Free</span>
+                </div>
+                <div class="cart__summary-item cart__summary-item--total">
+                    <span class="cart__summary-label">Total:</span>
+                    <span id="cart-total" class="cart__summary-value">$0.00</span>
+                </div>
+            </div>
+            <button type="button" class="cart__checkout-button" data-js="checkout-button" aria-label="Proceed to checkout">Checkout</button>
+        </section>
+    </main>
+
+    <footer role="contentinfo" class="footer">
+        <div class="footer__content">
+            <div class="footer__section">
+                <h3 class="footer__section-title">Information</h3>
+                <ul class="footer__list">
+                    <li class="footer__item"><a href="about.html" class="footer__link">About Us</a></li>
+                    <li class="footer__item"><a href="contact.html" class="footer__link">Contact</a></li>
+                    <li class="footer__item"><a href="faq.html" class="footer__link">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer__section">
+                <h3 class="footer__section-title">Customer Service</h3>
+                <ul class="footer__list">
+                    <li class="footer__item"><a href="returns.html" class="footer__link">Returns</a></li>
+                    <li class="footer__item"><a href="privacy.html" class="footer__link">Privacy Policy</a></li>
+                    <li class="footer__item"><a href="terms.html" class="footer__link">Terms of Service</a></li>
+                </ul>
+            </div>
+            <div class="footer__section">
+                <h3 class="footer__section-title">Follow Us</h3>
+                <ul class="footer__list">
+                    <li class="footer__item"><a href="https://facebook.com/clothingstore" class="footer__link">Facebook</a></li>
+                    <li class="footer__item"><a href="https://twitter.com/clothingstore" class="footer__link">Twitter</a></li>
+                    <li class="footer__item"><a href="https://instagram.com/clothingstore" class="footer__link">Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <p class="footer__copyright">© 2023 Clothing Store. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js" defer></script>
+</body>
+</html>

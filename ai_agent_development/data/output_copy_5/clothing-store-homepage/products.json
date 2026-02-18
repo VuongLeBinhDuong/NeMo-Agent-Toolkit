@@ -1,0 +1,44 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Men's Classic Fit T-Shirt",
+      "price": 19.99,
+      "category": "Men's Clothing",
+      "description": "A comfortable and stylish men's t-shirt made from 100% cotton. Perfect for everyday wear.",
+      "image": "SHARED_ASSETS/images/mens-tshirt.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Women's Flowy Maxi Dress",
+      "price": 49.99,
+      "category": "Women's Clothing",
+      "description": "A flowy maxi dress with a flattering silhouette, ideal for summer events and casual outings.",
+      "image": "SHARED_ASSETS/images/womens-dress.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Unisex Jogger Pants",
+      "price": 29.99,
+      "category": "Unisex Clothing",
+      "description": "Comfortable jogger pants suitable for both men and women, perfect for fitness and everyday wear.",
+      "image": "SHARED_ASSETS/images/jogger-pants.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Men's Leather Belt",
+      "price": 24.99,
+      "category": "Men's Accessories",
+      "description": "A high-quality leather belt with a sleek design, available in multiple colors.",
+      "image": "SHARED_ASSETS/images/mens-belt.jpg"
+    },
+    {
+      "id": 5,
+      "name": "Women's Crossbody Bag",
+      "price": 39.99,
+      "category": "Women's Accessories",
+      "description": "A stylish crossbody bag with multiple compartments for easy organization.",
+      "image": "SHARED_ASSETS/images/womens-bag.jpg"
+    }
+  ]
+}

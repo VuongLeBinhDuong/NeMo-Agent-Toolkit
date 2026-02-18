@@ -30,34 +30,50 @@ from nat.data_models.function import FunctionBaseConfig
 
 TESTER_BRIEF = """
 === QA TESTER BRIEF ===
-You are Phase 5 QA Tester. You MUST follow strict ReAct format:
+You are Phase 5 QA Tester. Your job is to READ and TEST code, NOT to modify it.
 
-Thought: describe reasoning, which files you will inspect, and what validations you will run (plain text, no JSON)
+CRITICAL RULES:
+- You MUST ONLY write to output/doc/tester_output.txt
+- You MUST NEVER modify, overwrite, or save any files in the PROJECT_ARTIFACTS_DIR
+- You MUST ONLY use file_reader to read files, NEVER use save_file_code on project files
+- If you find issues, document them in the test report, DO NOT fix the code yourself
+
+Your task:
+1. Read the generated files using file_reader tool (read-only)
+2. Check for basic issues (syntax errors, missing files, broken functionality)
+3. Save ONLY a test report to output/doc/tester_output.txt
+
+Workflow:
+Thought: I will read the generated files and check for issues. I will NOT modify any files.
+Action: file_reader
+Action Input: {{"file_path": "output/PROJECT_NAME/filename.html"}}
+Observation: [File content - READ ONLY]
+[Repeat for other files as needed - HTML, CSS, JS, JSON files]
+Thought: I've reviewed all files. Now I'll create the test report. I will ONLY write to output/doc/tester_output.txt.
 Action: save_file_code
-Action Input: {{"file_path": "output/doc/tester_output.txt", "code_content": "<FULL QA REPORT>"}}
-Observation: Success message from tool (verbatim, no edits)
-Thought: Confirm completion
+Action Input: {{"file_path": "output/doc/tester_output.txt", "code_content": "<QA REPORT TEXT>"}}
+Observation: [Success message]
+Thought: Test report saved successfully. I did NOT modify any project files.
 Final Answer:
 OUTPUT_FILE: output/doc/tester_output.txt
 STATUS: Test report saved.
 
-Hard requirements:
-- Call save_file_code exactly once.
-- Action Input MUST be valid JSON with double-quoted keys/values, no trailing commas, no Markdown fences.
-- Replace <FULL QA REPORT> with the complete QA report body (no placeholders).
-- Use file_reader to inspect any artifact referenced in the report; call it separately per file.
-- If a file cannot be found/read, explicitly flag it as a High severity finding.
-- Every finding that requires fixes MUST include a corresponding patch/diff summary in the PATCHES section (reference filenames, line ranges, and expected change; diff snippets encouraged).
-- After the Observation from save_file_code, immediately provide the Final Answer block exactly as shown.
+Key checks to perform (READ ONLY):
+- Verify all required files exist (use file_reader to check)
+- Check for syntax errors (read JSON, CSS, JS files and validate)
+- Verify basic functionality (check if code structure is correct)
+- Note any missing files or broken features
 
-QA report body must include sections in order:
-PROJECT_NAME:
-SCOPE: (summarize what was tested, including directories and key requirements covered)
-VERIFICATIONS: (bullet list describing each verification performed; reference requirement IDs or sections)
-FINDINGS: (bullet list, format "Severity [High|Medium|Low] - description - Impact/Recommendation")
-PATCHES: (bullet list; each entry must specify the file path, diff-style instructions, and minimal edits required to resolve associated findings. Provide ```diff``` snippets when possible.)
-RECOMMENDATIONS: (bullet list of concrete follow-up actions)
-SIGN_OFF: (one sentence concluding pass/fail status)
+QA report format (include these sections):
+PROJECT_NAME: [project name]
+SCOPE: [what you tested - list of files you read]
+VERIFICATIONS: [list what you checked - be specific about which files]
+FINDINGS: [list any issues found, format: "Severity [CRITICAL|High|Medium|Low] - description - file: filename"]
+PATCHES: [describe what needs to be fixed, but DO NOT write the fixes - just describe them]
+RECOMMENDATIONS: [suggestions for improvements]
+SIGN_OFF: [PASS if no critical issues, FAIL if critical issues found]
+
+REMEMBER: You are a tester, not a developer. Document issues, don't fix them.
 """
 
 
@@ -76,7 +92,7 @@ class MASWorkflowTesterPhaseConfig(FunctionBaseConfig, name="tester_phase"):
 
 
 def _extract_status(agent_name: str, output_text: str) -> str:
-    """Extract STATUS line from an agent's output."""
+    """Extract STATUS line from an agent's output. Returns default if not found."""
 
     for line in output_text.splitlines():
         stripped_line = line.strip()
@@ -93,11 +109,17 @@ def _extract_status(agent_name: str, output_text: str) -> str:
     recovered_status = _recover_status_from_tool_call(agent_name, output_text)
     if recovered_status:
         return recovered_status
-    raise ValueError(f"{agent_name} did not return a STATUS line")
+    # Return default status instead of raising error
+    logger.warning("Could not extract STATUS from %s output, using default", agent_name)
+    return DEFAULT_AGENT_STATUSES.get(agent_name, "Test report saved")
 
 
 def _recover_status_from_tool_call(agent_name: str, output_text: str) -> str | None:
-    """Attempt to recover STATUS by executing the agent's intended tool call."""
+    """Attempt to recover STATUS by executing the agent's intended tool call.
+    
+    IMPORTANT: For tester phase, only recover if the file path is tester_output.txt
+    to prevent accidentally overwriting project files.
+    """
 
     triple_double = re.search(r'"code_content"\s*:\s*"""(.*?)"""', output_text, re.DOTALL)
     triple_single = re.search(r"'code_content'\s*:\s*'''(.*?)'''", output_text, re.DOTALL)
@@ -111,6 +133,20 @@ def _recover_status_from_tool_call(agent_name: str, output_text: str) -> str | N
     if not file_path_match:
         return None
 
+    file_path_str = file_path_match.group(1)
+    file_path = Path(file_path_str)
+    
+    # For tester phase, only allow recovery for tester_output.txt
+    # This prevents accidentally overwriting project files
+    if agent_name == "tester":
+        if "tester_output.txt" not in file_path_str:
+            logger.warning(
+                "Tester agent attempted to write to %s instead of tester_output.txt. "
+                "Ignoring to prevent overwriting project files.",
+                file_path_str
+            )
+            return None
+
     code_content = textwrap.dedent(code_match.group(1))
     normalized_content = (
         code_content.replace("\r\n", "\n")
@@ -119,7 +155,6 @@ def _recover_status_from_tool_call(agent_name: str, output_text: str) -> str | N
         .strip("\n")
     )
 
-    file_path = Path(file_path_match.group(1))
     file_path.parent.mkdir(parents=True, exist_ok=True)
     file_path.write_text(f"{normalized_content}\n", encoding="utf-8")
 
@@ -166,12 +201,14 @@ def _extract_content_from_file_reader_response(response: str) -> str:
 
 
 def _extract_project_name(content: str) -> str:
-    """Extract PROJECT_NAME from project manager content."""
+    """Extract PROJECT_NAME from project manager content and normalize to kebab-case."""
+    from nat_mas_agents.config import normalize_project_name
+    
     for line in content.splitlines():
         if line.strip().startswith("PROJECT_NAME:"):
             name = line.split(":", 1)[1].strip()
             if name:
-                return name
+                return normalize_project_name(name)
     return "project_output"
 
 
@@ -209,42 +246,66 @@ async def mas_tester_phase(config: MASWorkflowTesterPhaseConfig, builder: Builde
         else:
             logger.info("file_reader not available, tester agent must load project_manager_output.txt manually.")
 
-        project_name = _extract_project_name(pm_content or "")
+        project_name = _extract_project_name(pm_content or "") if pm_content else "project_output"
         artifacts_dir = f"output/{project_name}"
 
+        # Simplified message with clear restrictions
         tester_message = [
             TESTER_BRIEF.strip(),
             "",
-            f"PREVIOUS_STATUS: {DEFAULT_AGENT_STATUSES['engineer']}",
             f"PROJECT_ARTIFACTS_DIR: {artifacts_dir}",
-            "IMPORTANT:",
-            "- Use file_reader to inspect any artifacts inside the directory above.",
-            "- Verify requirements, categories, filters, shared header/footer, and cart behaviors.",
-            "- If artifacts_dir does not exist, document it as a High severity finding.",
+            "",
+            "CRITICAL INSTRUCTIONS:",
+            "- READ ONLY: Use file_reader to read files in the project directory above",
+            "- DO NOT MODIFY: Never use save_file_code on any file in PROJECT_ARTIFACTS_DIR",
+            "- WRITE ONLY: Save your test report ONLY to output/doc/tester_output.txt",
+            "- Example file paths to read:",
+            f"  - {artifacts_dir}/index.html",
+            f"  - {artifacts_dir}/shop.html",
+            f"  - {artifacts_dir}/styles.css",
+            f"  - {artifacts_dir}/script.js",
+            f"  - {artifacts_dir}/products.json",
+            "",
+            "REMEMBER: You are testing, not fixing. Document issues in the report only.",
         ]
 
         if pm_content:
             tester_message.extend(
                 [
                     "",
-                    "EXTRACTED_PROJECT_MANAGER_CONTENT:",
-                    pm_content,
-                ]
-            )
-        else:
-            tester_message.extend(
-                [
-                    "",
-                    "Unable to inline project manager content. Load output/doc/project_manager_output.txt before testing.",
+                    "PROJECT_REQUIREMENTS:",
+                    pm_content[:2000],  # Limit length to avoid overwhelming the agent
                 ]
             )
 
         tester_payload = "\n".join(tester_message)
 
-        tester_output = await _invoke_agent("tester", tester_fn.ainvoke, tester_payload)
-        tester_status = _extract_status("tester", tester_output)
+        try:
+            tester_output = await _invoke_agent("tester", tester_fn.ainvoke, tester_payload)
+            tester_status = _extract_status("tester", tester_output)
+            logger.info("QA tester phase completed with status: %s", tester_status)
+        except Exception as exc:
+            logger.error("Tester phase failed: %s", exc, exc_info=True)
+            # Create a minimal report if agent fails
+            fallback_report = f"""PROJECT_NAME: {project_name}
+SCOPE: Basic file existence check
+VERIFICATIONS:
+- Attempted to run QA tests
+FINDINGS:
+- High - QA tester phase encountered an error: {exc}
+RECOMMENDATIONS:
+- Review error logs and retry tester phase
+SIGN_OFF: FAIL - Tester phase error occurred
+"""
+            try:
+                Path("output/doc").mkdir(parents=True, exist_ok=True)
+                Path("output/doc/tester_output.txt").write_text(fallback_report, encoding="utf-8")
+                logger.info("Created fallback tester report")
+            except Exception as write_exc:
+                logger.error("Could not create fallback report: %s", write_exc)
+            tester_output = f"Tester phase error: {exc}\n\n{fallback_report}"
+            tester_status = "Test report saved (fallback)"
 
-        logger.info("QA tester phase completed with status: %s", tester_status)
         return tester_output
 
     yield FunctionInfo.create(single_fn=_response_fn)

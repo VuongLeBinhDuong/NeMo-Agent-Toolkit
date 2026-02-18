@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Checkout page for Fashion Marketplace Website. Complete your purchase with ease.">
+    <meta property="og:title" content="Checkout - Fashion Marketplace">
+    <meta property="og:description" content="Checkout page for Fashion Marketplace Website. Complete your purchase with ease.">
+    <meta property="og:image" content="https://example.com/images/logo.png">
+    <meta property="og:url" content="https://example.com/checkout.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Checkout - Fashion Marketplace">
+    <meta name="twitter:description" content="Checkout page for Fashion Marketplace Website. Complete your purchase with ease.">
+    <meta name="twitter:image" content="https://example.com/images/logo.png">
+    <meta name="twitter:site" content="@FashionMarketplace">
+    <link rel="canonical" href="https://example.com/checkout.html">
+    <link rel="stylesheet" href="styles.css">
+    <title>Checkout - Fashion Marketplace</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Checkout",
+      "description": "Checkout page for Fashion Marketplace Website. Complete your purchase with ease.",
+      "url": "https://example.com/checkout.html",
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [{
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://example.com/"
+        },{
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Checkout",
+          "item": "https://example.com/checkout.html"
+        }]
+      }
+    }
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="header__logo">
+            <a href="index.html" aria-label="Fashion Marketplace Home">
+                <img src="images/logo.png" alt="Fashion Marketplace Logo" loading="lazy">
+            </a>
+        </div>
+        <nav class="header__nav" aria-label="Main Navigation">
+            <ul>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="checkout.html" aria-current="page">Checkout</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+        <div class="header__search">
+            <input type="text" id="search-input" class="header__search-input" placeholder="Search..." aria-label="Search products">
+        </div>
+        <div class="header__cart">
+            <a href="cart.html" aria-label="View cart">
+                <span id="cart-count" class="header__cart-count">0</span>
+                <span id="cart-subtotal" class="header__cart-subtotal">$0.00</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="checkout">
+            <h1>Checkout</h1>
+            <form id="checkout-form" class="checkout__form" aria-labelledby="checkout-form-title">
+                <fieldset class="checkout__fieldset">
+                    <legend id="checkout-form-title">Shipping Information</legend>
+                    <div class="checkout__form-group">
+                        <label for="shipping-name" class="checkout__form-label">Full Name</label>
+                        <input type="text" id="shipping-name" name="shipping-name" class="checkout__form-input" required aria-required="true">
+                    </div>
+                    <div class="checkout__form-group">
+                        <label for="shipping-address" class="checkout__form-label">Address</label>
+                        <input type="text" id="shipping-address" name="shipping-address" class="checkout__form-input" required aria-required="true">
+                    </div>
+                    <div class="checkout__form-group">
+                        <label for="shipping-city" class="checkout__form-label">City</label>
+                        <input type="text" id="shipping-city" name="shipping-city" class="checkout__form-input" required aria-required="true">
+                    </div>
+                    <div class="checkout__form-group">
+                        <label for="shipping-state" class="checkout__form-label">State</label>
+                        <input type="text" id="shipping-state" name="shipping-state" class="checkout__form-input" required aria-required="true">
+                    </div>
+                    <div class="checkout__form-group">
+                        <label for="shipping-zip" class="checkout__form-label">ZIP Code</label>
+                        <input type="text" id="shipping-zip" name="shipping-zip" class="checkout__form-input" required aria-required="true">
+                    </div>
+                    <div class="checkout__form-group">
+                        <label for="shipping-country" class="checkout__form-label">Country</label>
+                        <select id="shipping-country" name="shipping-country" class="checkout__form-input" required aria-required="true">
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <!-- Add more countries as needed -->
+                        </select>
+                    </div>
+                </fieldset>
+                <fieldset class="checkout__fieldset">
+                    <legend>Billing Information</legend>
+                    <div class="checkout__form-group">
+                        <label for="billing-name" class="checkout__form-label">Full Name</label>
+                        <input type="text" id="billing-name" name="billing-name" class="checkout__form-input" required aria-required="true">
+                    </div>
+                    <div class="checkout__form-group">
+                        <label for="billing-address" class="checkout__form-label">Address</label>
+                        <input type="text" id="billing-address" name="billing-address" class="checkout__form-input" required aria-required="true">
+                    </div>
+                    <div class="checkout__form-group">
+                        <label for="billing-city" class="checkout__form-label">City</label>
+                        <input type="text" id="billing-city" name="billing-city" class="checkout__form-input" required aria-required="true">
+                    </div>
+                    <div class="checkout__form-group">
+                        <label for="billing-state" class="checkout__form-label">State</label>
+                        <input type="text" id="billing-state" name="billing-state" class="checkout__form-input" required aria-required="true">
+                    </div>
+                    <div class="checkout__form-group">
+                        <label for="billing-zip" class="checkout__form-label">ZIP Code</label>
+                        <input type="text" id="billing-zip" name="billing-zip" class="checkout__form-input" required aria-required="true">
+                    </div>
+                    <div class="checkout__form-group">
+                        <label for="billing-country" class="checkout__form-label">Country</label>
+                        <select id="billing-country" name="billing-country" class="checkout__form-input" required aria-required="true">
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <!-- Add more countries as needed -->
+                        </select>
+                    </div>
+                </fieldset>
+                <fieldset class="checkout__fieldset">
+                    <legend>Payment Method</legend>
+                    <div class="checkout__form-group">
+                        <label for="payment-method" class="checkout__form-label">Select Payment Method</label>
+                        <select id="payment-method" name="payment-method" class="checkout__form-input" required aria-required="true">
+                            <option value="credit-card">Credit Card</option>
+                            <option value="paypal">PayPal</option>
+                            <!-- Add more payment methods as needed -->
+                        </select>
+                    </div>
+                    <div class="checkout__form-group">
+                        <label for="card-number" class="checkout__form-label">Card Number</label>
+                        <input type="text" id="card-number" name="card-number" class="checkout__form-input" required aria-required="true">
+                    </div>
+                    <div class="checkout__form-group">
+                        <label for="card-expiry" class="checkout__form-label">Expiry Date</label>
+                        <input type="text" id="card-expiry" name="card-expiry" class="checkout__form-input" placeholder="MM/YY" required aria-required="true">
+                    </div>
+                    <div class="checkout__form-group">
+                        <label for="card-cvv" class="checkout__form-label">CVV</label>
+                        <input type="text" id="card-cvv" name="card-cvv" class="checkout__form-input" required aria-required="true">
+                    </div>
+                </fieldset>
+                <div class="checkout__summary" id="checkout-summary">
+                    <h2>Order Summary</h2>
+                    <ul class="checkout__summary-list">
+                        <li class="checkout__summary-item">
+                            <span class="checkout__summary-item-name">Product 1</span>
+                            <span class="checkout__summary-item-price">$29.99</span>
+                        </li>
+                        <li class="checkout__summary-item">
+                            <span class="checkout__summary-item-name">Product 2</span>
+                            <span class="checkout__summary-item-price">$49.99</span>
+                        </li>
+                        <!-- Add more items as needed -->
+                    </ul>
+                    <div class="checkout__summary-total">
+                        <strong>Total:</strong>
+                        <span id="order-total">$79.98</span>
+                    </div>
+                </div>
+                <button type="submit" class="checkout__submit-button" data-js="submit-checkout">Place Order</button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer__content">
+            <div class="footer__section">
+                <h2>About Us</h2>
+                <p>Welcome to Fashion Marketplace, your one-stop shop for the latest fashion trends.</p>
+            </div>
+            <div class="footer__section">
+                <h2>Quick Links</h2>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="shop.html">Shop</a></li>
+                    <li><a href="cart.html">Cart</a></li>
+                    <li><a href="checkout.html">Checkout</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+            <div class="footer__section">
+                <h2>Contact Us</h2>
+                <p>Email: support@fashionmarketplace.com</p>
+                <p>Phone: +1-800-555-1234</p>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <p>&copy; 2023 Fashion Marketplace. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js" defer></script>
+</body>
+</html>

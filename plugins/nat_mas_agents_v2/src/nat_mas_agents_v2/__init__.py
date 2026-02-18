@@ -1,0 +1,45 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""NAT MAS Agents V2 plugin package.
+
+This package implements a tool-grounded iterative coding loop architecture
+with structured shared state communication between agents.
+"""
+
+from .models import (
+    ArtifactMetadata,
+    Critique,
+    ExecutionLog,
+    Subtask,
+    TaskState,
+    TestResult,
+)
+
+# Import tools to register them with NAT
+from . import tools  # noqa: F401
+
+# Import agents (planner_step, worker_step, executor_step, critic_step) and workflow (code_loop_workflow)
+from . import agents  # noqa: F401
+from . import workflow  # noqa: F401  # workflow package: coding_workflow
+
+__all__ = [
+    "ArtifactMetadata",
+    "Critique",
+    "ExecutionLog",
+    "Subtask",
+    "TaskState",
+    "TestResult",
+]

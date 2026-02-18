@@ -1,0 +1,80 @@
+REQUIREMENTS:
+- Build a multi-page fashion marketplace website with clean, modern styling and fully responsive behavior.
+- The website should have a fixed header styled with a compact, sticky top bar, flex layout for logo–menu–search–cart alignment, smooth hover effects, and mobile breakpoints that collapse the menu into a toggleable drawer.
+- JavaScript should control the live search, category filtering, sorting, and a dynamic cart badge that updates in real time.
+
+PRODUCTS:
+  - Product 1: $19.99, Women's Clothing, This is a high-quality women's clothing item.
+  - Product 2: $29.99, Men's Clothing, This is a high-quality men's clothing item.
+  - Product 3: $39.99, Accessories, This is a high-quality accessories item.
+  - Product 4: $49.99, Shoes, This is a high-quality shoes item.
+  - Product 5: $59.99, Bags, This is a high-quality bags item.
+  - Product 6: $69.99, Jewelry, This is a high-quality jewelry item.
+  - Product 7: $79.99, Watches, This is a high-quality watches item.
+  - Product 8: $89.99, Sunglasses, This is a high-quality sunglasses item.
+  - Product 9: $99.99, Hats, This is a high-quality hats item.
+  - Product 10: $109.99, Scarves, This is a high-quality scarves item.
+
+CATEGORIES:
+  - Women's Clothing
+  - Men's Clothing
+  - Accessories
+  - Shoes
+  - Bags
+  - Jewelry
+  - Watches
+  - Sunglasses
+  - Hats
+  - Scarves
+
+SORT_OPTIONS:
+  - Price: Low to High
+  - Price: High to Low
+  - Name: A to Z
+  - Name: Z to A
+
+FUNCTIONALITY:
+  - Live search
+  - Category filtering
+  - Sorting
+  - Dynamic cart badge
+
+UI_COMPONENTS:
+  - Header with search bar and cart section
+  - Footer with company info, navigation links, and contact info
+  - Product cards with image, name, price, and description
+  - Cart page with item list, subtotal, and checkout section
+
+SHARED_COMPONENTS:
+  - Header with search bar and cart section
+  - Footer with company info, navigation links, and contact info
+  - Product cards with image, name, price, and description
+  - Cart page with item list, subtotal, and checkout section
+
+SHARED_ASSETS:
+  - Global stylesheet (styles.css)
+  - Global script (script.js)
+  - Products data file (products.json)
+
+FILES:
+  - index.html
+  - shop.html
+  - cart.html
+  - checkout.html
+  - about.html
+  - styles.css
+  - script.js
+  - products.json
+
+ORDER:
+  - products.json -> index.html -> shop.html -> cart.html -> checkout.html -> about.html -> styles.css -> script.js
+
+FILE_REQUIREMENTS:
+  - index.html: Reference HEADER/FOOTER SOPs for structure. MUST have empty container id="products-container" (products loaded from JSON, NEVER hardcoded). Product listing pages: include filter/sort controls. Use relative paths for links.
+  - shop.html: Reference HEADER/FOOTER SOPs for structure. MUST have empty container id="products-container" (products loaded from JSON, NEVER hardcoded). Product listing pages: include filter/sort controls. Use relative paths for links.
+  - cart.html: Reference HEADER/FOOTER SOPs for structure. MUST have empty container id="cart-items" (cart items loaded from localStorage, NEVER hardcoded). Use relative paths for links.
+  - checkout.html: Reference HEADER/FOOTER SOPs for structure. MUST have empty container id="checkout-summary" (checkout summary loaded from localStorage, NEVER hardcoded). Use relative paths for links.
+  - about.html: Reference HEADER/FOOTER SOPs for structure. Use relative paths for links.
+  - styles.css: Reference code examples for full design system. Define CSS variables/design tokens, global resets, layout containers, sticky header/nav, hero banner, filter/sort/search toolbar, product grid/cards, cart + checkout forms, modals/toasts, utility classes, dark mode + prefers-reduced-motion support, and loading states.
+  - script.js: Reference CART, FILTER, SORT, SEARCH SOPs. Use id="products-container". Check elements exist before using. MUST load products from products.json using fetch(). Use ES6+ classes for organization. Implement Intersection Observer for lazy loading, modal management, state management, and performance optimizations. Cart page: render to #cart-items.
+  - products.json: CRITICAL - MUST be generated with ALL products from PRODUCTS section. Format: array of objects with id, name, price, category, description, image properties. Save to output/[PROJECT_NAME]/products.json.

@@ -1,0 +1,82 @@
+[
+    {
+        "id": 1,
+        "name": "Women's Clothing",
+        "price": 19.99,
+        "category": "Women's Clothing",
+        "description": "This is a high-quality women's clothing item.",
+        "image": "women_clothing.jpg"
+    },
+    {
+        "id": 2,
+        "name": "Men's Clothing",
+        "price": 29.99,
+        "category": "Men's Clothing",
+        "description": "This is a high-quality men's clothing item.",
+        "image": "men_clothing.jpg"
+    },
+    {
+        "id": 3,
+        "name": "Accessories",
+        "price": 39.99,
+        "category": "Accessories",
+        "description": "This is a high-quality accessories item.",
+        "image": "accessories.jpg"
+    },
+    {
+        "id": 4,
+        "name": "Shoes",
+        "price": 49.99,
+        "category": "Shoes",
+        "description": "This is a high-quality shoes item.",
+        "image": "shoes.jpg"
+    },
+    {
+        "id": 5,
+        "name": "Bags",
+        "price": 59.99,
+        "category": "Bags",
+        "description": "This is a high-quality bags item.",
+        "image": "bags.jpg"
+    },
+    {
+        "id": 6,
+        "name": "Jewelry",
+        "price": 69.99,
+        "category": "Jewelry",
+        "description": "This is a high-quality jewelry item.",
+        "image": "jewelry.jpg"
+    },
+    {
+        "id": 7,
+        "name": "Watches",
+        "price": 79.99,
+        "category": "Watches",
+        "description": "This is a high-quality watches item.",
+        "image": "watches.jpg"
+    },
+    {
+        "id": 8,
+        "name": "Sunglasses",
+        "price": 89.99,
+        "category": "Sunglasses",
+        "description": "This is a high-quality sunglasses item.",
+        "image": "sunglasses.jpg"
+    },
+    {
+        "id": 9,
+        "name": "Hats",
+        "price": 99.99,
+        "category": "Hats",
+        "description": "This is a high-quality hats item.",
+        "image": "hats.jpg"
+    },
+    {
+        "id": 10,
+        "name": "Scarves",
+        "price": 109.99,
+        "category": "Scarves",
+        "description": "This is a high-quality scarves item.",
+        "image": "scarves.jpg"
+    }
+]

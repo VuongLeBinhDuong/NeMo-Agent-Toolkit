@@ -1,0 +1,64 @@
+{
+  "store": {
+    "name": "Tech Gadget Store",
+    "description": "Your one-stop shop for the latest tech gadgets and accessories.",
+    "logo": "assets/images/logo.png",
+    "favicon": "assets/images/favicon.ico",
+    "contact": {
+      "email": "contact@techgadgetstore.com",
+      "phone": "+1234567890",
+      "address": "123 Tech Avenue, Gadget City, Techland"
+    },
+    "socialMedia": {
+      "facebook": "https://www.facebook.com/techgadgetstore",
+      "twitter": "https://www.twitter.com/techgadgetstore",
+      "instagram": "https://www.instagram.com/techgadgetstore",
+      "linkedin": "https://www.linkedin.com/company/techgadgetstore"
+    }
+  },
+  "components": {
+    "header": "components/header.html",
+    "footer": "components/footer.html",
+    "navbar": "components/navbar.html",
+    "productCard": "components/product-card.html",
+    "carousel": "components/carousel.html"
+  },
+  "assets": {
+    "css": [
+      "assets/css/style.css",
+      "assets/css/responsive.css"
+    ],
+    "js": [
+      "assets/js/main.js",
+      "assets/js/carousel.js"
+    ],
+    "images": [
+      "assets/images/banner.jpg",
+      "assets/images/product1.jpg",
+      "assets/images/product2.jpg",
+      "assets/images/product3.jpg"
+    ]
+  },
+  "pages": {
+    "home": {
+      "title": "Home",
+      "url": "/",
+      "description": "Welcome to Tech Gadget Store, where you can find the latest tech gadgets and accessories."
+    },
+    "products": {
+      "title": "Products",
+      "url": "/products",
+      "description": "Browse our wide range of tech gadgets and accessories."
+    },
+    "about": {
+      "title": "About Us",
+      "url": "/about",
+      "description": "Learn more about Tech Gadget Store and our mission."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "url": "/contact",
+      "description": "Get in touch with us for any inquiries or feedback."
+    }
+  }
+}

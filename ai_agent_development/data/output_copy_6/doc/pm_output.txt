@@ -1,0 +1,80 @@
+PRODUCT:
+
+Fashion Marketplace Website
+
+REQUIREMENTS:
+- Build a multi-page fashion marketplace website with clean, modern styling and fully responsive behavior.
+- The website should have a fixed header styled with a compact, sticky top bar, flex layout for logo–menu–search–cart alignment, smooth hover effects, and mobile breakpoints that collapse the menu into a toggleable drawer.
+- JavaScript should control the live search, category filtering, sorting, and a dynamic cart badge that updates in real time.
+
+FEATURES:
+- Fixed header with compact, sticky top bar
+- Flex layout for logo–menu–search–cart alignment
+- Smooth hover effects
+- Mobile breakpoints that collapse the menu into a toggleable drawer
+- Live search
+- Category filtering
+- Sorting
+- Dynamic cart badge that updates in real time
+
+PRODUCTS:
+- Product 1: $19.99, Women's Clothing, This is a high-quality women's clothing item.
+- Product 2: $29.99, Men's Clothing, This is a high-quality men's clothing item.
+- Product 3: $39.99, Accessories, This is a high-quality accessories item.
+- Product 4: $49.99, Shoes, This is a high-quality shoes item.
+- Product 5: $59.99, Bags, This is a high-quality bags item.
+- Product 6: $69.99, Jewelry, This is a high-quality jewelry item.
+- Product 7: $79.99, Watches, This is a high-quality watches item.
+- Product 8: $89.99, Sunglasses, This is a high-quality sunglasses item.
+- Product 9: $99.99, Hats, This is a high-quality hats item.
+- Product 10: $109.99, Scarves, This is a high-quality scarves item.
+
+CATEGORIES:
+- Women's Clothing
+- Men's Clothing
+- Accessories
+- Shoes
+- Bags
+- Jewelry
+- Watches
+- Sunglasses
+- Hats
+- Scarves
+
+SORT_OPTIONS:
+- Price: Low to High
+- Price: High to Low
+- Name: A to Z
+- Name: Z to A
+
+FUNCTIONALITY:
+- Products loaded from products.json file via JavaScript fetch()
+- localStorage for cart
+- Filtering
+- Sorting
+- Search
+- Dynamic cart badge that updates in real time
+
+UI_COMPONENTS:
+- Header with logo, menu, search bar, and cart section
+- Footer with company info, navigation links, and contact info
+- Product cards with image, name, price, and description
+- Cart page with item list, subtotal, and checkout section
+
+PAGE_REQUIREMENTS:
+- Homepage: fixed header, hero section with full-width images and text overlays, product gallery with CSS grid and hover animations
+- Shop page: extends homepage CSS and JS patterns, adds grid pagination and more advanced filters
+- Product Detail page: responsive two-column layout with image zoom/thumbnail switching, JS powers image preview changes and selected size/color states
+- Cart page: CSS transitions for sliding animations, structured item list layout, sticky subtotal/checkout sections, JS manages item quantities and total calculations
+
+SUCCESS_CRITERIA:
+- Website is fully responsive and works on all devices
+- All interactive components work as expected
+- Cart synchronization works seamlessly across all pages
+- Website has a clean and modern design
+
+SHARED_COMPONENTS:
+- Header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal)
+- Footer with company info, navigation links, and contact info
+- Product cards with image, name, price, and description
+- Cart page with item list, subtotal, and checkout section

@@ -1,0 +1,22 @@
+{
+  "project_name": "tech-gadget-store",
+  "requirements": "The website must be responsive and work on multiple devices.\n\nThe site must feature a shared header with logo, navigation menu, search bar, and a cart section showing item count and subtotal.\n\nThe site must have a consistent footer across all pages.",
+  "products": [],
+  "categories": [
+    "Smartphones",
+    "Headphones"
+  ],
+  "sort_options": [
+    "Price: Low to High",
+    "Price: High to Low",
+    "Name: A to Z"
+  ],
+  "files": [],
+  "shared_assets": [],
+  "shared_components": [
+    "Header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal)",
+    "Footer with company info, navigation links, and contact information"
+  ],
+  "tasks": [],
+  "product_data_location": ""
+}

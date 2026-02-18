@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your shopping cart on Clothing Store Homepage. View and manage your items, update quantities, and proceed to checkout.">
+    <meta property="og:title" content="Shopping Cart - Clothing Store Homepage">
+    <meta property="og:description" content="Your shopping cart on Clothing Store Homepage. View and manage your items, update quantities, and proceed to checkout.">
+    <meta property="og:image" content="https://example.com/images/logo.png">
+    <meta property="og:url" content="https://example.com/cart.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Shopping Cart - Clothing Store Homepage">
+    <meta name="twitter:description" content="Your shopping cart on Clothing Store Homepage. View and manage your items, update quantities, and proceed to checkout.">
+    <meta name="twitter:image" content="https://example.com/images/logo.png">
+    <link rel="canonical" href="https://example.com/cart.html">
+    <title>Shopping Cart - Clothing Store Homepage</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Shopping Cart",
+      "description": "Your shopping cart on Clothing Store Homepage. View and manage your items, update quantities, and proceed to checkout.",
+      "url": "https://example.com/cart.html",
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [{
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://example.com/"
+        },{
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Shopping Cart",
+          "item": "https://example.com/cart.html"
+        }]
+      }
+    }
+    </script>
+</head>
+<body>
+    <header role="banner" class="header">
+        <a href="index.html" class="header__logo" aria-label="Return to homepage">
+            <img src="images/logo.png" alt="Clothing Store Logo" loading="lazy">
+        </a>
+        <nav role="navigation" class="header__nav" aria-label="Main navigation">
+            <ul class="header__nav-list">
+                <li class="header__nav-item"><a href="index.html" class="header__nav-link">Home</a></li>
+                <li class="header__nav-item"><a href="products.html" class="header__nav-link">Products</a></li>
+                <li class="header__nav-item"><a href="about.html" class="header__nav-link">About Us</a></li>
+                <li class="header__nav-item"><a href="contact.html" class="header__nav-link">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="header__search">
+            <input type="text" id="search-input" class="header__search-input" placeholder="Search products..." aria-label="Search products">
+        </div>
+        <div class="header__cart" aria-label="Shopping cart">
+            <a href="cart.html" class="header__cart-link" aria-label="View shopping cart">
+                <span class="header__cart-icon">🛒</span>
+                <span id="cart-count" class="header__cart-count">0</span>
+            </a>
+        </div>
+    </header>
+    <main role="main" class="cart-page">
+        <h1 class="cart-page__title">Shopping Cart</h1>
+        <section class="cart-page__section" aria-labelledby="cart-section-title">
+            <h2 id="cart-section-title" class="cart-page__section-title">Your Items</h2>
+            <div id="cart-items" class="cart-page__items" aria-live="polite">
+                <!-- Dynamic content will be inserted here by JavaScript -->
+            </div>
+            <div id="cart-empty" class="cart-page__empty" hidden>
+                <p>Your cart is empty. <a href="products.html" class="cart-page__empty-link">Browse products</a>.</p>
+            </div>
+        </section>
+        <section class="cart-page__section" aria-labelledby="cart-summary-title">
+            <h2 id="cart-summary-title" class="cart-page__section-title">Summary</h2>
+            <div class="cart-page__summary">
+                <div class="cart-page__summary-item">
+                    <span class="cart-page__summary-label">Subtotal:</span>
+                    <span id="cart-subtotal" class="cart-page__summary-value">$0.00</span>
+                </div>
+                <button id="checkout-button" class="cart-page__checkout-button" aria-label="Proceed to checkout" data-js="checkout">Checkout</button>
+            </div>
+        </section>
+    </main>
+    <footer role="contentinfo" class="footer">
+        <p class="footer__text">© 2023 Clothing Store Homepage. All rights reserved.</p>
+        <nav role="navigation" class="footer__nav" aria-label="Footer navigation">
+            <ul class="footer__nav-list">
+                <li class="footer__nav-item"><a href="privacy.html" class="footer__nav-link">Privacy Policy</a></li>
+                <li class="footer__nav-item"><a href="terms.html" class="footer__nav-link">Terms of Service</a></li>
+            </ul>
+        </nav>
+    </footer>
+    <script src="script.js" defer></script>
+</body>
+</html>

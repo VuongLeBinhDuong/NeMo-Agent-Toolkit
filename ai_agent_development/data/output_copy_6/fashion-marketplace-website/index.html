@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore the latest fashion trends at our marketplace. Shop the latest styles in clothing, accessories, and more.">
+    <meta property="og:title" content="Fashion Marketplace">
+    <meta property="og:description" content="Explore the latest fashion trends at our marketplace. Shop the latest styles in clothing, accessories, and more.">
+    <meta property="og:image" content="https://example.com/images/og-image.jpg">
+    <meta property="og:url" content="https://example.com/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Fashion Marketplace">
+    <meta name="twitter:description" content="Explore the latest fashion trends at our marketplace. Shop the latest styles in clothing, accessories, and more.">
+    <meta name="twitter:image" content="https://example.com/images/twitter-image.jpg">
+    <meta name="twitter:url" content="https://example.com/">
+    <link rel="canonical" href="https://example.com/">
+    <title>Fashion Marketplace</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Fashion Marketplace",
+      "url": "https://example.com/",
+      "logo": "https://example.com/images/logo.png",
+      "sameAs": [
+        "https://www.facebook.com/fashionmarketplace",
+        "https://twitter.com/fashionmarketplace",
+        "https://instagram.com/fashionmarketplace"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://example.com/"
+      }]
+    }
+    </script>
+</head>
+<body>
+    <header class="header" role="banner">
+        <div class="header__logo">
+            <a href="index.html" aria-label="Fashion Marketplace Home">
+                <img src="images/logo.png" alt="Fashion Marketplace Logo" loading="lazy">
+            </a>
+        </div>
+        <nav class="header__nav" aria-label="Main Navigation">
+            <ul>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="checkout.html">Checkout</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+        <div class="header__search">
+            <input type="search" id="search-input" class="header__search-input" placeholder="Search for products..." aria-label="Search for products">
+        </div>
+        <div class="header__cart" aria-label="Shopping Cart">
+            <a href="cart.html" aria-label="View shopping cart">
+                <span id="cart-count" class="header__cart-count">0</span>
+                <img src="images/cart.png" alt="Shopping Cart" loading="lazy">
+            </a>
+            <span id="cart-subtotal" class="header__cart-subtotal">$0.00</span>
+        </div>
+    </header>
+    <main role="main">
+        <section id="products-container" class="products" aria-live="polite" aria-busy="true">
+            <!-- Product cards will be dynamically inserted here by script.js -->
+        </section>
+    </main>
+    <footer class="footer" role="contentinfo">
+        <section class="footer__info">
+            <p>&copy; 2023 Fashion Marketplace. All rights reserved.</p>
+        </section>
+        <nav class="footer__nav" aria-label="Footer Navigation">
+            <ul>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="privacy.html">Privacy Policy</a></li>
+                <li><a href="terms.html">Terms of Service</a></li>
+            </ul>
+        </nav>
+    </footer>
+    <script src="script.js" defer></script>
+</body>
+</html>

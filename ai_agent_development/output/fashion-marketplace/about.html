@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn more about Fashion Marketplace, our brand story, sustainability efforts, and team. Shop now or visit our store locations.">
+    <meta property="og:title" content="About Fashion Marketplace">
+    <meta property="og:description" content="Learn more about Fashion Marketplace, our brand story, sustainability efforts, and team. Shop now or visit our store locations.">
+    <meta property="og:image" content="https://example.com/images/logo.png">
+    <meta property="og:url" content="https://example.com/about.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="About Fashion Marketplace">
+    <meta name="twitter:description" content="Learn more about Fashion Marketplace, our brand story, sustainability efforts, and team. Shop now or visit our store locations.">
+    <meta name="twitter:image" content="https://example.com/images/logo.png">
+    <meta name="twitter:url" content="https://example.com/about.html">
+    <link rel="canonical" href="https://example.com/about.html">
+    <link rel="stylesheet" href="styles.css">
+    <title>About Fashion Marketplace</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Fashion Marketplace",
+      "url": "https://example.com",
+      "logo": "https://example.com/images/logo.png",
+      "sameAs": [
+        "https://www.facebook.com/fashionmarketplace",
+        "https://twitter.com/fashionmarketplace",
+        "https://instagram.com/fashionmarketplace"
+      ],
+      "contactPoint": [{
+        "@type": "ContactPoint",
+        "telephone": "+1-555-0199",
+        "contactType": "customer service"
+      }]
+    }
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="header__logo">
+            <a href="index.html" aria-label="Fashion Marketplace Home">
+                <img src="images/logo.png" alt="Fashion Marketplace Logo" loading="lazy">
+            </a>
+        </div>
+        <nav class="header__nav" aria-label="Main Navigation">
+            <ul>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="checkout.html">Checkout</a></li>
+                <li><a href="about.html" aria-current="page">About</a></li>
+            </ul>
+        </nav>
+        <div class="header__search">
+            <input type="text" id="search-input" class="header__search-input" placeholder="Search..." aria-label="Search Fashion Marketplace">
+        </div>
+        <div class="header__cart">
+            <a href="cart.html" aria-label="View Cart">
+                <span id="cart-count" class="header__cart-count">0</span>
+                <span class="header__cart-icon">🛒</span>
+            </a>
+            <span id="cart-subtotal" class="header__cart-subtotal" aria-label="Cart Subtotal">$0.00</span>
+        </div>
+    </header>
+    <main>
+        <section class="about__brand">
+            <h1>About Fashion Marketplace</h1>
+            <p>Welcome to Fashion Marketplace, where style meets sustainability. Our mission is to provide high-quality, eco-friendly fashion that makes you look and feel great while protecting the planet.</p>
+        </section>
+        <section class="about__sustainability">
+            <h2>Sustainability</h2>
+            <p>We are committed to using sustainable materials and ethical manufacturing practices. From organic cotton to recycled polyester, we choose materials that are kind to the environment.</p>
+        </section>
+        <section class="about__team">
+            <h2>Our Team</h2>
+            <p>Meet the team behind Fashion Marketplace. Passionate about fashion and sustainability, we strive to create a positive impact with every piece we sell.</p>
+        </section>
+        <section class="about__locations">
+            <h2>Store Locations</h2>
+            <p>Visit us in one of our convenient locations:</p>
+            <ul>
+                <li>New York, NY</li>
+                <li>Los Angeles, CA</li>
+                <li>Chicago, IL</li>
+            </ul>
+        </section>
+        <section class="about__cta">
+            <h2>Join Us</h2>
+            <p>Ready to shop sustainably? Browse our collection and make a difference.</p>
+            <a href="shop.html" class="button" data-js="cta-button">Shop Now</a>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="footer__content">
+            <div class="footer__section">
+                <h3>Information</h3>
+                <ul>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer__section">
+                <h3>Follow Us</h3>
+                <ul>
+                    <li><a href="https://www.facebook.com/fashionmarketplace" target="_blank" rel="noopener noreferrer">Facebook</a></li>
+                    <li><a href="https://twitter.com/fashionmarketplace" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+                    <li><a href="https://instagram.com/fashionmarketplace" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+                </ul>
+            </div>
+            <div class="footer__section">
+                <h3>Subscribe</h3>
+                <form action="#" method="post">
+                    <label for="email" class="visually-hidden">Email Address</label>
+                    <input type="email" id="email" name="email" required aria-required="true" placeholder="Enter your email">
+                    <button type="submit" class="button">Subscribe</button>
+                </form>
+            </div>
+        </div>
+        <div class="footer__legal">
+            <p>&copy; 2023 Fashion Marketplace. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="script.js" defer></script>
+</body>
+</html>

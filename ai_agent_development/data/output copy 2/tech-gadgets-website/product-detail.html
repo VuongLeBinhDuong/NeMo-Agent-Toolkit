@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail - Tech Gadgets Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cart-info {
+            display: flex;
+            align-items: center;
+        }
+        .cart-info span {
+            margin-left: 10px;
+        }
+        .product-detail {
+            padding: 20px;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        .product-images {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .product-images img {
+            max-width: 100%;
+            height: auto;
+            margin: 0 10px;
+        }
+        .product-specs {
+            margin-bottom: 20px;
+        }
+        .product-specs h2 {
+            margin-top: 0;
+        }
+        .product-specs ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .product-specs li {
+            margin: 5px 0;
+        }
+        .badges {
+            margin-bottom: 20px;
+        }
+        .badges span {
+            background-color: #007bff;
+            color: white;
+            padding: 5px 10px;
+            margin-right: 5px;
+            border-radius: 5px;
+        }
+        .add-to-cart {
+            display: flex;
+            align-items: center;
+        }
+        .add-to-cart input {
+            width: 50px;
+            margin-right: 10px;
+        }
+        .add-to-cart button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .add-to-cart button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Tech Gadgets Website</h1>
+        <div class="cart-info">
+            <span>Items in Cart: <span id="item-count">0</span></span>
+            <span>Subtotal: $<span id="subtotal">0.00</span></span>
+        </div>
+    </header>
+    <div class="product-detail">
+        <div class="product-images">
+            <img src="product-image-1.jpg" alt="Product Image 1">
+            <img src="product-image-2.jpg" alt="Product Image 2">
+        </div>
+        <div class="product-specs">
+            <h2>Product Name: Tech Gadget XYZ</h2>
+            <p>Price: $199.99</p>
+            <ul>
+                <li>Feature 1: High-quality display</li>
+                <li>Feature 2: Long battery life</li>
+                <li>Feature 3: Fast charging</li>
+            </ul>
+        </div>
+        <div class="badges">
+            <span>New Arrival</span>
+            <span>Best Seller</span>
+        </div>
+        <div class="add-to-cart">
+            <input type="number" id="quantity" value="1" min="1">
+            <button onclick="addToCart()">Add to Cart</button>
+        </div>
+    </div>
+
+    <script>
+        function loadCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            return cart;
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        function updateCartInfo() {
+            const cart = loadCart();
+            const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
+            const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
+
+            document.getElementById('item-count').textContent = itemCount;
+            document.getElementById('subtotal').textContent = subtotal;
+        }
+
+        function addToCart() {
+            const quantity = parseInt(document.getElementById('quantity').value, 10);
+            const product = {
+                id: 'tech-gadget-xyz',
+                name: 'Tech Gadget XYZ',
+                price: 199.99,
+                quantity: quantity
+            };
+
+            let cart = loadCart();
+            const existingItemIndex = cart.findIndex(item => item.id === product.id);
+
+            if (existingItemIndex !== -1) {
+                cart[existingItemIndex].quantity += product.quantity;
+            } else {
+                cart.push(product);
+            }
+
+            saveCart(cart);
+            updateCartInfo();
+        }
+
+        updateCartInfo();
+    </script>
+</body>
+</html>

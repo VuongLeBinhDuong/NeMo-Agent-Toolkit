@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browse our wide range of clothing products. Shop now and find your perfect fit!">
+    <meta property="og:title" content="Shop | Clothing Store">
+    <meta property="og:description" content="Browse our wide range of clothing products. Shop now and find your perfect fit!">
+    <meta property="og:image" content="https://example.com/images/logo.png">
+    <meta property="og:url" content="https://example.com/shop.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Shop | Clothing Store">
+    <meta name="twitter:description" content="Browse our wide range of clothing products. Shop now and find your perfect fit!">
+    <meta name="twitter:image" content="https://example.com/images/logo.png">
+    <meta name="twitter:url" content="https://example.com/shop.html">
+    <link rel="canonical" href="https://example.com/shop.html">
+    <link rel="stylesheet" href="styles.css">
+    <title>Shop | Clothing Store</title>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Shop",
+        "description": "Browse our wide range of clothing products. Shop now and find your perfect fit!",
+        "url": "https://example.com/shop.html",
+        "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [{
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://example.com/"
+            },{
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Shop",
+                "item": "https://example.com/shop.html"
+            }]
+        }
+    }
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="header__container">
+            <a href="index.html" class="header__logo" aria-label="Go to homepage">
+                <img src="images/logo.png" alt="Clothing Store Logo" width="150" height="50">
+            </a>
+            <nav class="header__nav" aria-label="Main navigation">
+                <ul class="header__nav-list">
+                    <li class="header__nav-item"><a href="index.html" class="header__nav-link">Home</a></li>
+                    <li class="header__nav-item"><a href="about.html" class="header__nav-link">About</a></li>
+                    <li class="header__nav-item"><a href="contact.html" class="header__nav-link">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="header__actions">
+                <input type="text" id="search-input" class="header__search-input" placeholder="Search..." aria-label="Search products">
+                <a href="cart.html" class="header__cart" aria-label="View shopping cart">
+                    <span class="header__cart-icon">🛒</span>
+                    <span id="cart-count" class="header__cart-count">0</span>
+                </a>
+                <span id="cart-subtotal" class="header__cart-subtotal">$0.00</span>
+            </div>
+        </div>
+    </header>
+    <main id="main-content" class="main-content">
+        <section class="filters">
+            <div class="filters__container">
+                <label for="category-filter" class="filters__label">Filter by Category:</label>
+                <select id="category-filter" class="filters__select" aria-label="Select category to filter products">
+                    <option value="all">All Categories</option>
+                    <option value="men">Men</option>
+                    <option value="women">Women</option>
+                    <option value="kids">Kids</option>
+                </select>
+                <label for="sort-by" class="filters__label">Sort by:</label>
+                <select id="sort-by" class="filters__select" aria-label="Select sorting option for products">
+                    <option value="popularity">Popularity</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                </select>
+            </div>
+        </section>
+        <section id="products-container" class="products-container" aria-live="polite" aria-busy="true">
+            <!-- Product cards will be dynamically inserted here by JavaScript -->
+            <div class="products-container__loading">
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="footer__container">
+            <p class="footer__text">© 2023 Clothing Store. All rights reserved.</p>
+            <nav class="footer__nav" aria-label="Footer navigation">
+                <ul class="footer__nav-list">
+                    <li class="footer__nav-item"><a href="privacy.html" class="footer__nav-link">Privacy Policy</a></li>
+                    <li class="footer__nav-item"><a href="terms.html" class="footer__nav-link">Terms of Service</a></li>
+                </ul>
+            </nav>
+        </div>
+    </footer>
+    <script src="script.js" defer></script>
+</body>
+</html>

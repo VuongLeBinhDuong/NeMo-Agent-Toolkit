@@ -1,0 +1,50 @@
+REQUIREMENTS:
+The homepage should have a modern, minimal aesthetic with a clean, spacious, and fully responsive layout. The color tone should be neutral with subtle shadows that match a minimalist fashion brand feel. The page should be easy to navigate and provide a clear call-to-action for users to explore the store.
+
+PRODUCTS:
+
+CATEGORIES:
+  - Jackets
+  - Tops
+  - Pants
+  - Shoes
+  - Accessories
+
+SORT_OPTIONS:
+  - Price: Low to High
+  - Price: High to Low
+  - Name: A to Z
+  - Name: Z to A
+
+FUNCTIONALITY:
+
+UI_COMPONENTS:
+
+SHARED_COMPONENTS:
+  - Header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal)
+  - Footer with company info, navigation links, and contact information
+  - Responsive design
+
+SHARED_ASSETS:
+  - styles.css
+  - script.js
+  - products.json
+
+FILES:
+  - index.html
+  - shop.html
+  - cart.html
+  - styles.css
+  - script.js
+  - products.json
+
+ORDER:
+  - products.json -> index.html -> shop.html -> cart.html -> styles.css -> script.js
+
+FILE_REQUIREMENTS:
+  - index.html: Reference HEADER/FOOTER SOPs for structure. MUST have empty container id="products-container" (products loaded from JSON, NEVER hardcoded). Product listing pages: include filter/sort controls. Use relative paths for links.
+  - shop.html: Reference HEADER/FOOTER SOPs for structure. MUST have empty container id="products-container" (products loaded from JSON, NEVER hardcoded). Product listing pages: include filter/sort controls. Use relative paths for links.
+  - cart.html: Reference HEADER/FOOTER SOPs for structure. MUST have empty container id="cart-items" (cart items loaded from localStorage, NEVER hardcoded). Use relative paths for links.
+  - products.json: CRITICAL - MUST be generated with ALL products from PRODUCTS section. Format: array of objects with id, name, price, category, description, image properties. Save to output/[PROJECT_NAME]/products.json.
+  - script.js: Reference CART, FILTER, SORT, SEARCH SOPs. Use id="products-container". Check elements exist before using. MUST load products from products.json using fetch(). Use ES6+ classes for organization. Implement Intersection Observer for lazy loading, modal management, state management, and performance optimizations. Cart page: render to #cart-items.
+  - styles.css: Reference code examples for product grid and card design. Responsive grid 1/2/3/4 columns. Modern card design with advanced hover effects, animations, CSS variables, dark mode support, and loading states.

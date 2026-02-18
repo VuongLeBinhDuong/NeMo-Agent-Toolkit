@@ -1,0 +1,84 @@
+PRODUCT:
+PROJECT_NAME: fashion-marketplace
+
+PROJECT_NAME: fashion-marketplace
+
+WEBSITE_TYPE: ecommerce_site
+
+REQUIREMENTS:
+- Build a responsive fashion marketplace website with a clean, modern design.
+- The website should feature a compact sticky header with logo, navigation, search, and a cart badge that updates in real time.
+- JavaScript should handle live search, filtering, sorting, and cart updates.
+- The website should have a full-width hero section displaying sliding banners with text overlays and manual or auto-play controls.
+- Products should be shown in a responsive grid with hover effects, badges, and dynamic rendering based on search and filters.
+- The shop view should add pagination and advanced filters such as category and price range, using a shared global product state.
+- Product details should be displayed in a responsive layout with image switching, option selection, and add-to-cart actions.
+- The cart should appear as a page or slide-out panel with animated transitions, quantity controls, subtotal calculation, and persistent storage via localStorage.
+- CSS should ensure consistent typography, spacing, and responsiveness, while JavaScript should manage all interactivity and state synchronization.
+
+FEATURES:
+- Responsive design
+- Compact sticky header with logo, navigation, search, and cart badge
+- Live search, filtering, sorting, and cart updates
+- Full-width hero section with sliding banners
+- Responsive product grid with hover effects and dynamic rendering
+- Advanced filters and pagination in shop view
+- Responsive product details layout with image switching and add-to-cart actions
+- Animated cart panel with quantity controls and subtotal calculation
+- Persistent storage via localStorage
+
+PRODUCTS:
+- Fashion T-Shirt: $19.99, Clothing, A high-quality fashion t-shirt made from 100% cotton.
+- Fashion Jeans: $49.99, Clothing, A pair of stylish fashion jeans made from 100% denim.
+- Fashion Shoes: $79.99, Footwear, A pair of fashionable shoes made from high-quality leather.
+- Fashion Handbag: $99.99, Accessories, A stylish fashion handbag made from high-quality materials.
+- Fashion Watch: $129.99, Accessories, A fashionable watch made from high-quality materials.
+- Fashion Sunglasses: $149.99, Accessories, A pair of fashionable sunglasses made from high-quality materials.
+- Fashion Belt: $19.99, Accessories, A high-quality fashion belt made from 100% leather.
+- Fashion Scarf: $29.99, Accessories, A stylish fashion scarf made from high-quality materials.
+- Fashion Hat: $39.99, Accessories, A fashionable hat made from high-quality materials.
+
+CATEGORIES:
+- Clothing
+- Footwear
+- Accessories
+
+SORT_OPTIONS:
+- Price: Low to High
+- Price: High to Low
+- Name: A to Z
+- Name: Z to A
+
+FUNCTIONALITY:
+- Live search and filtering
+- Sorting by price and name
+- Responsive product grid and details layout
+- Add-to-cart actions and cart updates
+- Persistent storage via localStorage
+- Animated cart panel with quantity controls and subtotal calculation
+
+UI_COMPONENTS:
+- Header with logo, navigation, search, and cart badge
+- Hero section with sliding banners
+- Product grid with hover effects and dynamic rendering
+- Product details layout with image switching and add-to-cart actions
+- Cart panel with quantity controls and subtotal calculation
+- Footer with navigation links and copyright information
+
+PAGE_REQUIREMENTS:
+- Homepage: hero section, product grid, and cart panel
+- Shop page: product grid, filters, and pagination
+- Product details page: product details layout and add-to-cart actions
+- Cart page: cart panel with quantity controls and subtotal calculation
+
+SUCCESS_CRITERIA:
+- Responsive design and consistent typography and spacing
+- Smooth and fast performance
+- Accurate and efficient search and filtering
+- Easy and intuitive navigation and product selection
+- Secure and reliable payment processing
+
+SHARED_COMPONENTS:
+- Header with logo, navigation, search, and cart badge
+- Footer with navigation links and copyright information
+- Cart panel with quantity controls and subtotal calculation

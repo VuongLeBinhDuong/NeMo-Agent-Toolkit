@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Welcome to Fashion Marketplace, your one-stop shop for the latest fashion trends.">
+    <meta property="og:title" content="Fashion Marketplace">
+    <meta property="og:description" content="Welcome to Fashion Marketplace, your one-stop shop for the latest fashion trends.">
+    <meta property="og:image" content="https://example.com/images/logo.png">
+    <meta property="og:url" content="https://example.com/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Fashion Marketplace">
+    <meta name="twitter:description" content="Welcome to Fashion Marketplace, your one-stop shop for the latest fashion trends.">
+    <meta name="twitter:image" content="https://example.com/images/logo.png">
+    <meta name="twitter:site" content="@FashionMarketplace">
+    <link rel="canonical" href="https://example.com/">
+    <link rel="stylesheet" href="styles.css">
+    <title>Fashion Marketplace</title>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Fashion Marketplace",
+        "url": "https://example.com/"
+    }
+    </script>
+</head>
+<body>
+    <header class="header" role="banner">
+        <div class="header__logo">
+            <a href="index.html" aria-label="Fashion Marketplace Home">
+                <img src="images/logo.png" alt="Fashion Marketplace Logo" loading="lazy">
+            </a>
+        </div>
+        <nav class="header__nav" aria-label="Main Navigation">
+            <ul class="header__nav-list">
+                <li class="header__nav-item"><a href="shop.html" class="header__nav-link">Shop</a></li>
+                <li class="header__nav-item"><a href="cart.html" class="header__nav-link">Cart</a></li>
+                <li class="header__nav-item"><a href="checkout.html" class="header__nav-link">Checkout</a></li>
+                <li class="header__nav-item"><a href="about.html" class="header__nav-link">About</a></li>
+            </ul>
+        </nav>
+        <div class="header__search">
+            <form class="header__search-form" role="search" aria-label="Search Products">
+                <label for="search-input" class="visually-hidden">Search Products</label>
+                <input type="search" id="search-input" class="header__search-input" placeholder="Search..." aria-controls="products-container">
+                <button type="submit" class="header__search-button" aria-label="Submit Search">Search</button>
+            </form>
+        </div>
+        <div class="header__cart" aria-label="Shopping Cart" role="region" aria-live="polite">
+            <a href="cart.html" class="header__cart-link" aria-label="View Cart">
+                <span class="header__cart-icon">🛒</span>
+                <span class="header__cart-count" id="cart-count">0</span>
+            </a>
+            <span class="header__cart-subtotal" id="cart-subtotal">$0.00</span>
+        </div>
+    </header>
+    <main role="main">
+        <section id="products-container" aria-label="Product Listings" data-js="products-container">
+            <!-- Products will be dynamically inserted here by script.js -->
+        </section>
+    </main>
+    <footer class="footer" role="contentinfo">
+        <p class="footer__text">© 2023 Fashion Marketplace. All rights reserved.</p>
+        <nav class="footer__nav" aria-label="Footer Navigation">
+            <ul class="footer__nav-list">
+                <li class="footer__nav-item"><a href="about.html" class="footer__nav-link">About Us</a></li>
+                <li class="footer__nav-item"><a href="contact.html" class="footer__nav-link">Contact</a></li>
+                <li class="footer__nav-item"><a href="privacy.html" class="footer__nav-link">Privacy Policy</a></li>
+                <li class="footer__nav-item"><a href="terms.html" class="footer__nav-link">Terms of Service</a></li>
+            </ul>
+        </nav>
+    </footer>
+    <script src="script.js" defer></script>
+</body>
+</html>

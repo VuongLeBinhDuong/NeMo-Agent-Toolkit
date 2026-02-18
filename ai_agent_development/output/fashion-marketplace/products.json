@@ -1,0 +1,44 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Men's Classic Leather Jacket",
+      "price": 199.99,
+      "category": "Men's Clothing",
+      "description": "A timeless leather jacket with a slim fit, perfect for any occasion. Made from high-quality leather for durability and style.",
+      "image": "https://example.com/images/mens-leather-jacket.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Women's Floral Print Dress",
+      "price": 89.99,
+      "category": "Women's Clothing",
+      "description": "A flowy dress with a vibrant floral print, ideal for spring and summer. Features a comfortable fit and a flattering silhouette.",
+      "image": "https://example.com/images/womens-floral-dress.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Unisex Running Shoes",
+      "price": 79.99,
+      "category": "Footwear",
+      "description": "Lightweight and breathable running shoes designed for comfort and performance. Suitable for both casual wear and intense workouts.",
+      "image": "https://example.com/images/running-shoes.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Men's Slim Fit Jeans",
+      "price": 59.99,
+      "category": "Men's Clothing",
+      "description": "High-quality jeans with a slim fit, providing a modern and stylish look. Available in multiple colors and washes.",
+      "image": "https://example.com/images/mens-slim-fit-jeans.jpg"
+    },
+    {
+      "id": 5,
+      "name": "Women's Crossbody Bag",
+      "price": 49.99,
+      "category": "Accessories",
+      "description": "A stylish crossbody bag with multiple compartments for organization. Perfect for everyday use and travel.",
+      "image": "https://example.com/images/womens-crossbody-bag.jpg"
+    }
+  ]
+}

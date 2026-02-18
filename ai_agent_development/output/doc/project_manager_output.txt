@@ -1,0 +1,50 @@
+PROJECT_NAME: fashion-marketplace
+
+REQUIREMENTS:
+- Build a responsive fashion marketplace website with a clean, modern design.
+- The website should feature a compact sticky header with logo, navigation, search, and a cart badge that updates in real time.
+- JavaScript should handle live search, filtering, sorting, and cart updates.
+- The website should have a full-width hero section displaying sliding banners with text overlays and manual or auto-play controls.
+- Products should be shown in a responsive grid with hover effects, badges, and dynamic rendering based on search and filters.
+- The shop view should add pagination and advanced filters such as category and price range, using a shared global product state.
+- Product details should be displayed in a responsive layout with image switching, option selection, and add-to-cart actions.
+- The cart should appear as a page or slide-out panel with animated transitions, quantity controls, subtotal calculation, and persistent storage via localStorage.
+- CSS should ensure consistent typography, spacing, and responsiveness, while JavaScript should manage all interactivity and state synchronization.
+
+WEBSITE_TYPE: ecommerce_site
+
+SHARED_COMPONENTS:
+- Header with logo, navigation, search, and cart badge
+- Footer with navigation links and copyright information
+- Cart panel with quantity controls and subtotal calculation
+
+SHARED_ASSETS:
+- styles.css (file) at styles.css
+- script.js (file) at script.js
+- products.json (file) at products.json
+
+FILES:
+index.html, shop.html, cart.html, checkout.html, about.html, styles.css, script.js, products.json
+
+ORDER:
+products.json -> index.html -> shop.html -> cart.html -> checkout.html -> about.html -> styles.css -> script.js
+
+FILE_REQUIREMENTS:
+- index.html: Should feature a compact sticky header with logo, navigation, search, and a cart badge that updates in real time.
+- shop.html: Should display products in a responsive grid with hover effects, badges, and dynamic rendering based on search and filters.
+- cart.html: Should appear as a page or slide-out panel with animated transitions, quantity controls, subtotal calculation, and persistent storage via localStorage.
+- checkout.html: Should handle payment processing and order confirmation.
+- about.html: Should display company information and contact details.
+- styles.css: Should ensure consistent typography, spacing, and responsiveness.
+- script.js: Should manage all interactivity and state synchronization.
+- products.json: Should contain product data in JSON format.
+
+STEPS:
+Step 1: products.json Constraints: This file should contain product data in JSON format, which will be loaded by script.js using fetch().
+Step 2: index.html Constraints: This file should feature a compact sticky header with logo, navigation, search, and a cart badge that updates in real time, using the Header component from SHARED_COMPONENTS.
+Step 3: shop.html Constraints: This file should display products in a responsive grid with hover effects, badges, and dynamic rendering based on search and filters, using the products.json file from SHARED_ASSETS.
+Step 4: cart.html Constraints: This file should appear as a page or slide-out panel with animated transitions, quantity controls, subtotal calculation, and persistent storage via localStorage, using the Cart panel component from SHARED_COMPONENTS.
+Step 5: checkout.html Constraints: This file should handle payment processing and order confirmation, using the Footer component from SHARED_COMPONENTS.
+Step 6: about.html Constraints: This file should display company information and contact details, using the Footer component from SHARED_COMPONENTS.
+Step 7: styles.css Constraints: This file should ensure consistent typography, spacing, and responsiveness, using the styles.css file from SHARED_ASSETS.
+Step 8: script.js Constraints: This file should manage all interactivity and state synchronization, using the script.js file from SHARED_ASSETS.

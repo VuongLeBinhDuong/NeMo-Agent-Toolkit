@@ -72,6 +72,8 @@ PROJECT_NAME: (short slug derived from requirements, lowercase, hyphen separated
 
 REQUIREMENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
 
+WEBSITE_TYPE: (copy exactly from architect/PM output if present; otherwise infer using the same WEBSITE_TYPE classification rules as in the SOP summary)
+
 SHARED_COMPONENTS: (CRITICAL: This section is REQUIRED. Paste verbatim from EXTRACTED_ARCHITECT_CONTENT. If architect output has SHARED_COMPONENTS section, copy it exactly. This section must exist even if empty.)
 
 SHARED_ASSETS: (CRITICAL: This section is REQUIRED. Paste verbatim from EXTRACTED_ARCHITECT_CONTENT. If architect output has SHARED_ASSETS section, copy it exactly. Be explicit: "styles.css", "script.js", "products.json", etc. This section must exist even if empty.)
@@ -82,17 +84,7 @@ ORDER: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT - arrow-separated order,
 
 FILE_REQUIREMENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT - one bullet per file with detailed requirements)
 
-STEPS: (one entry per file in numeric order. CRITICAL: Each step must be on a separate line. Format: "Step N: [filename]" followed by " Constraints: [constraints text]" on the same line. The constraints should contain:
-  (1) one-sentence restatement of overall REQUIREMENTS context,
-  (2) the exact FILE_REQUIREMENTS bullet with ALL details,
-  (3) explicit references to relevant PRODUCTS (list actual product names/prices from PRODUCTS section), CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, UI_COMPONENTS,
-  (4) explicit references to SHARED_ASSETS this file uses (e.g., "This HTML file must link to styles.css and script.js"),
-  (5) explicit references to SHARED_COMPONENTS this file implements (e.g., "This file must include the header component with #search-input, #cart-count, #cart-subtotal as per HEADER SOP"),
-  (6) for HTML files: if "products.json" is in SHARED_ASSETS, specify that HTML must have empty product container (e.g., <section id="product-list"></section>) where products will be loaded dynamically by JavaScript - DO NOT hardcode products. If "products.json" is NOT in SHARED_ASSETS, specify that products must be hardcoded directly in HTML with data attributes,
-  (7) for products.json (if in SHARED_ASSETS): specify it must be generated with all products from PRODUCTS section in correct format (array of objects with id, name, price, category, description, image),
-  (8) for script.js: if "products.json" is in SHARED_ASSETS, specify it must load products from products.json using fetch() and generate product cards dynamically, then implement filtering, sorting, search, localStorage cart operations, add to cart, quantity controls, totals. Reference CART, FILTER, SORT, SEARCH SOPs - must implement all standard behaviors exactly as specified,
-  (9) for styles.css: reference component styles from SOPs - modern, beautiful, professional styling for header, footer, product grid, and product cards.
-  Use plain sentences, no JSON)
+STEPS: (one entry per file in numeric order. Format: "Step N: [filename]" followed by " Constraints: [constraints text]" on the same line. Constraints should contain: (1) one-sentence REQUIREMENTS context, (2) exact FILE_REQUIREMENTS bullet for that file, (3) relevant PRODUCTS/CATEGORIES/SORT_OPTIONS from PRODUCTS section, (4) SHARED_ASSETS references, (5) SHARED_COMPONENTS references per SOPs. Use plain sentences, no JSON)
 
 CRITICAL FORMATTING RULES:
 - ALL sections listed above are REQUIRED and MUST be included in the output

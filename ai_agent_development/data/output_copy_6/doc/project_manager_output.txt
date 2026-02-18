@@ -1,0 +1,43 @@
+PROJECT_NAME: fashion-marketplace-website
+
+REQUIREMENTS:
+- Build a multi-page fashion marketplace website with clean, modern styling and fully responsive behavior.
+- The website should have a fixed header styled with a compact, sticky top bar, flex layout for logo–menu–search–cart alignment, smooth hover effects, and mobile breakpoints that collapse the menu into a toggleable drawer.
+- JavaScript should control the live search, category filtering, sorting, and a dynamic cart badge that updates in real time.
+
+SHARED_COMPONENTS:
+- Header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal)
+- Footer with company info, navigation links, and contact info
+- Product cards with image, name, price, and description
+- Cart page with item list, subtotal, and checkout section
+
+SHARED_ASSETS:
+- Global stylesheet (styles.css)
+- Global script (script.js)
+- Products data file (products.json)
+
+FILES:
+index.html, shop.html, cart.html, checkout.html, about.html, styles.css, script.js, products.json
+
+ORDER:
+products.json -> index.html -> shop.html -> cart.html -> checkout.html -> about.html -> styles.css -> script.js
+
+FILE_REQUIREMENTS:
+- index.html: Must include the header, footer, and product cards.
+- shop.html: Must include the header, footer, product cards, and filtering/sorting functionality.
+- cart.html: Must include the header, footer, cart page, and checkout section.
+- checkout.html: Must include the header, footer, and checkout form.
+- about.html: Must include the header, footer, and company information.
+- styles.css: Must include styles for the header, footer, product cards, and cart page.
+- script.js: Must include JavaScript code for live search, category filtering, sorting, and cart functionality.
+- products.json: Must contain product data in JSON format.
+
+STEPS:
+Step 1: products.json Constraints: Must be loaded from products.json using fetch(), and must contain product data in JSON format.
+Step 2: index.html Constraints: Must include the header, footer, and product cards, and must use the global stylesheet (styles.css) and global script (script.js).
+Step 3: shop.html Constraints: Must include the header, footer, product cards, and filtering/sorting functionality, and must use the global stylesheet (styles.css) and global script (script.js).
+Step 4: cart.html Constraints: Must include the header, footer, cart page, and checkout section, and must use the global stylesheet (styles.css) and global script (script.js).
+Step 5: checkout.html Constraints: Must include the header, footer, and checkout form, and must use the global stylesheet (styles.css) and global script (script.js).
+Step 6: about.html Constraints: Must include the header, footer, and company information, and must use the global stylesheet (styles.css) and global script (script.js).
+Step 7: styles.css Constraints: Must include styles for the header, footer, product cards, and cart page.
+Step 8: script.js Constraints: Must include JavaScript code for live search, category filtering, sorting, and cart functionality, and must use the global stylesheet (styles.css) and products data file (products.json).

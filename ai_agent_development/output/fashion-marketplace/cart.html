@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your shopping cart on Fashion Marketplace. View and manage your items, update quantities, and proceed to checkout.">
+    <meta property="og:title" content="Shopping Cart - Fashion Marketplace">
+    <meta property="og:description" content="Your shopping cart on Fashion Marketplace. View and manage your items, update quantities, and proceed to checkout.">
+    <meta property="og:image" content="https://example.com/images/logo.png">
+    <meta property="og:url" content="https://example.com/cart.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Shopping Cart - Fashion Marketplace">
+    <meta name="twitter:description" content="Your shopping cart on Fashion Marketplace. View and manage your items, update quantities, and proceed to checkout.">
+    <meta name="twitter:image" content="https://example.com/images/logo.png">
+    <meta name="twitter:site" content="@FashionMarketplace">
+    <link rel="canonical" href="https://example.com/cart.html">
+    <link rel="stylesheet" href="styles.css">
+    <title>Shopping Cart - Fashion Marketplace</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Shopping Cart",
+      "description": "Your shopping cart on Fashion Marketplace. View and manage your items, update quantities, and proceed to checkout.",
+      "url": "https://example.com/cart.html",
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [{
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://example.com/"
+        },{
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Cart",
+          "item": "https://example.com/cart.html"
+        }]
+      }
+    }
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="header__logo">
+            <a href="index.html" aria-label="Fashion Marketplace Home">
+                <img src="images/logo.png" alt="Fashion Marketplace Logo" loading="lazy">
+            </a>
+        </div>
+        <nav class="header__nav" aria-label="Main Navigation">
+            <ul>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="checkout.html">Checkout</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+        <div class="header__search">
+            <input type="text" id="search-input" class="header__search-input" placeholder="Search..." aria-label="Search products">
+        </div>
+        <div class="header__cart" aria-label="Shopping Cart">
+            <a href="cart.html" aria-label="View shopping cart">
+                <span id="cart-count" class="header__cart-count">0</span>
+                <img src="images/cart-icon.png" alt="Shopping Cart Icon" loading="lazy">
+            </a>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="cart">
+            <h1 class="cart__title">Shopping Cart</h1>
+            <div id="cart-items" class="cart__items" aria-live="polite">
+                <!-- Dynamic cart items will be inserted here by JavaScript -->
+            </div>
+            <div id="cart-empty" class="cart__empty" aria-hidden="true">
+                <p>Your cart is empty. <a href="shop.html">Continue shopping</a>.</p>
+            </div>
+            <div class="cart__totals">
+                <div class="cart__subtotal">
+                    <span class="cart__subtotal-label">Subtotal:</span>
+                    <span id="cart-subtotal" class="cart__subtotal-value">$0.00</span>
+                </div>
+                <div class="cart__total">
+                    <span class="cart__total-label">Total:</span>
+                    <span id="cart-total" class="cart__total-value">$0.00</span>
+                </div>
+                <button class="cart__checkout-button" data-js="checkout-button" aria-label="Proceed to checkout">Checkout</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p class="footer__copyright">© 2023 Fashion Marketplace. All rights reserved.</p>
+        <nav class="footer__nav" aria-label="Footer Navigation">
+            <ul>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="privacy.html">Privacy Policy</a></li>
+                <li><a href="terms.html">Terms of Service</a></li>
+            </ul>
+        </nav>
+    </footer>
+
+    <script src="script.js" defer></script>
+</body>
+</html>

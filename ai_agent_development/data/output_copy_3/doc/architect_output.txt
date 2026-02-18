@@ -1,0 +1,45 @@
+REQUIREMENTS:
+- Create a multi-page Tech Gadget Store website using only HTML, CSS, and vanilla JavaScript.
+- The website should have a homepage with a hero banner, featured products, and a responsive layout that adjusts from three columns to one.
+- The website should have a shop page with category filtering, sorting options, and live search.
+- The website should have a product detail page with images, specifications, badges, and an Add to Cart button.
+- The website should have a cart page showing items stored in localStorage with quantity controls and totals.
+
+FUNCTIONALITY:
+- The website should work without using any icons or special symbols.
+- All pages should share the same responsive header with logo, menu, search bar, and a cart section showing item count and subtotal.
+- All pages should share the same footer.
+
+UI_COMPONENTS:
+- Header
+- Footer
+- Hero banner
+- Featured products
+- Category filter
+- Sorting options
+- Live search
+- Product detail page
+- Cart page
+
+SHARED_COMPONENTS:
+- Responsive header
+- Footer
+- Cart section
+
+SHARED_ASSETS:
+- styles.css
+- script.js
+- data.json
+
+FILE_REQUIREMENTS:
+* index.html: hero banner, featured products, responsive layout
+* shop.html: category filtering, sorting options, live search
+* product-detail.html: images, specifications, badges, Add to Cart button
+* cart.html: items stored in localStorage, quantity controls, totals
+* styles.css: global stylesheet
+* script.js: global script
+* data.json: shared data source
+
+FILES: index.html, shop.html, product-detail.html, cart.html, styles.css, script.js, data.json
+
+ORDER: index.html -> shop.html -> product-detail.html -> cart.html -> styles.css -> script.js -> data.json

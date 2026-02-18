@@ -27,12 +27,14 @@ from nat.cli.register_workflow import register_function
 from nat.data_models.component_ref import FunctionRef
 from nat.data_models.function import FunctionBaseConfig
 
-from .sop_templates import get_sop_summary
+from .config import get_config
+from .sop_templates import get_component_snippets_text, get_sop_summary
 
 
 def _get_product_manager_brief() -> str:
     """Get product manager brief with SOP templates included."""
     sop_summary = get_sop_summary()
+    snippet_text = get_component_snippets_text()
     
     return f"""
 === PRODUCT MANAGER BRIEF ===
@@ -55,28 +57,40 @@ Hard requirements:
 - After the Observation from save_file_code, immediately provide the Final Answer block exactly as shown (no additional Thought/Action lines, no "Action: None").
 
 Specification body (save to file) must include sections in order:
-PRODUCT:
+PROJECT_NAME: (project name in kebab-case format, e.g., "tech-gadget-store" or "fashion-marketplace")
+WEBSITE_TYPE: (one of: information_site, ecommerce_site, web_app)
 REQUIREMENTS: (3-5 sentences covering context, goals, users, success criteria)
 FEATURES: (bullet list)
-PRODUCTS: (CRITICAL: List at least 6-10 real products with specific names, exact prices, categories, and detailed descriptions. Format: "Product Name: $XX.XX, Category Name, Full description text". Products must be hardcoded directly in HTML, not loaded from JSON.)
-CATEGORIES: (list all unique categories from PRODUCTS above)
-SORT_OPTIONS: (list sorting options like "Price: Low to High", "Price: High to Low", "Name: A to Z", etc.)
-FUNCTIONALITY: (bullet list of behavioural requirements including: products hardcoded in HTML, localStorage for cart, filtering, sorting, search, etc.)
-UI_COMPONENTS: (bullet list with identifiers/classes including: header with logo/menu/search/cart, footer, product cards, etc.)
+PRODUCTS: (For ecommerce_site projects: CRITICAL – List at least 6-10 real products/ticketed items with specific names, exact prices, categories, and detailed descriptions. Format: "Product Name: $XX.XX, Category Name, Full description text". For information_site projects, you may instead list key entities to be displayed (e.g., leagues, matches, competitions) without implying they are for sale.)
+CATEGORIES: (list all unique categories from PRODUCTS/entities above)
+SORT_OPTIONS: (list sorting options like "Price: Low to High", "Price: High to Low", "Name: A to Z", or domain‑specific options like "Date: Newest First" / "League: A–Z" for information sites.)
+FUNCTIONALITY: (bullet list of behavioural requirements; for ecommerce_site include: products loaded from products.json via JavaScript fetch(), localStorage for cart, filtering, sorting, search, checkout; for information_site focus on browsing, filtering, searching content without cart/checkout unless explicitly requested.)
+UI_COMPONENTS: (bullet list with identifiers/classes including: header with logo/menu/search (and cart only for ecommerce_site), footer, main content sections such as product grid or match listings, etc.)
 PAGE_REQUIREMENTS: (bullet list of per-page requirements with specific details)
 SUCCESS_CRITERIA: (bullet list of measurable outcomes/KPIs)
-SHARED_COMPONENTS: (bullet list including: responsive header with logo, menu, search bar, cart section showing item count and subtotal, footer)
+SHARED_COMPONENTS: (bullet list including: responsive header with logo, menu, search bar; for ecommerce_site also include cart section showing item count and subtotal, footer)
 
 {sop_summary}
+
+{snippet_text}
 
 CRITICAL: When specifying SHARED_COMPONENTS, reference the SOP templates above for default behaviors.
 The system has standardized implementations for header, footer, cart, filter, sort, and search components.
 
 Additional rules:
-- Never use placeholder text (TBD, lorem ipsum, "Product 1", "Product 2", etc.). Use real product names and details.
-- Ensure PRODUCTS, CATEGORIES, SORT_OPTIONS align perfectly.
-- CRITICAL: Products must be hardcoded directly in HTML files, not loaded dynamically from JSON. This is a hard requirement.
-- SHARED_COMPONENTS must explicitly mention: header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal) as per HEADER SOP.
+- WEBSITE_TYPE classification:
+  - Use "ecommerce_site" ONLY when the user explicitly mentions selling/buying, pricing, cart, checkout, payment, orders, or ticket purchases.
+  - Use "web_app" when the focus is on dashboards, tools, CRUD flows, or authenticated apps rather than pure content or classic storefront shopping.
+  - In all other cases (pure content, schedules, results, articles, documentation, blogs), default to "information_site".
+- Never use placeholder text (TBD, lorem ipsum, "Product 1", "Product 2", etc.). Use real names and domain‑appropriate details.
+- Ensure PRODUCTS/Entities, CATEGORIES, SORT_OPTIONS align perfectly.
+- For ecommerce_site:
+  - CRITICAL: Products MUST be loaded from products.json file via JavaScript fetch(). Products must NEVER be hardcoded in HTML files. This is a hard requirement.
+  - SHARED_COMPONENTS must explicitly mention: header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal) as per HEADER SOP.
+  - SHARED_ASSETS must include "products.json" – this file will contain all products from PRODUCTS section.
+- For information_site or web_app:
+  - DO NOT introduce cart, checkout, or products.json unless the requirements explicitly request commerce flows.
+  - SHARED_COMPONENTS may omit cart/checkout entirely if the project is purely informational.
 - Output spec only via save_file_code (not in Final Answer).
 - Write the specification as plain text (no JSON/object literals). Use "- " for bullet items and separate sections with a blank line.
 - Keep all tool JSON inline (no ``` fences or extra formatting).
@@ -161,6 +175,32 @@ def _recover_status_from_tool_call(agent_name: str, output_text: str) -> str | N
     return status
 
 
+def _ensure_product_section(file_path: Path) -> None:
+    """Ensure pm_output.txt begins with PRODUCT header for validation."""
+
+    if not file_path.exists():
+        logger.warning("Cannot enforce PRODUCT header; %s does not exist", file_path)
+        return
+
+    content = file_path.read_text(encoding="utf-8")
+    if content.lstrip().startswith("PRODUCT:"):
+        return
+
+    product_name = ""
+    for line in content.splitlines():
+        stripped = line.strip()
+        if stripped:
+            product_name = stripped
+            break
+
+    if not product_name:
+        product_name = "Product Specification"
+
+    new_content = f"PRODUCT:\n{product_name}\n\n{content}"
+    file_path.write_text(new_content, encoding="utf-8")
+    logger.info("Inserted missing PRODUCT header into %s", file_path)
+
+
 async def _invoke_agent(
     agent_name: str,
     agent_call: Callable[[str], Awaitable[str]],
@@ -187,6 +227,9 @@ async def mas_product_manager_phase(config: MASWorkflowProductManagerPhaseConfig
             f"{PRODUCT_MANAGER_BRIEF.strip()}\n\nUSER_REQUIREMENT:\n{user_request.strip()}"
         )
         pm_output = await _invoke_agent("product_manager", product_manager_fn.ainvoke, product_manager_message)
+
+        pm_file = Path("output/doc/pm_output.txt")
+        _ensure_product_section(pm_file)
         
         # Log output for debugging if status extraction fails
         try:

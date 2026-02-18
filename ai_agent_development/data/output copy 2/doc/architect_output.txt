@@ -1,0 +1,76 @@
+REQUIREMENTS:
+
+The website should be built using only HTML, CSS, and vanilla JavaScript. The website should have a responsive layout that adjusts from three columns to one. The website should have a homepage with a hero banner, featured products, and a responsive layout. The website should have a shop page with category filtering, sorting options, and live search. The website should have a product detail page with images, specifications, badges, and an Add to Cart button. The website should have a cart page showing items stored in localStorage with quantity controls and totals.
+
+PRODUCTS:
+
+- Product 1: Gadget 1, $99.99, Electronics, This is a tech gadget.
+- Product 2: Gadget 2, $199.99, Electronics, This is another tech gadget.
+- Product 3: Gadget 3, $299.99, Electronics, This is a high-end tech gadget.
+
+CATEGORIES:
+
+- Electronics
+
+SORT_OPTIONS:
+
+- Price: Low to High
+- Price: High to Low
+- Alphabetical
+
+FUNCTIONALITY:
+
+- The website should be able to store items in localStorage.
+- The website should be able to display the item count and subtotal in the cart section of the header.
+- The website should be able to update the quantity of items in the cart.
+- The website should be able to calculate the total cost of items in the cart.
+
+UI_COMPONENTS:
+
+- Header
+- Menu
+- Search bar
+- Cart section
+- Hero banner
+- Featured products section
+- Shop page
+- Product detail page
+- Cart page
+- Footer
+
+FILE_REQUIREMENTS:
+
+- index.html: 
+  - Hero banner
+  - Featured products
+  - Responsive layout
+
+- shop.html: 
+  - Category filtering
+  - Sorting options
+  - Live search
+
+- product-detail.html: 
+  - Images
+  - Specifications
+  - Badges
+  - Add to Cart button
+
+- cart.html: 
+  - Items stored in localStorage
+  - Quantity controls
+  - Totals
+
+- styles.css: 
+  - Responsive layout
+  - Styling for UI components
+
+- script.js: 
+  - Store items in localStorage
+  - Display item count and subtotal in cart section of header
+  - Update quantity of items in cart
+  - Calculate total cost of items in cart
+
+FILES: index.html, shop.html, product-detail.html, cart.html, styles.css, script.js
+
+ORDER: index.html -> shop.html -> product-detail.html -> cart.html -> styles.css -> script.js

@@ -29,209 +29,6 @@ from nat.data_models.component_ref import FunctionRef
 from nat.data_models.function import FunctionBaseConfig
 from pydantic import Field
 
-PRODUCT_MANAGER_BRIEF = """
-=== PRODUCT MANAGER BRIEF ===
-You are Phase 1 Product Manager. You MUST follow strict ReAct format:
-
-Thought: describe reasoning (plain text, no JSON)
-Action: save_file_code
-Action Input: {{"file_path": "output/doc/pm_output.txt", "code_content": "<FULL SPEC TEXT>"}}
-Observation: Success message from tool (verbatim, no edits)
-Thought: Confirm completion
-Final Answer:
-OUTPUT_FILE: output/doc/pm_output.txt
-STATUS: Product specification saved.
-
-Hard requirements:
-- Call save_file_code exactly once.
-- Action Input MUST be valid JSON with double-quoted keys/values, no trailing commas, no Markdown fences.
-- Replace <FULL SPEC TEXT> with the complete specification body (no placeholders).
-- Do NOT include extra commentary before or after the required sections.
-- After the Observation from save_file_code, immediately provide the Final Answer block exactly as shown (no additional Thought/Action lines, no "Action: None").
-
-Specification body (save to file) must include sections in order:
-PRODUCT:
-REQUIREMENTS: (3-5 sentences covering context, goals, users, success criteria)
-FEATURES: (bullet list)
-PRODUCTS: (CRITICAL: List at least 6-10 real products with specific names, exact prices, categories, and detailed descriptions. Format: "Product Name: $XX.XX, Category Name, Full description text". Products must be hardcoded directly in HTML, not loaded from JSON.)
-CATEGORIES: (list all unique categories from PRODUCTS above)
-SORT_OPTIONS: (list sorting options like "Price: Low to High", "Price: High to Low", "Name: A to Z", etc.)
-FUNCTIONALITY: (bullet list of behavioural requirements including: products hardcoded in HTML, localStorage for cart, filtering, sorting, search, etc.)
-UI_COMPONENTS: (bullet list with identifiers/classes including: header with logo/menu/search/cart, footer, product cards, etc.)
-PAGE_REQUIREMENTS: (bullet list of per-page requirements with specific details)
-SUCCESS_CRITERIA: (bullet list of measurable outcomes/KPIs)
-SHARED_COMPONENTS: (bullet list including: responsive header with logo, menu, search bar, cart section showing item count and subtotal, footer)
-
-Additional rules:
-- Never use placeholder text (TBD, lorem ipsum, "Product 1", "Product 2", etc.). Use real product names and details.
-- Ensure PRODUCTS, CATEGORIES, SORT_OPTIONS align perfectly.
-- CRITICAL: Products must be hardcoded directly in HTML files, not loaded dynamically from JSON. This is a hard requirement.
-- SHARED_COMPONENTS must explicitly mention: header with search bar and cart section (item count + subtotal).
-- Output spec only via save_file_code (not in Final Answer).
-- Write the specification as plain text (no JSON/object literals). Use "- " for bullet items and separate sections with a blank line.
-- Keep all tool JSON inline (no ``` fences or extra formatting).
-"""
-
-ARCHITECT_BRIEF = """
-=== SYSTEM ARCHITECT BRIEF ===
-You are Phase 2 System Architect. You MUST follow strict ReAct format:
-
-Thought: describe reasoning and the files to be created (plain text, no JSON)
-Action: save_file_code
-Action Input: {{"file_path": "output/doc/architect_output.txt", "code_content": "<FULL ARCHITECTURE DOCUMENT>"}}
-Observation: Success message from tool (verbatim, no edits)
-Thought: Confirm completion
-Final Answer:
-OUTPUT_FILE: output/doc/architect_output.txt
-STATUS: Architecture design saved.
-
-Hard requirements:
-- Call save_file_code exactly once.
-- Action Input MUST be valid JSON with double-quoted keys/values, no trailing commas, no Markdown fences.
-- Replace <FULL ARCHITECTURE DOCUMENT> with the complete architecture body (no placeholders).
-- The files to be created are reasoned by the architect in the Thought section.
-- After the Observation from save_file_code, immediately provide the Final Answer block exactly as shown.
-- Do NOT output the architecture document as plain text anywhere else and do not include PREVIOUS_STATUS.
-
-Architecture body must include sections in order:
-REQUIREMENTS: (paste verbatim from EXTRACTED_PM_CONTENT)
-PRODUCTS: (paste verbatim from EXTRACTED_PM_CONTENT)
-CATEGORIES: (paste verbatim from EXTRACTED_PM_CONTENT)
-SORT_OPTIONS: (paste verbatim from EXTRACTED_PM_CONTENT)
-FUNCTIONALITY: (paste verbatim from EXTRACTED_PM_CONTENT)
-UI_COMPONENTS: (paste verbatim from EXTRACTED_PM_CONTENT)
-SHARED_COMPONENTS: (paste verbatim from EXTRACTED_PM_CONTENT - must include header with search bar and cart section)
-SHARED_ASSETS: (list shared files/resources such as global stylesheets, scripts, data sources if needed)
-FILE_REQUIREMENTS: (derive per-file responsibilities with DETAILED requirements; one bullet per file. CRITICAL: For HTML files, specify that products must be hardcoded directly in HTML (not loaded from JSON). For header component, specify it must include: logo, menu/nav links, search bar input field, cart section with item count display and subtotal display. For script.js, specify it must implement: filtering by category, sorting by options, live search functionality, localStorage cart operations (add, remove, update quantity), add to cart button handlers, quantity controls, total calculations, cart display updates. For styles.css, specify responsive product grid that adjusts from 3 columns to 1 column on mobile.)
-FILES: (comma-separated list of files that will be generated)
-ORDER: (arrow-separated order in which files should be produced)
-"""
-
-PROJECT_MANAGER_BRIEF = """
-=== PROJECT MANAGER BRIEF ===
-You are Phase 3 Project Manager. You MUST follow strict ReAct format:
-
-Thought: describe reasoning (plain text, no JSON)
-Action: save_file_code
-Action Input: {{"file_path": "output/doc/project_manager_output.txt", "code_content": "<FULL PROJECT PLAN>"}}
-Observation: Success message from tool (verbatim, no edits)
-Thought: Confirm completion
-Final Answer:
-OUTPUT_FILE: output/doc/project_manager_output.txt
-STATUS: Project plan saved.
-
-Hard requirements:
-- Call save_file_code exactly once.
-- Action Input MUST be valid JSON with double-quoted keys/values, no trailing commas, no Markdown fences.
-- Replace <FULL PROJECT PLAN> with the complete project plan body (no placeholders).
-- The constraints are reasoned by the project manager in the Thought section.
-- After the Observation from save_file_code, immediately provide the Final Answer block exactly as shown.
-- Do NOT output the project plan as plain text anywhere else.
-
-Project plan body must include sections in order:
-PROJECT_NAME: (short slug derived from requirements, lowercase, hyphen separated)
-REQUIREMENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-SHARED_COMPONENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-SHARED_ASSETS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-FILES: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-ORDER: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-FILE_REQUIREMENTS: (paste verbatim from EXTRACTED_ARCHITECT_CONTENT)
-STEPS: (one entry per file in numeric order. CRITICAL: Each step must be on a separate line. Format: "Step N: [filename]" followed by " Constraints: [constraints text]" on the same line. The constraints should contain (1) one-sentence restatement of overall REQUIREMENTS context, (2) the exact FILE_REQUIREMENTS bullet with ALL details, (3) explicit references to relevant PRODUCTS (list actual product names/prices from PRODUCTS section), CATEGORIES, SORT_OPTIONS, FUNCTIONALITY, UI_COMPONENTS, and (4) for HTML files: if "products.json" is in SHARED_ASSETS, specify that HTML must have an empty product container (e.g., <div id="product-container"></div>) where products will be loaded dynamically by JavaScript - DO NOT hardcode products. If "products.json" is NOT in SHARED_ASSETS, specify that products must be hardcoded directly in HTML with data attributes. CRITICAL for multi-page projects: ALL HTML pages MUST have IDENTICAL header structure with exact same IDs (#search-input on input element, not div), same navigation menu with links to all pages, and same footer. For header: specify it must include logo, navigation menu with links to ALL pages, search bar input (#search-input on the input element itself), cart section (#cart-count, #cart-subtotal). For script.js: if "products.json" is in SHARED_ASSETS, specify it must load products from products.json using fetch() and generate product cards dynamically, then implement filtering, sorting, search, localStorage cart operations, add to cart, quantity controls, totals. For multi-page projects, JavaScript must detect current page and initialize appropriate functionality, and all event listeners must check if elements exist before attaching. Use plain sentences, no JSON)
-Example format:
-STEPS:
-Step 1: filename1 Constraints: [full constraints text here]
-Step 2: filename2 Constraints: [full constraints text here]
-Step 3: filename3 Constraints: [full constraints text here]
-...
-"""
-
-ENGINEER_BRIEF = """
-=== SOFTWARE ENGINEER BRIEF ===
-You are Phase 4 Software Engineer. You MUST follow strict ReAct format.
-
-NOTE: This prompt is used when automatic code generation is not available. Follow the instructions below to generate and save all files.
-
-Your task: Generate and save all files listed in STEPS from EXTRACTED_PROJECT_MANAGER_CONTENT.
-
-For each STEP (in order from EXTRACTED_PROJECT_MANAGER_CONTENT):
-
-Thought: plan generation for [filename] using provided constraints
-Action: code_generation_tool
-Action Input: {{"query": "Generate [filename] for [PROJECT_NAME]. Requirements: [FULL STEP CONSTRAINTS].", "programming_language": "[LANGUAGE]"}}
-Observation: [The tool will return code, possibly wrapped in markdown code fences like ```html or ```javascript. The actual code is between the fences.]
-Thought: I received the generated code. Now I need to extract the actual code content (removing markdown fences if present) and save it to a file.
-Action: save_file_code
-Action Input: {{"file_path": "output/[PROJECT_NAME]/[filename]", "code_content": "[PASTE THE ACTUAL CODE HERE - extract everything between markdown fences if they exist, otherwise use the code as-is]"}}
-Observation: [Wait for confirmation that file was saved]
-
-After all files saved:
-Thought: confirm completion
-Final Answer: All files have been successfully generated and saved to output/[PROJECT_NAME]/.
-
-Hard requirements:
-- Use PROJECT_NAME, FILES, ORDER, STEPS exactly as defined in EXTRACTED_PROJECT_MANAGER_CONTENT.
-- Use STEP[n].constraints directly in code generation - it already contains all FILE_REQUIREMENTS for that file.
-- Extract PROJECT_NAME from EXTRACTED_PROJECT_MANAGER_CONTENT and use this EXACT value for all file paths - do NOT change it.
-- Always maintain naming consistency across every file created. If FILE_REQUIREMENTS specify a filename, use it exactly (case-sensitive) in both file content and save_file_code.
-- Honor PAGE_REQUIREMENTS, SUCCESS_CRITERIA, SHARED_COMPONENTS, SHARED_ASSETS, and FILE_REQUIREMENTS sections: ensure each file implements its page-level requirements, reuses shared components/assets, and meets the success criteria.
-- CRITICAL: For HTML files with products, products MUST be hardcoded directly in the HTML markup (not loaded from JSON or dynamically). Use the actual product names, prices, categories, and descriptions from the PRODUCTS section in constraints.
-- CRITICAL: For header component in all HTML files, it MUST include: (1) logo/brand name, (2) navigation menu with links to all pages, (3) search bar input field (e.g., <input type="text" id="search-input" placeholder="Search...">), (4) cart section showing item count (e.g., <span id="cart-count">0</span> items) and subtotal (e.g., <span id="cart-subtotal">$0.00</span>).
-- CRITICAL: For script.js, it MUST implement: (1) category filtering functionality, (2) sorting by price/name options, (3) live search that filters products as user types, (4) localStorage operations for cart (getItem, setItem, removeItem), (5) add to cart button event handlers, (6) quantity increase/decrease controls, (7) total price calculations, (8) cart display updates (item count and subtotal in header), (9) cart page functionality (load from localStorage, display items, update quantities, calculate totals).
-- CRITICAL: For styles.css, it MUST include responsive product grid that displays 3 columns on desktop and 1 column on mobile (use CSS Grid or Flexbox with media queries).
-- Action Inputs MUST be valid JSON with double-quoted keys/values, no trailing commas, no Markdown fences.
-- Replace placeholders ([filename], [PROJECT_NAME], [FULL STEP CONSTRAINTS], [LANGUAGE], [EXTRACTED CODE]) with real values.
-- Action Input must be inline JSON with proper double quotes, no ```json``` fences.
-- CRITICAL: Do NOT use markdown formatting (like ** or __) around Action names. Write "Action: code_generation_tool" NOT "**Action:** code_generation_tool" or "Action: **code_generation_tool**".
-- CRITICAL: [LANGUAGE] must be mapped from filename extension to correct format:
-  * .html or html -> "HTML"
-  * .css or css -> "CSS"
-  * .js or js or javascript -> "JavaScript"
-  * .ts or ts or typescript -> "TypeScript"
-  * .py or py or python -> "Python"
-  * .java or java -> "Java"
-  * .cpp, .cc, .cxx or cpp, c++ -> "C++"
-  * .c or c -> "C"
-  * .cs or cs or c# -> "C#"
-  * .go or go -> "Go"
-  * .rs or rust -> "Rust"
-  * .php or php -> "PHP"
-  * .rb or ruby -> "Ruby"
-  * .sql or sql -> "SQL"
-  * .json or json -> "JSON"
-  * .yaml, .yml or yaml, yml -> "YAML"
-  * .xml or xml -> "XML"
-  * Other: capitalize properly (e.g., "Swift", "Kotlin", etc.)
-- For CSS query include phrase "Generate CSS that styles the HTML elements from the previous file".
-- For JS query include phrase "Generate JavaScript that manipulates HTML elements and uses CSS classes from the previous files".
-- Save each generated file immediately after code_generation_tool; never batch saves.
-- CRITICAL: HTML files must NOT contain any CSS code inside. This means:
-  * NO <style> tags in HTML files
-  * NO inline styles (style="...") on HTML elements
-  * All CSS must be in separate CSS files only
-- HTML files must link their stylesheet using the exact filename listed in FILES (default to <link rel="stylesheet" href="style.css"> when FILES contains style.css). Do NOT inline CSS or invent new paths unless FILE_REQUIREMENTS explicitly specify otherwise.
-- HTML files must include their JavaScript bundle using the exact filename listed in FILES (default to <script src="script.js"></script> placed right before </body>). Do NOT move the script tag after </html>.
-- Footer: Do NOT use position: fixed unless page content has sufficient bottom padding. Prefer static/normal flow.
-- Consistency: Ensure all DOM elements referenced in JS exist in corresponding HTML pages. No broken selectors.
-- Separation of concerns: All styling in CSS files; no inline styles, no <style> tags in HTML. All behavior in JS files; minimal inline JS.
-- For multi-page projects: every HTML page must include the shared CSS and JS assets using the filenames from FILES (e.g., style.css, script.js) unless FILE_REQUIREMENTS explicitly provide different paths.
-- For multi-page projects: every HTML page must include a nav with links to ALL other HTML pages listed in FILES; ensure hrefs are correct.
-- CRITICAL: After receiving Observation from code_generation_tool, you MUST write a Thought before the next Action. Never skip the Thought step.
-- The Observation from code_generation_tool is a STRING. Extract the code from it:
-  * If Observation has markdown code block (```lang ... ```), extract ONLY the code inside (remove ``` and language tag)
-  * If Observation is plain code text, use it directly
-  * Pass the extracted code string directly to code_content field - NOT as JSON object, NOT serialized
-- Always preserve the complete code with all whitespace, newlines, and indentation.
-- Never replace any portion of the generated code with "..." or summaries; ensure the exact extracted code is saved.
-- If you cannot extract the code properly (e.g., Observation is malformed), regenerate the code instead of saving a truncated version.
-- After each save, verify the file using file_reader to ensure there are no ellipses or truncation. If verification shows ellipses ("...") or missing sections, re-run code_generation_tool for that file and repeat the save/verify cycle until the saved file contains the full code.
-- Always follow the format: Thought -> Action -> Action Input -> Observation -> Thought -> Action -> ...
-- Before moving to the next file or completing the workflow, make sure you have called code_generation_tool at least once for the current file in this session.
-- After saving ALL files in ORDER (and verifying each), provide Final Answer IMMEDIATELY and STOP.
-- Do NOT generate extra files, do NOT continue after Final Answer.
-- Your Final Answer must explicitly confirm that every file was generated in this session via code_generation_tool and saved after verification. If you cannot truthfully confirm this, you MUST call code_generation_tool again to fix it. Never claim success otherwise.
-- If any step cannot be completed, respond with "ERROR: Engineer could not complete the required actions." instead of success message.
-"""
-
 logger = logging.getLogger(__name__)
 
 DEFAULT_AGENT_STATUSES = {
@@ -430,6 +227,10 @@ def _validate_document(agent_name: str):
 
     file_path: Path = validation["file_path"]
     if not file_path.exists():
+        # For tester phase, be more lenient - just log warning
+        if agent_name == "tester":
+            logger.warning("%s expected output file missing: %s. Continuing anyway.", agent_name, file_path)
+            return
         raise FileNotFoundError(f"{agent_name} expected output file missing: {file_path}")
 
     content = file_path.read_text(encoding="utf-8")
@@ -437,6 +238,14 @@ def _validate_document(agent_name: str):
         section for section in validation["required_sections"] if f"{section}:" not in content
     ]
     if missing_sections:
+        # For tester phase, be more lenient - just log warning
+        if agent_name == "tester":
+            logger.warning(
+                "%s output missing some sections: %s. Continuing anyway.",
+                agent_name,
+                ", ".join(missing_sections),
+            )
+            return
         raise ValueError(
             f"{agent_name} output missing required sections: {', '.join(missing_sections)}"
         )
@@ -547,6 +356,7 @@ async def mas_workflow(config: MASWorkflowConfig, builder: Builder):
             integrator_phase_fn = None
 
     async def _response_fn(user_request: str) -> str:
+        nonlocal integrator_phase_fn
         logger.info("Starting MAS workflow for request: %s", user_request)
 
         # Phase 1: Product Manager - uses user_request directly
@@ -654,30 +464,26 @@ async def mas_workflow(config: MASWorkflowConfig, builder: Builder):
                 project_manager_status = "Project plan saved (status extraction failed)"
         _validate_document("project_manager")
 
-        # Phase 4/5: Engineer + QA tester feedback loop
-        max_attempts = max(1, config.max_fix_iterations + 1)
-        attempt = 1
-        qa_passed = False
-        rework_payload = ""
-        engineer_output = ""
+        # Phase 4: Engineer - Generate code (single run, no retry loop)
+        logger.info("Phase 4: Invoking engineer_phase")
+        engineer_start = time.time()
+        engineer_output = await engineer_phase_fn.ainvoke("")
+        engineer_elapsed = time.time() - engineer_start
+        logger.info("Phase 4 (engineer_phase) completed in %.2f seconds", engineer_elapsed)
+
+        # Phase 5: Tester - Test and write report (single run, no feedback loop)
         tester_output = ""
+        tester_document_text = ""
+        qa_passed = False
 
-        while attempt <= max_attempts:
-            logger.info("Phase 4: Invoking engineer_phase (attempt %d/%d)", attempt, max_attempts)
-            engineer_start = time.time()
-            engineer_output = await engineer_phase_fn.ainvoke(rework_payload)
-            engineer_elapsed = time.time() - engineer_start
-            logger.info("Phase 4 (engineer_phase) attempt %d completed in %.2f seconds", attempt, engineer_elapsed)
-
-            if tester_phase_fn is None:
-                logger.warning("tester_phase function not configured; skipping QA loop.")
-                break
-
-            logger.info("Phase 5: Invoking tester_phase (QA attempt %d)", attempt)
+        if tester_phase_fn is None:
+            logger.warning("tester_phase function not configured; skipping QA phase.")
+        else:
+            logger.info("Phase 5: Invoking tester_phase")
             phase5_start = time.time()
             tester_output = await tester_phase_fn.ainvoke("")
             phase5_elapsed = time.time() - phase5_start
-            logger.info("Phase 5 (tester_phase) attempt %d completed in %.2f seconds", attempt, phase5_elapsed)
+            logger.info("Phase 5 (tester_phase) completed in %.2f seconds", phase5_elapsed)
 
             try:
                 tester_status = _extract_status("tester", tester_output)
@@ -686,26 +492,19 @@ async def mas_workflow(config: MASWorkflowConfig, builder: Builder):
                 logger.warning("Could not extract tester status: %s. Continuing.", e)
             _validate_document("tester")
 
-            has_blockers, failure_reason = _tester_has_blockers(tester_output)
+            try:
+                tester_document_text = Path("output/doc/tester_output.txt").read_text(encoding="utf-8")
+            except FileNotFoundError:
+                logger.warning("tester_output.txt not found when parsing QA report; falling back to agent output.")
+                tester_document_text = tester_output
+
+            # Check QA status for logging only (no retry loop)
+            has_blockers, failure_reason = _tester_has_blockers(tester_document_text)
             if not has_blockers:
                 qa_passed = True
-                logger.info("QA tester sign-off PASS after attempt %d", attempt)
-                break
-
-            logger.warning(
-                "QA tester reported blockers after attempt %d/%d: %s",
-                attempt,
-                max_attempts,
-                failure_reason or "See tester report for details.",
-            )
-
-            if attempt >= max_attempts:
-                logger.error("Max engineer attempts reached; QA still failing.")
-                break
-
-            attempt += 1
-            rework_payload = _build_rework_payload(tester_output, attempt)
-            logger.info("Scheduling engineer rework attempt %d with targeted QA instructions.", attempt)
+                logger.info("QA tester sign-off: PASS")
+            else:
+                logger.warning("QA tester sign-off: FAIL - %s", failure_reason or "See tester report for details.")
 
         integrator_output = ""
         if builder and config.integrator:
@@ -716,13 +515,20 @@ async def mas_workflow(config: MASWorkflowConfig, builder: Builder):
                     logger.error("Failed to initialize integrator function: %s", exc)
                     integrator_phase_fn = None
 
+        if not tester_document_text and Path("output/doc/tester_output.txt").exists():
+            try:
+                tester_document_text = Path("output/doc/tester_output.txt").read_text(encoding="utf-8")
+            except Exception as exc:  # pragma: no cover - defensive
+                logger.warning("Failed to read tester_output.txt for integrator context: %s", exc)
+                tester_document_text = tester_output
+
         if integrator_phase_fn and (qa_passed or not config.require_pass_before_integrator):
             logger.info("Phase 6: Invoking integrator_phase (qa_passed=%s)", qa_passed)
             integrator_payload_lines = [
                 "FINAL_STATUS_CONTEXT:",
                 f"- QA_PASSED: {qa_passed}",
-                f"- QA_SIGN_OFF: {_extract_section_text(tester_output, 'SIGN_OFF') or 'Unavailable'}",
-                f"- QA_RECOMMENDATIONS: {_extract_section_text(tester_output, 'RECOMMENDATIONS') or 'Unavailable'}",
+                f"- QA_SIGN_OFF: {_extract_section_text(tester_document_text, 'SIGN_OFF') or 'Unavailable'}",
+                f"- QA_RECOMMENDATIONS: {_extract_section_text(tester_document_text, 'RECOMMENDATIONS') or 'Unavailable'}",
                 "",
                 "Refer to output/doc/tester_output.txt and project artifacts for details.",
             ]

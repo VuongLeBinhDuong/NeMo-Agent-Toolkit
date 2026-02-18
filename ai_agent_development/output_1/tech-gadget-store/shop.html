@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browse the latest tech gadgets at Tech Gadget Store. Find the best deals on smartphones, laptops, and more.">
+    <meta property="og:title" content="Tech Gadget Store - Shop">
+    <meta property="og:description" content="Browse the latest tech gadgets at Tech Gadget Store. Find the best deals on smartphones, laptops, and more.">
+    <meta property="og:image" content="https://example.com/images/og-image.jpg">
+    <meta property="og:url" content="https://example.com/shop.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tech Gadget Store - Shop">
+    <meta name="twitter:description" content="Browse the latest tech gadgets at Tech Gadget Store. Find the best deals on smartphones, laptops, and more.">
+    <meta name="twitter:image" content="https://example.com/images/og-image.jpg">
+    <meta name="twitter:url" content="https://example.com/shop.html">
+    <link rel="canonical" href="https://example.com/shop.html">
+    <title>Tech Gadget Store - Shop</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Tech Gadget Store - Shop",
+      "description": "Browse the latest tech gadgets at Tech Gadget Store. Find the best deals on smartphones, laptops, and more.",
+      "url": "https://example.com/shop.html",
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [{
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://example.com/"
+        },{
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Shop",
+          "item": "https://example.com/shop.html"
+        }]
+      }
+    }
+    </script>
+</head>
+<body>
+    <header class="header" role="banner">
+        <div class="header__logo">
+            <a href="index.html" aria-label="Tech Gadget Store Home">
+                <img src="images/logo.png" alt="Tech Gadget Store Logo">
+            </a>
+        </div>
+        <nav class="header__nav" aria-label="Main Navigation">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="shop.html" aria-current="page">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="checkout.html">Checkout</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+        <div class="header__search">
+            <input type="text" id="search-input" class="header__search-input" placeholder="Search for gadgets..." aria-label="Search for gadgets">
+        </div>
+        <div class="header__cart">
+            <a href="cart.html" aria-label="View shopping cart">
+                <span id="cart-count" class="header__cart-count">0</span>
+                <span id="cart-subtotal" class="header__cart-subtotal">$0.00</span>
+            </a>
+        </div>
+    </header>
+    <main class="main" role="main">
+        <section class="filters" aria-label="Product Filters">
+            <label for="category-filter" class="filters__label">Filter by Category:</label>
+            <select id="category-filter" class="filters__select" aria-label="Select category to filter products">
+                <option value="all">All</option>
+                <option value="smartphones">Smartphones</option>
+                <option value="laptops">Laptops</option>
+                <option value="accessories">Accessories</option>
+            </select>
+            <label for="sort-by" class="filters__label">Sort by:</label>
+            <select id="sort-by" class="filters__select" aria-label="Select sorting option for products">
+                <option value="name">Name</option>
+                <option value="price">Price</option>
+            </select>
+        </section>
+        <section id="products-container" class="products" aria-live="polite" aria-busy="true" aria-label="Product List">
+            <!-- Product cards will be dynamically inserted here by JavaScript -->
+        </section>
+    </main>
+    <footer class="footer" role="contentinfo">
+        <div class="footer__content">
+            <p>&copy; 2023 Tech Gadget Store. All rights reserved.</p>
+            <nav class="footer__nav" aria-label="Footer Navigation">
+                <ul>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms of Service</a></li>
+                </ul>
+            </nav>
+        </div>
+    </footer>
+    <script src="script.js" defer></script>
+</body>
+</html>

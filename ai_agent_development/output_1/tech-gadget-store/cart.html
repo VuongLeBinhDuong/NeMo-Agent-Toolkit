@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your shopping cart on Tech Gadget Store. Review and manage your items before checkout.">
+    <meta property="og:title" content="Shopping Cart - Tech Gadget Store">
+    <meta property="og:description" content="Your shopping cart on Tech Gadget Store. Review and manage your items before checkout.">
+    <meta property="og:image" content="https://tech-gadget-store.com/images/logo.png">
+    <meta property="og:url" content="https://tech-gadget-store.com/cart.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Shopping Cart - Tech Gadget Store">
+    <meta name="twitter:description" content="Your shopping cart on Tech Gadget Store. Review and manage your items before checkout.">
+    <meta name="twitter:image" content="https://tech-gadget-store.com/images/logo.png">
+    <meta name="twitter:site" content="@TechGadgetStore">
+    <link rel="canonical" href="https://tech-gadget-store.com/cart.html">
+    <link rel="stylesheet" href="styles.css">
+    <title>Shopping Cart - Tech Gadget Store</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Shopping Cart",
+      "description": "Your shopping cart on Tech Gadget Store. Review and manage your items before checkout.",
+      "url": "https://tech-gadget-store.com/cart.html",
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [{
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://tech-gadget-store.com/"
+        },{
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Shopping Cart",
+          "item": "https://tech-gadget-store.com/cart.html"
+        }]
+      }
+    }
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="header__logo">
+            <a href="index.html" aria-label="Tech Gadget Store Home">
+                <img src="images/logo.png" alt="Tech Gadget Store Logo" loading="lazy">
+            </a>
+        </div>
+        <nav class="header__nav" aria-label="Main Navigation">
+            <ul>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="checkout.html">Checkout</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+        <div class="header__search">
+            <input type="text" id="search-input" class="header__search-input" placeholder="Search..." aria-label="Search products">
+        </div>
+        <div class="header__cart">
+            <a href="cart.html" aria-label="View shopping cart">
+                <span id="cart-count" class="header__cart-count">0</span>
+                <img src="images/cart-icon.png" alt="Shopping Cart" loading="lazy">
+            </a>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="cart-summary">
+            <h1>Your Shopping Cart</h1>
+            <div id="cart-items" class="cart-summary__items">
+                <!-- Dynamic cart items will be inserted here by script.js -->
+            </div>
+            <div class="cart-summary__totals">
+                <div class="cart-summary__subtotal">
+                    <span>Subtotal:</span>
+                    <span id="cart-subtotal">$0.00</span>
+                </div>
+                <div class="cart-summary__total">
+                    <span>Total:</span>
+                    <span id="cart-total">$0.00</span>
+                </div>
+                <button class="cart-summary__checkout-btn" data-js="checkout-btn" aria-label="Proceed to checkout">Checkout</button>
+            </div>
+            <div id="cart-empty-state" class="cart-summary__empty-state" style="display: none;">
+                <p>Your cart is empty. <a href="shop.html">Continue shopping</a>.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer__content">
+            <div class="footer__logo">
+                <a href="index.html" aria-label="Tech Gadget Store Home">
+                    <img src="images/logo.png" alt="Tech Gadget Store Logo" loading="lazy">
+                </a>
+            </div>
+            <nav class="footer__nav" aria-label="Footer Navigation">
+                <ul>
+                    <li><a href="shop.html">Shop</a></li>
+                    <li><a href="cart.html">Cart</a></li>
+                    <li><a href="checkout.html">Checkout</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </nav>
+            <div class="footer__social">
+                <a href="https://facebook.com/techgadgetstore" aria-label="Follow us on Facebook">
+                    <img src="images/facebook-icon.png" alt="Facebook" loading="lazy">
+                </a>
+                <a href="https://twitter.com/techgadgetstore" aria-label="Follow us on Twitter">
+                    <img src="images/twitter-icon.png" alt="Twitter" loading="lazy">
+                </a>
+                <a href="https://instagram.com/techgadgetstore" aria-label="Follow us on Instagram">
+                    <img src="images/instagram-icon.png" alt="Instagram" loading="lazy">
+                </a>
+            </div>
+        </div>
+        <div class="footer__copyright">
+            <p>&copy; 2023 Tech Gadget Store. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js" defer></script>
+</body>
+</html>

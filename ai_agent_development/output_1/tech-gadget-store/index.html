@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Welcome to Tech Gadget Store, your one-stop shop for the latest tech gadgets and accessories.">
+    <meta property="og:title" content="Tech Gadget Store">
+    <meta property="og:description" content="Welcome to Tech Gadget Store, your one-stop shop for the latest tech gadgets and accessories.">
+    <meta property="og:image" content="https://example.com/images/logo.png">
+    <meta property="og:url" content="https://techgadgetstore.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tech Gadget Store">
+    <meta name="twitter:description" content="Welcome to Tech Gadget Store, your one-stop shop for the latest tech gadgets and accessories.">
+    <meta name="twitter:image" content="https://example.com/images/logo.png">
+    <meta name="twitter:site" content="@techgadgetstore">
+    <link rel="canonical" href="https://techgadgetstore.com">
+    <link rel="stylesheet" href="styles.css">
+    <title>Tech Gadget Store</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Tech Gadget Store",
+      "url": "https://techgadgetstore.com",
+      "logo": "https://example.com/images/logo.png",
+      "sameAs": [
+        "https://www.facebook.com/techgadgetstore",
+        "https://twitter.com/techgadgetstore",
+        "https://www.instagram.com/techgadgetstore"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://techgadgetstore.com"
+      }]
+    }
+    </script>
+</head>
+<body>
+    <header class="header" role="banner">
+        <div class="header__logo">
+            <a href="index.html" aria-label="Tech Gadget Store Home">
+                <img src="images/logo.png" alt="Tech Gadget Store Logo" loading="lazy">
+            </a>
+        </div>
+        <nav class="header__nav" aria-label="Main Navigation">
+            <ul>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="checkout.html">Checkout</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+        <div class="header__search">
+            <input type="text" id="search-input" class="header__search-input" placeholder="Search for gadgets..." aria-label="Search for gadgets">
+        </div>
+        <div class="header__cart" aria-label="Shopping Cart">
+            <a href="cart.html" class="header__cart-link">
+                <span class="header__cart-icon">🛒</span>
+                <span id="cart-count" class="header__cart-count">0</span>
+            </a>
+            <span id="cart-subtotal" class="header__cart-subtotal">Subtotal: $0.00</span>
+        </div>
+    </header>
+    <main role="main">
+        <section class="hero" aria-labelledby="hero-heading">
+            <h1 id="hero-heading" class="hero__heading">Discover the Latest Tech Gadgets</h1>
+            <p class="hero__description">Stay ahead of the curve with our cutting-edge technology products.</p>
+            <a href="shop.html" class="hero__cta" aria-label="Shop now for the latest gadgets">Shop Now</a>
+        </section>
+        <section id="products-container" class="products" aria-labelledby="products-heading">
+            <h2 id="products-heading" class="products__heading">Latest Gadgets</h2>
+            <!-- Product cards will be dynamically inserted here by script.js -->
+        </section>
+    </main>
+    <footer class="footer" role="contentinfo">
+        <div class="footer__info">
+            <p class="footer__copyright">© 2023 Tech Gadget Store. All rights reserved.</p>
+            <nav class="footer__nav" aria-label="Footer Navigation">
+                <ul>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms of Service</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="footer__social">
+            <a href="https://www.facebook.com/techgadgetstore" class="footer__social-link" aria-label="Follow us on Facebook">
+                <img src="images/facebook-icon.png" alt="Facebook" loading="lazy">
+            </a>
+            <a href="https://twitter.com/techgadgetstore" class="footer__social-link" aria-label="Follow us on Twitter">
+                <img src="images/twitter-icon.png" alt="Twitter" loading="lazy">
+            </a>
+            <a href="https://www.instagram.com/techgadgetstore" class="footer__social-link" aria-label="Follow us on Instagram">
+                <img src="images/instagram-icon.png" alt="Instagram" loading="lazy">
+            </a>
+        </div>
+    </footer>
+    <script src="script.js" defer></script>
+</body>
+</html>

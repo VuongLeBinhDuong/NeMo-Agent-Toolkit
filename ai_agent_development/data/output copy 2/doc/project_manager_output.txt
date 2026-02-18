@@ -1,0 +1,86 @@
+PROJECT_NAME: tech-gadgets-website
+
+REQUIREMENTS:
+
+The website should be built using only HTML, CSS, and vanilla JavaScript. The website should have a responsive layout that adjusts from three columns to one. The website should have a homepage with a hero banner, featured products, and a responsive layout. The website should have a shop page with category filtering, sorting options, and live search. The website should have a product detail page with images, specifications, badges, and an Add to Cart button. The website should have a cart page showing items stored in localStorage with quantity controls and totals.
+
+PRODUCTS:
+
+- Product 1: Gadget 1, $99.99, Electronics, This is a tech gadget.
+- Product 2: Gadget 2, $199.99, Electronics, This is another tech gadget.
+- Product 3: Gadget 3, $299.99, Electronics, This is a high-end tech gadget.
+
+CATEGORIES:
+
+- Electronics
+
+SORT_OPTIONS:
+
+- Price: Low to High
+- Price: High to Low
+- Alphabetical
+
+FUNCTIONALITY:
+
+- The website should be able to store items in localStorage.
+- The website should be able to display the item count and subtotal in the cart section of the header.
+- The website should be able to update the quantity of items in the cart.
+- The website should be able to calculate the total cost of items in the cart.
+
+UI_COMPONENTS:
+
+- Header
+- Menu
+- Search bar
+- Cart section
+- Hero banner
+- Featured products section
+- Shop page
+- Product detail page
+- Cart page
+- Footer
+
+FILE_REQUIREMENTS:
+
+- index.html: 
+  - Hero banner
+  - Featured products
+  - Responsive layout
+
+- shop.html: 
+  - Category filtering
+  - Sorting options
+  - Live search
+
+- product-detail.html: 
+  - Images
+  - Specifications
+  - Badges
+  - Add to Cart button
+
+- cart.html: 
+  - Items stored in localStorage
+  - Quantity controls
+  - Totals
+
+- styles.css: 
+  - Responsive layout
+  - Styling for UI components
+
+- script.js: 
+  - Store items in localStorage
+  - Display item count and subtotal in cart section of header
+  - Update quantity of items in cart
+  - Calculate total cost of items in cart
+
+FILES: index.html, shop.html, product-detail.html, cart.html, styles.css, script.js
+
+ORDER: index.html -> shop.html -> product-detail.html -> cart.html -> styles.css -> script.js
+
+STEPS:
+Step 1: index.html Constraints: The website should be built using only HTML, CSS, and vanilla JavaScript, and have a responsive layout that adjusts from three columns to one, with a hero banner, featured products, and a responsive layout, using the Header, Menu, Search bar, Hero banner, and Featured products section UI components.
+Step 2: shop.html Constraints: The website should have a shop page with category filtering, sorting options, and live search, using the Shop page UI component, and should be able to store items in localStorage, display the item count and subtotal in the cart section of the header, update the quantity of items in the cart, and calculate the total cost of items in the cart.
+Step 3: product-detail.html Constraints: The website should have a product detail page with images, specifications, badges, and an Add to Cart button, using the Product detail page UI component, and should be able to store items in localStorage, display the item count and subtotal in the cart section of the header, update the quantity of items in the cart, and calculate the total cost of items in the cart.
+Step 4: cart.html Constraints: The website should have a cart page showing items stored in localStorage with quantity controls and totals, using the Cart page UI component, and should be able to store items in localStorage, display the item count and subtotal in the cart section of the header, update the quantity of items in the cart, and calculate the total cost of items in the cart.
+Step 5: styles.css Constraints: The website should have a responsive layout, and styling for UI components, using the Header, Menu, Search bar, Hero banner, Featured products section, Shop page, Product detail page, Cart page, and Footer UI components.
+Step 6: script.js Constraints: The website should be able to store items in localStorage, display the item count and subtotal in the cart section of the header, update the quantity of items in the cart, and calculate the total cost of items in the cart, using the Header, Menu, Search bar, Hero banner, Featured products section, Shop page, Product detail page, Cart page, and Footer UI components.

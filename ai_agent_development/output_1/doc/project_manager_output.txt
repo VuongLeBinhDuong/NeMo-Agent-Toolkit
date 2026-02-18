@@ -1,0 +1,52 @@
+PROJECT_NAME: tech-gadget-store
+
+REQUIREMENTS:
+
+The website must be responsive and work on multiple devices.
+
+The site must feature a shared header with logo, navigation menu, search bar, and a cart section showing item count and subtotal.
+
+The site must have a consistent footer across all pages.
+
+
+SHARED_COMPONENTS:
+
+Header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal)
+Footer with company info, navigation links, and contact information
+
+
+SHARED_ASSETS:
+
+styles.css (file) at styles.css
+script.js (file) at script.js
+products.json (file) at products.json
+
+
+FILES:
+index.html, shop.html, cart.html, checkout.html, about.html, styles.css, script.js, products.json
+
+
+ORDER:
+products.json -> index.html -> shop.html -> cart.html -> checkout.html -> about.html -> styles.css -> script.js
+
+
+FILE_REQUIREMENTS:
+- index.html: Must include the shared header and footer, and a hero section showcasing the latest gadgets.
+- shop.html: Must include the shared header and footer, and a product grid displaying gadgets from the products.json file.
+- cart.html: Must include the shared header and footer, and a cart summary section displaying the items in the cart.
+- checkout.html: Must include the shared header and footer, and a checkout form capturing contact, shipping, and payment information.
+- about.html: Must include the shared header and footer, and a brief description of the company.
+- styles.css: Must include styles for the shared header and footer, as well as the product grid and cart summary sections.
+- script.js: Must include JavaScript code to load products from the products.json file, update the cart display, and handle checkout form submission.
+- products.json: Must contain an array of product objects with id, name, price, category, description, and image properties.
+
+
+STEPS:
+Step 1: products.json Constraints: The products.json file must be loaded using fetch() and must contain an array of product objects with the required properties. The file must be referenced in the SHARED_ASSETS section.
+Step 2: index.html Constraints: The index.html file must include the shared header and footer, and a hero section showcasing the latest gadgets. The file must reference the styles.css and script.js files in the SHARED_ASSETS section.
+Step 3: shop.html Constraints: The shop.html file must include the shared header and footer, and a product grid displaying gadgets from the products.json file. The file must reference the styles.css and script.js files in the SHARED_ASSETS section.
+Step 4: cart.html Constraints: The cart.html file must include the shared header and footer, and a cart summary section displaying the items in the cart. The file must reference the styles.css and script.js files in the SHARED_ASSETS section.
+Step 5: checkout.html Constraints: The checkout.html file must include the shared header and footer, and a checkout form capturing contact, shipping, and payment information. The file must reference the styles.css and script.js files in the SHARED_ASSETS section.
+Step 6: about.html Constraints: The about.html file must include the shared header and footer, and a brief description of the company. The file must reference the styles.css and script.js files in the SHARED_ASSETS section.
+Step 7: styles.css Constraints: The styles.css file must include styles for the shared header and footer, as well as the product grid and cart summary sections. The file must be referenced in the SHARED_ASSETS section.
+Step 8: script.js Constraints: The script.js file must include JavaScript code to load products from the products.json file, update the cart display, and handle checkout form submission. The file must be referenced in the SHARED_ASSETS section.

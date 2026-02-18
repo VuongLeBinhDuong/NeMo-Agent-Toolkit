@@ -1,0 +1,144 @@
+{
+  "project_name": "clothing-store-homepage",
+  "requirements": "The homepage should have a modern, minimal aesthetic. The header should include a left-aligned store logo, navigation links for Men, Women, Kids, and Accessories, a centered search bar that filters products as the user types, and a cart summary on the right showing item count and subtotal. The layout must be clean, spacious, and fully responsive, with neutral color tones and subtle shadows that match a minimalist fashion brand feel.",
+  "products": [
+    {
+      "name": "Men’s Denim Jacket",
+      "price": 69.99,
+      "category": "Men",
+      "description": "A classic denim jacket with a modern twist."
+    },
+    {
+      "name": "Women’s Linen Dress",
+      "price": 49.99,
+      "category": "Women",
+      "description": "A flowy linen dress perfect for warm weather."
+    },
+    {
+      "name": "Kids’ Hoodie",
+      "price": 29.99,
+      "category": "Kids",
+      "description": "A cozy hoodie for kids of all ages."
+    },
+    {
+      "name": "Basic T-Shirt",
+      "price": 19.99,
+      "category": "Men",
+      "description": "A classic white t-shirt for everyday wear."
+    },
+    {
+      "name": "Running Shoes",
+      "price": 79.99,
+      "category": "Men",
+      "description": "High-quality running shoes for the avid runner."
+    },
+    {
+      "name": "Tote Bag",
+      "price": 39.99,
+      "category": "Accessories",
+      "description": "A spacious tote bag for carrying all your essentials."
+    },
+    {
+      "name": "Sunglasses",
+      "price": 29.99,
+      "category": "Accessories",
+      "description": "Stylish sunglasses for men and women."
+    },
+    {
+      "name": "Women’s Blouse",
+      "price": 39.99,
+      "category": "Women",
+      "description": "A elegant blouse for work or a night out."
+    },
+    {
+      "name": "Men’s Jeans",
+      "price": 59.99,
+      "category": "Men",
+      "description": "A pair of high-quality jeans for everyday wear."
+    },
+    {
+      "name": "Kids’ Sneakers",
+      "price": 49.99,
+      "category": "Kids",
+      "description": "A pair of fun and colorful sneakers for kids."
+    }
+  ],
+  "categories": [
+    "Men",
+    "Women",
+    "Kids",
+    "Accessories"
+  ],
+  "sort_options": [
+    "Price: Low to High",
+    "Price: High to Low",
+    "Popularity"
+  ],
+  "files": [
+    {
+      "name": "- index.html   - shop.html   - cart.html   - styles.css   - script.js   - products.json",
+      "type": "json",
+      "path": "output/clothing-store-homepage/- index.html   - shop.html   - cart.html   - styles.css   - script.js   - products.json"
+    }
+  ],
+  "shared_assets": [
+    {
+      "name": "products.json",
+      "type": "file",
+      "path": "products.json"
+    },
+    {
+      "name": "styles.css",
+      "type": "file",
+      "path": "styles.css"
+    },
+    {
+      "name": "script.js",
+      "type": "file",
+      "path": "script.js"
+    }
+  ],
+  "shared_components": [
+    "Header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal)",
+    "Footer with company info, navigation links, and contact information"
+  ],
+  "tasks": [
+    {
+      "step": 1,
+      "filename": "products.json",
+      "constraints": "The products.json file should be loaded from the SHARED_ASSETS directory. The file should include a list of products with images, prices, and categories. The products should be loaded into the product list on the shop page.",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "filename": "index.html",
+      "constraints": "The index.html file should include the header and footer components. The header should include a left-aligned store logo, navigation links for Men, Women, Kids, and Accessories, a centered search bar that filters products as the user types, and a cart summary on the right showing item count and subtotal. The footer should include company info, navigation links, and contact information.",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "filename": "shop.html",
+      "constraints": "The shop.html file should include the product list component. The product list should display a list of products with images, prices, and categories. The page should also include a filter dropdown for categories and a sort dropdown for price and popularity.",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "filename": "cart.html",
+      "constraints": "The cart.html file should include the cart component. The cart should display a list of products in the cart with images, prices, and quantities. The page should also include a subtotal and a checkout button.",
+      "status": "pending"
+    },
+    {
+      "step": 5,
+      "filename": "styles.css",
+      "constraints": "The styles.css file should include styles for the header, footer, and product list. The styles should be modern, minimal, and responsive.",
+      "status": "pending"
+    },
+    {
+      "step": 6,
+      "filename": "script.js",
+      "constraints": "The script.js file should include functionality for the search bar, filter dropdown, and sort dropdown. The script should also include functionality for adding and removing products from the cart.",
+      "status": "pending"
+    }
+  ],
+  "product_data_location": "products.json"
+}

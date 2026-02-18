@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Welcome to our minimalist clothing store. Shop the latest fashion pieces with a modern, neutral aesthetic.">
+    <meta property="og:title" content="Minimalist Clothing Store">
+    <meta property="og:description" content="Welcome to our minimalist clothing store. Shop the latest fashion pieces with a modern, neutral aesthetic.">
+    <meta property="og:image" content="https://example.com/images/store-logo.png">
+    <meta property="og:url" content="https://example.com/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Minimalist Clothing Store">
+    <meta name="twitter:description" content="Welcome to our minimalist clothing store. Shop the latest fashion pieces with a modern, neutral aesthetic.">
+    <meta name="twitter:image" content="https://example.com/images/store-logo.png">
+    <meta name="twitter:site" content="@minimaliststore">
+    <link rel="canonical" href="https://example.com/">
+    <link rel="stylesheet" href="styles.css">
+    <title>Minimalist Clothing Store</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Minimalist Clothing Store",
+      "description": "Welcome to our minimalist clothing store. Shop the latest fashion pieces with a modern, neutral aesthetic.",
+      "url": "https://example.com/",
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [{
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://example.com/"
+        }]
+      }
+    }
+    </script>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <header class="header">
+        <div class="header__logo">
+            <a href="index.html" aria-label="Minimalist Clothing Store Home">
+                <img src="images/store-logo.png" alt="Minimalist Clothing Store Logo" loading="lazy">
+            </a>
+        </div>
+        <nav class="header__nav" aria-label="Main Navigation">
+            <ul class="header__nav-list">
+                <li class="header__nav-item">
+                    <a href="shop.html" class="header__nav-link">Shop</a>
+                </li>
+                <li class="header__nav-item">
+                    <a href="cart.html" class="header__nav-link">Cart</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="header__search">
+            <input type="text" id="search-input" class="header__search-input" placeholder="Search..." aria-label="Search the store">
+        </div>
+        <div class="header__cart">
+            <a href="cart.html" class="header__cart-link" aria-label="View shopping cart">
+                <span class="header__cart-count" id="cart-count">0</span>
+                <span class="header__cart-subtotal" id="cart-subtotal">$0.00</span>
+            </a>
+        </div>
+    </header>
+    <main id="main-content" class="main">
+        <section class="hero">
+            <h1 class="hero__title">Welcome to Minimalist Clothing Store</h1>
+            <p class="hero__description">Discover the latest fashion pieces with a modern, neutral aesthetic.</p>
+            <a href="shop.html" class="hero__cta-button" aria-label="Explore the store">Explore the Store</a>
+        </section>
+        <section id="products-container" class="products" aria-live="polite" aria-busy="true">
+            <!-- Product cards will be dynamically inserted here by JavaScript -->
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="footer__content">
+            <p class="footer__copyright">© 2023 Minimalist Clothing Store. All rights reserved.</p>
+            <nav class="footer__nav" aria-label="Footer Navigation">
+                <ul class="footer__nav-list">
+                    <li class="footer__nav-item">
+                        <a href="about.html" class="footer__nav-link">About Us</a>
+                    </li>
+                    <li class="footer__nav-item">
+                        <a href="contact.html" class="footer__nav-link">Contact</a>
+                    </li>
+                    <li class="footer__nav-item">
+                        <a href="privacy.html" class="footer__nav-link">Privacy Policy</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </footer>
+    <script src="script.js" defer></script>
+</body>
+</html>

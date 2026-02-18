@@ -1,0 +1,35 @@
+PROJECT_NAME: clothing-store-homepage
+
+REQUIREMENTS:
+The homepage should have a modern, minimal aesthetic. The header should include a left-aligned store logo, navigation links for Men, Women, Kids, and Accessories, a centered search bar that filters products as the user types, and a cart summary on the right showing item count and subtotal. The layout must be clean, spacious, and fully responsive, with neutral color tones and subtle shadows that match a minimalist fashion brand feel.
+
+SHARED_COMPONENTS:
+  - Header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal)
+  - Footer with company info, navigation links, and contact information
+
+SHARED_ASSETS:
+  - products.json (file) at products.json ⚠ CRITICAL: Products must be loaded from this JSON file, not hardcoded!
+  - styles.css (file) at styles.css
+  - script.js (file) at script.js
+
+FILES:
+index.html, shop.html, cart.html, styles.css, script.js, products.json
+
+ORDER:
+products.json -> index.html -> shop.html -> cart.html -> styles.css -> script.js
+
+FILE_REQUIREMENTS:
+- index.html: The homepage should have a modern, minimal aesthetic. The header should include a left-aligned store logo, navigation links for Men, Women, Kids, and Accessories, a centered search bar that filters products as the user types, and a cart summary on the right showing item count and subtotal.
+- shop.html: The shop page should display a list of products with images, prices, and categories. The page should also include a filter dropdown for categories and a sort dropdown for price and popularity.
+- cart.html: The cart page should display a list of products in the cart with images, prices, and quantities. The page should also include a subtotal and a checkout button.
+- styles.css: The stylesheet should include styles for the header, footer, and product list. The styles should be modern, minimal, and responsive.
+- script.js: The script should include functionality for the search bar, filter dropdown, and sort dropdown. The script should also include functionality for adding and removing products from the cart.
+- products.json: The products.json file should include a list of products with images, prices, and categories.
+
+STEPS:
+Step 1: products.json Constraints: The products.json file should be loaded from the SHARED_ASSETS directory. The file should include a list of products with images, prices, and categories. The products should be loaded into the product list on the shop page.
+Step 2: index.html Constraints: The index.html file should include the header and footer components. The header should include a left-aligned store logo, navigation links for Men, Women, Kids, and Accessories, a centered search bar that filters products as the user types, and a cart summary on the right showing item count and subtotal. The footer should include company info, navigation links, and contact information.
+Step 3: shop.html Constraints: The shop.html file should include the product list component. The product list should display a list of products with images, prices, and categories. The page should also include a filter dropdown for categories and a sort dropdown for price and popularity.
+Step 4: cart.html Constraints: The cart.html file should include the cart component. The cart should display a list of products in the cart with images, prices, and quantities. The page should also include a subtotal and a checkout button.
+Step 5: styles.css Constraints: The styles.css file should include styles for the header, footer, and product list. The styles should be modern, minimal, and responsive.
+Step 6: script.js Constraints: The script.js file should include functionality for the search bar, filter dropdown, and sort dropdown. The script should also include functionality for adding and removing products from the cart.

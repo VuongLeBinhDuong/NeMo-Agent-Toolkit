@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clothing Store</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo">Clothing Store</div>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Shop</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="search-bar">
+            <input id="search-input" type="text" placeholder="Search products...">
+        </div>
+        <div class="cart">
+            <span>Cart: </span>
+            <span id="cart-count">0</span>
+            <span> | Subtotal: $</span>
+            <span id="cart-subtotal">0.00</span>
+        </div>
+    </header>
+    <section class="hero">
+        <h1>Welcome to Our Clothing Store</h1>
+        <p>Find the perfect clothes for every occasion.</p>
+    </section>
+    <section class="filters">
+        <div>
+            <label for="category-filter">Category:</label>
+            <select id="category-filter">
+                <option value="All">All</option>
+                <option value="Men">Men</option>
+                <option value="Women">Women</option>
+                <option value="Kids">Kids</option>
+            </select>
+        </div>
+        <div>
+            <label for="sort-select">Sort by:</label>
+            <select id="sort-select">
+                <option value="Featured">Featured</option>
+                <option value="Price (asc)">Price (asc)</option>
+                <option value="Price (desc)">Price (desc)</option>
+            </select>
+        </div>
+    </section>
+    <section class="product-grid">
+        <div class="product-card">
+            <img src="https://via.placeholder.com/150" alt="Men's T-Shirt">
+            <h3>Men's T-Shirt</h3>
+            <p>$15.99</p>
+            <button class="add-to-cart-btn" data-product-name="Men's T-Shirt">Add to Cart</button>
+        </div>
+        <div class="product-card">
+            <img src="https://via.placeholder.com/150" alt="Women's Dress">
+            <h3>Women's Dress</h3>
+            <p>$29.99</p>
+            <button class="add-to-cart-btn" data-product-name="Women's Dress">Add to Cart</button>
+        </div>
+        <div class="product-card">
+            <img src="https://via.placeholder.com/150" alt="Kids' Sneakers">
+            <h3>Kids' Sneakers</h3>
+            <p>$19.99</p>
+            <button class="add-to-cart-btn" data-product-name="Kids' Sneakers">Add to Cart</button>
+        </div>
+        <div class="product-card">
+            <img src="https://via.placeholder.com/150" alt="Men's Jacket">
+            <h3>Men's Jacket</h3>
+            <p>$49.99</p>
+            <button class="add-to-cart-btn" data-product-name="Men's Jacket">Add to Cart</button>
+        </div>
+        <div class="product-card">
+            <img src="https://via.placeholder.com/150" alt="Women's Boots">
+            <h3>Women's Boots</h3>
+            <p>$39.99</p>
+            <button class="add-to-cart-btn" data-product-name="Women's Boots">Add to Cart</button>
+        </div>
+        <div class="product-card">
+            <img src="https://via.placeholder.com/150" alt="Kids' Hoodie">
+            <h3>Kids' Hoodie</h3>
+            <p>$14.99</p>
+            <button class="add-to-cart-btn" data-product-name="Kids' Hoodie">Add to Cart</button>
+        </div>
+    </section>
+    <script src="script.js"></script>
+</body>
+</html>

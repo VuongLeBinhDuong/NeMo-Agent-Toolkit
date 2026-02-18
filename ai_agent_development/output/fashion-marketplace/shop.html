@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browse our latest fashion collection at Fashion Marketplace. Shop the latest trends in clothing, accessories, and more.">
+    <meta property="og:title" content="Fashion Marketplace - Shop">
+    <meta property="og:description" content="Browse our latest fashion collection at Fashion Marketplace. Shop the latest trends in clothing, accessories, and more.">
+    <meta property="og:image" content="https://example.com/images/fashion-marketplace-logo.png">
+    <meta property="og:url" content="https://example.com/shop.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Fashion Marketplace - Shop">
+    <meta name="twitter:description" content="Browse our latest fashion collection at Fashion Marketplace. Shop the latest trends in clothing, accessories, and more.">
+    <meta name="twitter:image" content="https://example.com/images/fashion-marketplace-logo.png">
+    <meta name="twitter:site" content="@FashionMarketplace">
+    <link rel="canonical" href="https://example.com/shop.html">
+    <link rel="stylesheet" href="styles.css">
+    <title>Fashion Marketplace - Shop</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Fashion Marketplace - Shop",
+      "description": "Browse our latest fashion collection at Fashion Marketplace. Shop the latest trends in clothing, accessories, and more.",
+      "url": "https://example.com/shop.html",
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [{
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://example.com/"
+        },{
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Shop",
+          "item": "https://example.com/shop.html"
+        }]
+      }
+    }
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="header__logo">
+            <a href="index.html" aria-label="Fashion Marketplace Home">
+                <img src="images/fashion-marketplace-logo.png" alt="Fashion Marketplace Logo">
+            </a>
+        </div>
+        <nav class="header__nav" aria-label="Main Navigation">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="shop.html" aria-current="page">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="checkout.html">Checkout</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+        <div class="header__search">
+            <input type="text" id="search-input" class="header__search-input" placeholder="Search products..." aria-label="Search products">
+        </div>
+        <div class="header__cart">
+            <a href="cart.html" aria-label="View shopping cart">
+                <span id="cart-count" class="header__cart-count">0</span>
+                <img src="images/cart-icon.png" alt="Shopping Cart">
+            </a>
+            <span id="cart-subtotal" class="header__cart-subtotal">$0.00</span>
+        </div>
+    </header>
+    <main class="main">
+        <section class="filters" aria-label="Product Filters">
+            <div class="filters__controls">
+                <label for="filter-select" class="filters__label">Filter by Category:</label>
+                <select id="filter-select" class="filters__select" aria-label="Select category to filter products">
+                    <option value="all">All</option>
+                    <option value="clothing">Clothing</option>
+                    <option value="accessories">Accessories</option>
+                    <option value="shoes">Shoes</option>
+                </select>
+                <label for="sort-select" class="filters__label">Sort by:</label>
+                <select id="sort-select" class="filters__select" aria-label="Select sorting option for products">
+                    <option value="name">Name</option>
+                    <option value="price">Price</option>
+                </select>
+            </div>
+        </section>
+        <section id="products-container" class="products" aria-live="polite" aria-busy="true" aria-label="Product Listing">
+            <!-- Product cards will be dynamically inserted here by JavaScript -->
+        </section>
+    </main>
+    <footer class="footer">
+        <p class="footer__text">© 2023 Fashion Marketplace. All rights reserved.</p>
+        <nav class="footer__nav" aria-label="Footer Navigation">
+            <ul>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="privacy.html">Privacy Policy</a></li>
+                <li><a href="terms.html">Terms of Service</a></li>
+            </ul>
+        </nav>
+    </footer>
+    <script src="script.js" data-products-url="SHARED_ASSETS/products.json"></script>
+</body>
+</html>

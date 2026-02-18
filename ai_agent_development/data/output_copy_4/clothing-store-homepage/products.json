@@ -1,0 +1,44 @@
+{
+  "products": [
+    {
+      "id": "001",
+      "name": "Men's Classic Fit T-Shirt",
+      "price": 19.99,
+      "category": "Men's Clothing",
+      "description": "A comfortable and stylish men's t-shirt made from 100% cotton. Perfect for everyday wear.",
+      "image": "SHARED_ASSETS/images/mens-classic-fit-tshirt.jpg"
+    },
+    {
+      "id": "002",
+      "name": "Women's Yoga Pants",
+      "price": 29.99,
+      "category": "Women's Clothing",
+      "description": "High-quality yoga pants with a wide waistband and comfortable stretch fabric. Ideal for fitness enthusiasts.",
+      "image": "SHARED_ASSETS/images/womens-yoga-pants.jpg"
+    },
+    {
+      "id": "003",
+      "name": "Unisex Hoodie",
+      "price": 39.99,
+      "category": "Unisex Clothing",
+      "description": "A cozy and trendy unisex hoodie with a soft fleece lining. Available in multiple colors.",
+      "image": "SHARED_ASSETS/images/unisex-hoodie.jpg"
+    },
+    {
+      "id": "004",
+      "name": "Men's Leather Belt",
+      "price": 24.99,
+      "category": "Men's Accessories",
+      "description": "A durable leather belt with a brushed silver buckle. Perfect for any outfit.",
+      "image": "SHARED_ASSETS/images/mens-leather-belt.jpg"
+    },
+    {
+      "id": "005",
+      "name": "Women's Crossbody Bag",
+      "price": 49.99,
+      "category": "Women's Accessories",
+      "description": "A stylish crossbody bag with multiple compartments and a comfortable shoulder strap.",
+      "image": "SHARED_ASSETS/images/womens-crossbody-bag.jpg"
+    }
+  ]
+}

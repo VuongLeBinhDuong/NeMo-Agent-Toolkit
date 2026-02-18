@@ -1,0 +1,62 @@
+REQUIREMENTS:
+The homepage should have a modern, minimal aesthetic. The header should include a left-aligned store logo, navigation links for Men, Women, Kids, and Accessories, a centered search bar that filters products as the user types, and a cart summary on the right showing item count and subtotal. The layout must be clean, spacious, and fully responsive, with neutral color tones and subtle shadows that match a minimalist fashion brand feel.
+
+PRODUCTS:
+  - Men’s Denim Jacket: $69.99, Men, A classic denim jacket with a modern twist.
+  - Women’s Linen Dress: $49.99, Women, A flowy linen dress perfect for warm weather.
+  - Kids’ Hoodie: $29.99, Kids, A cozy hoodie for kids of all ages.
+  - Basic T-Shirt: $19.99, Men, A classic white t-shirt for everyday wear.
+  - Running Shoes: $79.99, Men, High-quality running shoes for the avid runner.
+  - Tote Bag: $39.99, Accessories, A spacious tote bag for carrying all your essentials.
+  - Sunglasses: $29.99, Accessories, Stylish sunglasses for men and women.
+  - Women’s Blouse: $39.99, Women, A elegant blouse for work or a night out.
+  - Men’s Jeans: $59.99, Men, A pair of high-quality jeans for everyday wear.
+  - Kids’ Sneakers: $49.99, Kids, A pair of fun and colorful sneakers for kids.
+
+CATEGORIES:
+  - Men
+  - Women
+  - Kids
+  - Accessories
+
+SORT_OPTIONS:
+  - Price: Low to High
+  - Price: High to Low
+  - Popularity
+
+FUNCTIONALITY:
+  - The cart should be implemented using localStorage.
+  - The filter and sort controls should work together to display the correct products.
+  - The search bar should filter products as the user types.
+
+UI_COMPONENTS:
+  - Header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal)
+  - Footer with company info, navigation links, and contact information
+
+SHARED_COMPONENTS:
+  - Header with search bar (#search-input) and cart section (#cart-count, #cart-subtotal)
+  - Footer with company info, navigation links, and contact information
+
+SHARED_ASSETS:
+  - products.json
+  - styles.css
+  - script.js
+
+FILES:
+  - index.html
+  - shop.html
+  - cart.html
+  - styles.css
+  - script.js
+  - products.json
+
+ORDER:
+  - products.json -> index.html -> shop.html -> cart.html -> styles.css -> script.js
+
+FILE_REQUIREMENTS:
+  - index.html: Include header, navigation links, search bar, and cart summary. Use relative paths for links.
+  - shop.html: Include filter and sort controls. Use relative paths for links.
+  - cart.html: Render cart items to #cart-items.
+  - products.json: Generate with ALL products from PRODUCTS section. Format: array of objects with id, name, price, category, description, image properties. Save to output/[PROJECT_NAME]/products.json.
+  - script.js: Load products from products.json using fetch(). Implement cart, filter, sort, and search functionality. Use ES6+ classes for organization. Implement Intersection Observer for lazy loading, modal management, state management, and performance optimizations.
+  - styles.css: Reference code examples for product grid and card design. Responsive grid 1/2/3/4 columns. Modern card design with advanced hover effects, animations, CSS variables, dark mode support, and loading states.

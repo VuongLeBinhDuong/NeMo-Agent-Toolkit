@@ -29,7 +29,7 @@ from nat.cli.register_workflow import register_function
 from nat.data_models.component_ref import FunctionRef
 from nat.data_models.function import FunctionBaseConfig
 
-from .sop_templates import get_sop_summary
+from .sop_templates import get_component_snippets_text, get_sop_summary
 from .structured_handoff import (
     format_handoff_for_agent,
     parse_pm_output_to_handoff,
@@ -37,9 +37,14 @@ from .structured_handoff import (
 )
 
 
-def _get_architect_brief() -> str:
-    """Get architect brief with SOP templates included."""
-    sop_summary = get_sop_summary()
+def _get_architect_brief(website_type: str = "") -> str:
+    """Get architect brief with SOP templates included.
+    
+    Args:
+        website_type: Optional website type to customize SOPs. If not provided, returns generic version.
+    """
+    sop_summary = get_sop_summary(website_type)
+    snippet_text = get_component_snippets_text(website_type)
     
     return f"""
 === SYSTEM ARCHITECT BRIEF ===
@@ -64,6 +69,8 @@ Hard requirements:
 
 {sop_summary}
 
+{snippet_text}
+
 CRITICAL: When specifying FILE_REQUIREMENTS, reference the SOP templates above for default behaviors.
 DO NOT invent or guess component implementations - use the standardized specifications.
 
@@ -74,58 +81,47 @@ CATEGORIES: (paste verbatim from EXTRACTED_PM_CONTENT)
 SORT_OPTIONS: (paste verbatim from EXTRACTED_PM_CONTENT)
 FUNCTIONALITY: (paste verbatim from EXTRACTED_PM_CONTENT)
 UI_COMPONENTS: (paste verbatim from EXTRACTED_PM_CONTENT)
-SHARED_COMPONENTS: (paste verbatim from EXTRACTED_PM_CONTENT - must include header with search bar and cart section)
-SHARED_ASSETS: (list shared files/resources such as global stylesheets, scripts, data sources. 
-  - CRITICAL: Include "products.json" if products should be loaded from JSON file instead of hardcoded in HTML. This is recommended for multi-page projects.
-  - Be specific: "styles.css", "script.js", "products.json", etc.
-  - If products.json is included, engineer MUST generate this file with ALL products from PRODUCTS section in correct format: array of objects with id, name, price, category, description, image)
-FILES: (comma-separated list of files that will be generated. 
-  - CRITICAL: If "products.json" is in SHARED_ASSETS, you MUST include "products.json" in FILES list.
-  - Include all HTML files, CSS files, JS files, and products.json (if in SHARED_ASSETS).
-  - Example: "index.html, shop.html, cart.html, styles.css, script.js, products.json")
+SHARED_COMPONENTS: (paste verbatim from EXTRACTED_PM_CONTENT - must include header with search bar and, for ecommerce_site projects, cart section)
+SHARED_ASSETS: (list shared files/resources such as global stylesheets, scripts, data sources.
+  - For WEBSITE_TYPE = ecommerce_site:
+    - CRITICAL: MUST include "products.json" – products/tickets will be loaded from JSON file, NEVER hardcoded in HTML.
+    - Be specific: "styles.css", "script.js", "products.json".
+    - Engineer MUST generate products.json file with ALL products from PRODUCTS section in correct format: array of objects with id, name, price, category, description, image.
+  - For WEBSITE_TYPE = information_site or web_app:
+    - Only include "products.json" if the PM REQUIREMENTS explicitly describe a structured catalog that must be loaded from JSON.
+    - Otherwise, SHARED_ASSETS should focus on static assets such as "styles.css", "script.js" and any domain‑specific data sources (e.g., matches.json, results.json) explicitly requested.)
+FILES: (comma-separated list of files that will be generated.
+  - For WEBSITE_TYPE = ecommerce_site:
+    - CRITICAL: Include "products.json" plus ALL required storefront HTML views: index.html, shop.html, cart.html, checkout.html, about.html (add additional ones if PM scope demands).
+  - For WEBSITE_TYPE = information_site or web_app:
+    - Derive pages from REQUIREMENTS (e.g., index.html, matches.html, results.html, about.html, dashboard.html, etc.) without introducing cart/checkout views unless explicitly required.
+  - Include every HTML/CSS/JS/data artifact so downstream phases know they must be generated.
+  - Example (ecommerce): "index.html, shop.html, cart.html, checkout.html, about.html, styles.css, script.js, products.json"
+  - Example (information_site): "index.html, matches.html, results.html, about.html, styles.css, script.js")
 ORDER: (arrow-separated order in which files should be produced.
-  - CRITICAL: If "products.json" is in SHARED_ASSETS, it should be generated EARLY (before or alongside HTML files) so JavaScript can load it.
-  - Recommended order: products.json (if in SHARED_ASSETS) -> HTML files -> CSS -> JS, or products.json -> HTML -> CSS -> JS
-  - Example: "products.json -> index.html -> shop.html -> cart.html -> styles.css -> script.js" OR "index.html -> shop.html -> cart.html -> styles.css -> script.js -> products.json")
-FILE_REQUIREMENTS: (derive per-file responsibilities with DETAILED requirements; one bullet per file. 
-  - For HTML files: 
-    * CRITICAL: EVERY HTML page MUST have IDENTICAL header structure with: logo (clickable, links to homepage), navigation menu (links to ALL pages), search input (#search-input on input element itself), cart section (#cart-count, #cart-subtotal). Header must be professional, modern, and responsive.
-    * CRITICAL: EVERY HTML page MUST have IDENTICAL footer structure with: company info, navigation links, contact info, copyright. Footer must be professional, modern, dark background, light text, responsive (3 columns desktop, stacked mobile).
-    * Products can be EITHER hardcoded directly in HTML OR loaded from products.json file. 
-    * If products.json is in SHARED_ASSETS: HTML MUST have empty product container with id="products-container" (with 's', plural). Example: <section id="products-container" class="product-container"></section>. DO NOT hardcode products in HTML - leave container empty. JavaScript will load products from JSON.
-    * For product listing pages (shop.html, index.html): MUST include filter and sort controls above or near the product container:
-      - Category filter dropdown: <select id="filter-select"> or <select id="category-filter"> with options for all categories
-      - Sort dropdown: <select id="sort-select"> or <select id="sort-by"> with sort options
-    * If products.json is NOT in SHARED_ASSETS: Products MUST be hardcoded directly in HTML markup with data attributes (data-category, data-price) for filtering/sorting.
-  - For products.json (if in SHARED_ASSETS):
-    * Engineer MUST generate this file with ALL products from PRODUCTS section
-    * Format: Array of objects, each with id (number), name (string), price (number), category (string), description (string), image (string URL)
-    * Example: [{{"id": 1, "name": "Product Name", "price": 29.99, "category": "Category", "description": "Description", "image": "https://via.placeholder.com/300x300?text=Product"}}]
-    * Save to: output/[PROJECT_NAME]/products.json
-    * CRITICAL: This file MUST be generated so JavaScript can load it
-  - For script.js: 
-    * CRITICAL: Use id="products-container" (with 's', plural) consistently. Use document.getElementById('products-container') to get the product container.
-    * If products.json exists in SHARED_ASSETS: MUST load products from products.json using fetch('products.json') on DOMContentLoaded
-      - Parse JSON response: Handle both formats - if response is a direct array (starts with square bracket), use it directly; if response is an object with a "products" property, extract the products array from that property; otherwise use empty array
-      - Generate product cards dynamically and insert into #products-container
-      - Handle fetch errors with fallback (hardcoded products or error message)
-    * If products.json NOT in SHARED_ASSETS: Use hardcoded products array or read from HTML
-    * For multi-page projects: JavaScript must detect current page and initialize appropriate functionality (product listing, cart display, etc.)
-    * Reference CART, FILTER, SORT, SEARCH SOPs - must implement all standard behaviors exactly as specified
-    * CRITICAL: All event listeners MUST check if elements exist before attaching: First get the element using getElementById or querySelector, check if it exists (not null), and only then attach the event listener
-    * Event listeners for: #search-input (search), #filter-select or #category-filter (filter), #sort-select or #sort-by (sort)
-    * updateCartDisplay() must be called after every cart operation AND on page load
-    * Cart must update header cart display (#cart-count, #cart-subtotal) on ALL pages
-  - For header component: reference HEADER SOP - must include logo (left, clickable), menu/nav links to ALL pages (center), search bar input (#search-input on the input element itself), cart section (#cart-count, #cart-subtotal) on right. Header structure must be IDENTICAL across all HTML pages. Modern, professional design with proper spacing.
-  - For footer component: reference FOOTER SOP - must include company info, navigation links, contact info, copyright. Footer structure must be IDENTICAL across all HTML pages. Dark background, light text, responsive multi-column layout.
-  - For styles.css: 
-    * Modern, beautiful, professional styling - NOT basic or ugly
-    * Responsive product grid (3-4 columns desktop, 2 columns tablet, 1 column mobile)
-    * Product cards: Modern card design with subtle shadows, rounded corners, smooth hover effects
-    * Header: Clean, professional design with proper spacing, modern layout (flexbox or grid), responsive
-    * Footer: Clean, modern design with dark background, light text, responsive multi-column layout
-    * Reference component styles from SOPs. Styles must work consistently across all pages.
-  - Be explicit about which files/modules implement which components and how they integrate across multiple pages.)
+  - For ecommerce_site: products.json is typically generated early (before or alongside HTML files) so JavaScript can load it.
+  - Recommended order for ecommerce_site: products.json -> HTML files -> CSS -> JS
+  - For information_site / web_app: choose an order that keeps HTML before CSS/JS, but do not introduce products.json unless it is part of FILES.
+  - Example (ecommerce): "products.json -> index.html -> shop.html -> cart.html -> checkout.html -> about.html -> styles.css -> script.js"
+  - Example (information_site): "index.html -> matches.html -> results.html -> about.html -> styles.css -> script.js")
+FILE_REQUIREMENTS: (derive per-file responsibilities; one bullet per file. Reference SOP templates and code examples for details.)
+  - HTML:
+    - Reference HEADER/FOOTER SOPs for structure.
+    - For ecommerce_site product listing pages: MUST have empty container id="products-container" (products loaded from JSON, NEVER hardcoded) and include filter/sort controls. Use relative paths for links.
+    - For information_site pages: define appropriate containers for domain entities (e.g., matches, results) and only use id="products-container"/products.json if explicitly required in PM/architect requirements.
+  - products.json (only when FILES includes products.json):
+    - For ecommerce_site projects: CRITICAL – MUST be generated with ALL products from PRODUCTS section. Format: array of objects with id, name, price, category, description, image properties. Save to output/[PROJECT_NAME]/products.json.
+    - For other WEBSITE_TYPE values: only define products.json if the domain explicitly calls for a product/catalog JSON source.
+  - script.js:
+    - For ecommerce_site: Reference CART, FILTER, SORT, SEARCH SOPs. Use id="products-container". Check elements exist before using. MUST load products from products.json using fetch(). Use ES6+ classes for organization. Implement Intersection Observer for lazy loading, modal management, state management, and performance optimizations. Cart page: render to #cart-items.
+    - For information_site / web_app: focus on rendering, filtering, sorting, and searching domain entities (e.g., matches, results) and only implement cart/checkout/product loading behaviors if explicitly required.
+  - styles.css: Reference code examples for full design system. Define CSS variables/design tokens, global resets, layout containers, sticky header/nav, hero banner, filter/sort/search toolbar, product grid/cards, cart + checkout forms, modals/toasts, utility classes, dark mode + prefers-reduced-motion support, and loading states.
+  - NAMING CONTRACT (CRITICAL): All shared layout components MUST use the following BEM-style class names consistently across EVERY HTML file and in styles.css. Do NOT invent alternative names such as "site-header" or "primary-nav" in CSS if the HTML uses the canonical names below:
+      * Header (shared on all pages): header, header__container, header__logo, header__nav, header__nav-list, header__nav-item, header__nav-link, header__search, header__search-input (id="search-input"), header__cart, header__cart-link, header__cart-icon, header__cart-count (id="cart-count"), header__cart-subtotal (id="cart-subtotal").
+      * Footer (shared on all pages): footer, footer__container, footer__about, footer__about-title, footer__about-text, footer__nav, footer__nav-list, footer__nav-item, footer__nav-link, footer__social, footer__social-list, footer__social-item, footer__social-link, footer__social-icon, footer__bottom, footer__bottom-text.
+      * Product listing: products, products__title, products__container (id="products-container"), product-card, product-card__image, product-card__info, product-card__title, product-card__price, product-card__category, product-card__description, product-card__badge, product-card__actions, product-card__button (e.g., .add-to-cart-btn).
+      * Shop controls: shop-controls, shop-controls__filter, shop-controls__sort, shop-controls__label, shop-controls__select (with ids filter-select/category-filter and sort-select/sort-by as defined in SOPs).
+    HTML and CSS MUST both use these exact class names for the shared components above. If you reference a shared component in FILE_REQUIREMENTS, you MUST also ensure that at least one HTML file and styles.css both declare matching selectors for that component.
 """
 
 ARCHITECT_BRIEF = _get_architect_brief()
@@ -305,7 +301,7 @@ async def mas_architect_phase(config: MASWorkflowArchitectPhaseConfig, builder: 
         else:
             # Fallback to original behavior
             architect_message = (
-                f"{ARCHITECT_BRIEF.strip()}\n\nPREVIOUS_STATUS: {DEFAULT_AGENT_STATUSES['product_manager']}"
+                f"{architect_brief.strip()}\n\nPREVIOUS_STATUS: {DEFAULT_AGENT_STATUSES['product_manager']}"
                 "\nRemember to load output/doc/pm_output.txt before drafting the architecture."
             )
         

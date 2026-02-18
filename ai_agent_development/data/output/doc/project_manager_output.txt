@@ -1,0 +1,39 @@
+PROJECT_NAME: clothing-store
+PRODUCTS:
+  - Product 1: Men"s T-Shirt, $15.99, Men, A high-quality men"s t-shirt made from cotton.
+  - Product 2: Women"s Dress, $29.99, Women, A stylish women"s dress perfect for any occasion.
+  - Product 3: Kids" Sneakers, $19.99, Kids, A pair of comfortable kids" sneakers for everyday wear.
+  - Product 4: Men"s Jacket, $49.99, Men, A warm and durable men"s jacket for the winter season.
+  - Product 5: Women"s Boots, $39.99, Women, A pair of stylish women"s boots for the fall season.
+  - Product 6: Kids" Hoodie, $14.99, Kids, A cozy kids" hoodie for casual wear.
+
+CATEGORIES: All, Men, Women, Kids
+
+SORT_OPTIONS: Featured, Price (asc), Price (desc)
+
+FUNCTIONALITY: 
+  - Search by name: Filter products by name
+  - Category filter: Filter products by category
+  - Sort options: Sort products by featured, price (asc), or price (desc)
+
+UI_COMPONENTS: 
+  - Header: #header
+  - Hero section: #hero
+  - Product grid: #product-grid
+  - Search input: #search-input
+  - Category filter: #category-filter
+  - Sort options: #sort-options
+
+FILES: index.html, styles.css, script.js
+
+ORDER: index.html → styles.css → script.js
+
+FILE_REQUIREMENTS: 
+  - index.html: Include all HTML content
+  - styles.css: Include all CSS styles
+  - script.js: Include all JavaScript functionality
+
+STEPS:
+  - Step 1: Create index.html with all HTML content, including Header, Hero section, Product grid, Search input, Category filter, and Sort options.
+  - Step 2: Create styles.css with all CSS styles for the UI components.
+  - Step 3: Create script.js with all JavaScript functionality for Search by name, Category filter, and Sort options.

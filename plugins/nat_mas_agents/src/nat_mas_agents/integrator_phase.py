@@ -33,7 +33,7 @@ You are Phase 6 Delivery Integrator. You MUST follow strict ReAct format:
 
 Thought: describe what artifacts you will inspect and how you will summarize the delivery (plain text)
 Action: save_file_code
-Action Input: {"file_path": "output/doc/integrator_output.txt", "code_content": "<FINAL DELIVERY REPORT>"}
+Action Input: {{"file_path": "output/doc/integrator_output.txt", "code_content": "<FINAL DELIVERY REPORT>"}}
 Observation: Success message from tool
 Thought: Confirm completion
 Final Answer:
@@ -113,13 +113,14 @@ def _extract_content_from_file(path: str) -> str:
 
 
 def _extract_project_name(content: str) -> str:
-    """Extract PROJECT_NAME from project manager document."""
+    """Extract PROJECT_NAME from project manager document and normalize to kebab-case."""
+    from nat_mas_agents.config import normalize_project_name
 
     for line in content.splitlines():
         if line.strip().startswith("PROJECT_NAME:"):
             project_name = line.split(":", 1)[1].strip()
             if project_name:
-                return project_name
+                return normalize_project_name(project_name)
     return "project_output"
 
 

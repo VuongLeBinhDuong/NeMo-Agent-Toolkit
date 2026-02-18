@@ -1,0 +1,81 @@
+{
+  "project_name": "fashion-marketplace",
+  "requirements": "- Build a responsive fashion marketplace website with a clean, modern design.\n- The website should feature a compact sticky header with logo, navigation, search, and a cart badge that updates in real time.\n- JavaScript should handle live search, filtering, sorting, and cart updates.\n- The website should have a full-width hero section displaying sliding banners with text overlays and manual or auto-play controls.\n- Products should be shown in a responsive grid with hover effects, badges, and dynamic rendering based on search and filters.\n- The shop view should add pagination and advanced filters such as category and price range, using a shared global product state.\n- Product details should be displayed in a responsive layout with image switching, option selection, and add-to-cart actions.\n- The cart should appear as a page or slide-out panel with animated transitions, quantity controls, subtotal calculation, and persistent storage via localStorage.\n- CSS should ensure consistent typography, spacing, and responsiveness, while JavaScript should manage all interactivity and state synchronization.",
+  "products": [
+    {
+      "name": "Fashion T-Shirt",
+      "price": 19.99,
+      "category": "Clothing",
+      "description": "A high-quality fashion t-shirt made from 100% cotton."
+    },
+    {
+      "name": "Fashion Jeans",
+      "price": 49.99,
+      "category": "Clothing",
+      "description": "A pair of stylish fashion jeans made from 100% denim."
+    },
+    {
+      "name": "Fashion Shoes",
+      "price": 79.99,
+      "category": "Footwear",
+      "description": "A pair of fashionable shoes made from high-quality leather."
+    },
+    {
+      "name": "Fashion Handbag",
+      "price": 99.99,
+      "category": "Accessories",
+      "description": "A stylish fashion handbag made from high-quality materials."
+    },
+    {
+      "name": "Fashion Watch",
+      "price": 129.99,
+      "category": "Accessories",
+      "description": "A fashionable watch made from high-quality materials."
+    },
+    {
+      "name": "Fashion Sunglasses",
+      "price": 149.99,
+      "category": "Accessories",
+      "description": "A pair of fashionable sunglasses made from high-quality materials."
+    },
+    {
+      "name": "Fashion Belt",
+      "price": 19.99,
+      "category": "Accessories",
+      "description": "A high-quality fashion belt made from 100% leather."
+    },
+    {
+      "name": "Fashion Scarf",
+      "price": 29.99,
+      "category": "Accessories",
+      "description": "A stylish fashion scarf made from high-quality materials."
+    },
+    {
+      "name": "Fashion Hat",
+      "price": 39.99,
+      "category": "Accessories",
+      "description": "A fashionable hat made from high-quality materials."
+    }
+  ],
+  "categories": [
+    "Clothing",
+    "Footwear",
+    "Accessories"
+  ],
+  "sort_options": [
+    "Price: Low to High",
+    "Price: High to Low",
+    "Name: A to Z",
+    "Name: Z to A"
+  ],
+  "files": [],
+  "shared_assets": [],
+  "shared_components": [
+    "Header with logo, navigation, search, and cart badge",
+    "Footer with navigation links and copyright information",
+    "Cart panel with quantity controls and subtotal calculation"
+  ],
+  "tasks": [],
+  "product_data_location": "",
+  "website_type": ""
+}

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Checkout page for Tech Gadget Store. Complete your purchase with contact, shipping, and payment information.">
+    <meta property="og:title" content="Checkout - Tech Gadget Store">
+    <meta property="og:description" content="Checkout page for Tech Gadget Store. Complete your purchase with contact, shipping, and payment information.">
+    <meta property="og:image" content="https://example.com/images/logo.png">
+    <meta property="og:url" content="https://example.com/checkout.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Checkout - Tech Gadget Store">
+    <meta name="twitter:description" content="Checkout page for Tech Gadget Store. Complete your purchase with contact, shipping, and payment information.">
+    <meta name="twitter:image" content="https://example.com/images/logo.png">
+    <meta name="twitter:url" content="https://example.com/checkout.html">
+    <link rel="canonical" href="https://example.com/checkout.html">
+    <title>Checkout - Tech Gadget Store</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Checkout - Tech Gadget Store",
+      "description": "Checkout page for Tech Gadget Store. Complete your purchase with contact, shipping, and payment information.",
+      "url": "https://example.com/checkout.html",
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [{
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://example.com/"
+        },{
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Checkout",
+          "item": "https://example.com/checkout.html"
+        }]
+      }
+    }
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="header__logo">
+            <a href="index.html" aria-label="Tech Gadget Store Home">
+                <img src="images/logo.png" alt="Tech Gadget Store Logo" loading="lazy">
+            </a>
+        </div>
+        <nav class="header__nav" aria-label="Main Navigation">
+            <ul>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="checkout.html" aria-current="page">Checkout</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+        <div class="header__search">
+            <input type="text" id="search-input" class="header__search-input" placeholder="Search..." aria-label="Search products">
+        </div>
+        <div class="header__cart">
+            <a href="cart.html" aria-label="View cart">
+                <span id="cart-count" class="header__cart-count">0</span>
+                <span id="cart-subtotal" class="header__cart-subtotal">$0.00</span>
+            </a>
+        </div>
+    </header>
+    <main class="main">
+        <h1>Checkout</h1>
+        <section class="checkout__form-section">
+            <form id="checkout-form" class="checkout__form" aria-labelledby="checkout-form-title">
+                <h2 id="checkout-form-title">Contact Information</h2>
+                <div class="checkout__form-group">
+                    <label for="contact-name" class="checkout__form-label">Full Name</label>
+                    <input type="text" id="contact-name" name="contact-name" class="checkout__form-input" required aria-required="true">
+                </div>
+                <div class="checkout__form-group">
+                    <label for="contact-email" class="checkout__form-label">Email Address</label>
+                    <input type="email" id="contact-email" name="contact-email" class="checkout__form-input" required aria-required="true">
+                </div>
+                <div class="checkout__form-group">
+                    <label for="contact-phone" class="checkout__form-label">Phone Number</label>
+                    <input type="tel" id="contact-phone" name="contact-phone" class="checkout__form-input" required aria-required="true">
+                </div>
+                <h2>Shipping Address</h2>
+                <div class="checkout__form-group">
+                    <label for="shipping-address" class="checkout__form-label">Address</label>
+                    <input type="text" id="shipping-address" name="shipping-address" class="checkout__form-input" required aria-required="true">
+                </div>
+                <div class="checkout__form-group">
+                    <label for="shipping-city" class="checkout__form-label">City</label>
+                    <input type="text" id="shipping-city" name="shipping-city" class="checkout__form-input" required aria-required="true">
+                </div>
+                <div class="checkout__form-group">
+                    <label for="shipping-state" class="checkout__form-label">State</label>
+                    <input type="text" id="shipping-state" name="shipping-state" class="checkout__form-input" required aria-required="true">
+                </div>
+                <div class="checkout__form-group">
+                    <label for="shipping-zip" class="checkout__form-label">ZIP Code</label>
+                    <input type="text" id="shipping-zip" name="shipping-zip" class="checkout__form-input" required aria-required="true">
+                </div>
+                <h2>Payment Information</h2>
+                <div class="checkout__form-group">
+                    <label for="payment-method" class="checkout__form-label">Payment Method</label>
+                    <select id="payment-method" name="payment-method" class="checkout__form-input" required aria-required="true">
+                        <option value="credit-card">Credit Card</option>
+                        <option value="paypal">PayPal</option>
+                    </select>
+                </div>
+                <div class="checkout__form-group">
+                    <label for="card-number" class="checkout__form-label">Card Number</label>
+                    <input type="text" id="card-number" name="card-number" class="checkout__form-input" required aria-required="true">
+                </div>
+                <div class="checkout__form-group">
+                    <label for="card-expiry" class="checkout__form-label">Expiry Date</label>
+                    <input type="text" id="card-expiry" name="card-expiry" class="checkout__form-input" placeholder="MM/YY" required aria-required="true">
+                </div>
+                <div class="checkout__form-group">
+                    <label for="card-cvv" class="checkout__form-label">CVV</label>
+                    <input type="text" id="card-cvv" name="card-cvv" class="checkout__form-input" required aria-required="true">
+                </div>
+                <button type="submit" class="checkout__form-submit" data-js="submit-checkout">Place Order</button>
+            </form>
+        </section>
+        <aside class="checkout__summary">
+            <h2>Order Summary</h2>
+            <div id="checkout-summary" class="checkout__summary-details">
+                <!-- Order summary details will be populated here -->
+            </div>
+            <div class="checkout__summary-total">
+                <strong>Total:</strong>
+                <span id="order-total">$0.00</span>
+            </div>
+        </aside>
+    </main>
+    <footer class="footer">
+        <div class="footer__content">
+            <div class="footer__section">
+                <h3>About Us</h3>
+                <p>Welcome to Tech Gadget Store, your one-stop shop for the latest technology gadgets.</p>
+            </div>
+            <div class="footer__section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="shop.html">Shop</a></li>
+                    <li><a href="cart.html">Cart</a></li>
+                    <li><a href="checkout.html">Checkout</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+            <div class="footer__section">
+                <h3>Contact Us</h3>
+                <p>Email: support@techgadgetstore.com</p>
+                <p>Phone: +123 456 7890</p>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <p>&copy; 2023 Tech Gadget Store. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="script.js" defer></script>
+</body>
+</html>

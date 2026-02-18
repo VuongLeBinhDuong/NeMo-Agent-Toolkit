@@ -1,0 +1,27 @@
+PRODUCT: Simple Clothing Store Homepage
+REQUIREMENTS: Create a simple clothing store homepage with a header, hero section, and a 6-product grid. Include search by name, category filter, and sort options. Use plain HTML/CSS/JS only and ensure a responsive layout.
+FEATURES: Header with logo, menu, search, and cart; Hero section; 6-product grid with "Add to Cart"; Search by name; Category filter (All/Men/Women/Kids); Sort options (featured/price asc/desc)
+PRODUCTS: 
+  - Product 1: Men's T-Shirt, $15.99, Men, A high-quality men's t-shirt made from cotton.
+  - Product 2: Women's Dress, $29.99, Women, A stylish women's dress perfect for any occasion.
+  - Product 3: Kids' Sneakers, $19.99, Kids, A pair of comfortable kids' sneakers for everyday wear.
+  - Product 4: Men's Jacket, $49.99, Men, A warm and durable men's jacket for the winter season.
+  - Product 5: Women's Boots, $39.99, Women, A pair of stylish women's boots for the fall season.
+  - Product 6: Kids' Hoodie, $14.99, Kids, A cozy kids' hoodie for casual wear.
+CATEGORIES: All, Men, Women, Kids
+SORT_OPTIONS: Featured, Price (asc), Price (desc)
+FUNCTIONALITY: 
+  - Search by name: Filter products by name
+  - Category filter: Filter products by category
+  - Sort options: Sort products by featured, price (asc), or price (desc)
+UI_COMPONENTS: 
+  - Header: #header
+  - Hero section: #hero
+  - Product grid: #product-grid
+  - Search input: #search-input
+  - Category filter: #category-filter
+  - Sort options: #sort-options
+FILE_REQUIREMENTS: 
+  - index.html: Include all HTML content
+  - styles.css: Include all CSS styles
+  - script.js: Include all JavaScript functionality
