@@ -1,0 +1,61 @@
+# Design Spec
+
+## File Structure
+- index.html
+- shop.html
+- product-detail.html
+- cart.html
+- styles.css
+- app.js
+- products.json
+
+## DOM / Class & ID Contract (use exactly these in HTML, CSS, JS)
+DOM / CLASS & ID CONTRACT (use exactly these names in HTML, CSS, and JS)
+- Header (every page):
+  - .header, .header__logo, .header__nav
+  - #search-input, #cart-count, #cart-subtotal
+- Product listing (shop, homepage featured):
+  - #products-container  (root for product cards)
+  - .product-card, .product-card__title, .product-card__price, .product-card__description
+- Shop filters:
+  - #category-filter (select), #sort-by (select)
+- Cart page:
+  - #cart-items (container), .cart-item (each row), #cart-total
+- Product detail page:
+  - #product-detail (container), .product-detail__image, .product-detail__specs, #add-to-cart
+- Footer:
+  - .footer
+
+PRODUCTS DATA (products.json)
+- Store ALL product data in a single file: products.json (in the same directory as index.html).
+- Format: { "products": [ { "id", "name", "description", "category", "price", "image" } ] }.
+- JavaScript MUST load products via fetch: fetch('products.json').then(r => r.json()).then(data => ...).
+- Do NOT hardcode the products array inside app.js or HTML. Only products.json holds the list.
+- All pages that show products (index, shop, product-detail) use this loaded data.
+
+JS RULES: (1) Guard optional elements: only use #category-filter, #sort-by, #cart-items if element exists. (2) Product detail: read ?id= from URL, render product, wire #add-to-cart. (3) Cart page must have #cart-total; update it in updateCartDisplay(). (4) Product cards must link to product-detail.html?id=<id>. (5) Use consistent id type (Number/String) when comparing for cart.
+
+## Per-file Requirements (implement exactly these)
+label: index.html
+header, #search-input, #cart-count, #cart-subtotal, .hero-banner, #featured-products-container
+label: shop.html
+#category-filter, #sort-by, #search-input, #products-container, .product-card, .product-card__title, .product-card__price, .product-card__description
+label: product-detail.html
+#product-detail, .product-detail__image, .product-detail__specs, #add-to-cart
+label: cart.html
+cart-items (container for list), #cart-total, #cart-count, #cart-subtotal
+label: styles.css
+responsive layout, category filtering, live search functionality, product details page with images, specifications, badges, and Add to Cart button, cart management with localStorage storage
+label: app.js
+live search functionality on shop page, category filtering and sorting options on shop page, product detail page displays images, specifications, badges, and an Add to Cart button, cart page shows items stored in localStorage with quantity controls and totals
+label: products.json
+JSON array of products with id, name, description, category, price, image
+
+## Modules / Components
+Responsive layout for homepage and shop page using CSS Grid or Flexbox. Category filtering and sorting options on shop page using vanilla JavaScript. Live search functionality on shop page using vanilla JavaScript. Product details page with images, specifications, badges, and Add to Cart button using vanilla JavaScript. Cart management with localStorage storage using vanilla JavaScript.
+
+## API / Contracts
+None
+
+## Implementation Notes
+Use modern ES6+ (const/let, arrow functions, array methods). No external libraries; vanilla JavaScript only.

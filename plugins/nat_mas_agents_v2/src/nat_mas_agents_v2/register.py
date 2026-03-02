@@ -16,11 +16,18 @@
 """Register MAS V2 workflow and tools with NAT.
 
 This plugin is independent of nat_mas_agents (v1). It provides:
-- planner_step, worker_step, executor_step, critic_step, code_loop_workflow
+- product_step, architect_step, planner_step, worker_step, executor_step, critic_step
+- code_loop_workflow, full_mas_workflow (Product → Architect → code loop)
 - list_files, search_code, read_file, write_file, run_shell, run_test
 """
 
+import json
 import logging
+from io import TextIOWrapper
+
+from nat.utils.type_converter import GlobalTypeConverter
+
+from .models import TaskState
 
 # Import tools, agents, and workflow so their @register_function decorators run
 from . import tools  # noqa: F401
@@ -28,3 +35,23 @@ from . import agents  # noqa: F401
 from . import workflow  # noqa: F401
 
 logger = logging.getLogger(__name__)
+
+
+def _text_io_to_task_state(data: TextIOWrapper) -> TaskState:
+    """Convert JSON file content to TaskState so nat run --input_file works."""
+    return TaskState.model_validate(json.load(data))
+
+
+def _str_to_task_state(data: str) -> TaskState:
+    """Convert JSON string to TaskState so nat run --input works."""
+    return TaskState.model_validate(json.loads(data))
+
+
+def _task_state_to_str(data: TaskState) -> str:
+    """Convert TaskState to JSON string so nat run can print the result."""
+    return data.model_dump_json(indent=2)
+
+
+GlobalTypeConverter.register_converter(_text_io_to_task_state)
+GlobalTypeConverter.register_converter(_str_to_task_state)
+GlobalTypeConverter.register_converter(_task_state_to_str)

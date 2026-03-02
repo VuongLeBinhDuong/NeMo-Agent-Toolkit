@@ -84,11 +84,12 @@ class ConsoleFrontEndPlugin(SimpleFrontEndPluginBase[ConsoleFrontEndConfig]):
 
         elif (self.front_end_config.input_file):
 
-            # Run the workflow
+            # Run the workflow: read JSON so all keys (e.g. output_dir) are passed to the workflow input schema
+            import json
             with open(self.front_end_config.input_file, "r", encoding="utf-8") as f:
-
-                async with session_manager.workflow.run(f) as runner:
-                    runner_outputs = await runner.result(to_type=str)
+                input_data = json.load(f)
+            async with session_manager.workflow.run(input_data) as runner:
+                runner_outputs = await runner.result(to_type=str)
         else:
             assert False, "Should not reach here. Should have been caught by pre_run"
 

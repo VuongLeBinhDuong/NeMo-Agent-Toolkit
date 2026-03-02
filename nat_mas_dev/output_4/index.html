@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Gadget Store</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header__logo"><a href="index.html">Tech Gadget Store</a></div>
+        <nav class="header__nav">
+            <input type="text" id="search-input" placeholder="Search products...">
+            <select id="category-filter">
+                <option value="">All Categories</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Gadgets">Gadgets</option>
+                <option value="Accessories">Accessories</option>
+            </select>
+            <select id="sort-by">
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="name-asc">Name: A to Z</option>
+                <option value="name-desc">Name: Z to A</option>
+            </select>
+        </nav>
+        <div class="header__cart">
+            <span id="cart-count">0</span> items - <span id="cart-subtotal">$0.00</span>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero-banner">
+            <h1>Welcome to Tech Gadget Store</h1>
+            <p>Explore the latest in technology and gadgets.</p>
+            <a href="shop.html" class="cta-button">Shop Now</a>
+        </section>
+
+        <section id="featured-products-container" class="product-listing">
+            <h2>Featured Products</h2>
+            <div id="products-container"></div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        &copy; 2023 Tech Gadget Store. All rights reserved.
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+# Design Spec
+
+## File Structure
+- index.html
+- shop.html
+- cart.html
+- product-detail.html
+- about.html
+- styles.css
+- app.js
+- products.json
+
+## DOM / Class & ID Contract (use exactly these in HTML, CSS, JS)
+DOM / CLASS & ID CONTRACT (use exactly these names in HTML, CSS, and JS)
+- Header (every page):
+  - .header, .header__logo, .header__nav
+  - #search-input, #cart-count, #cart-subtotal
+- Product listing (shop, homepage featured):
+  - #products-container  (root for product cards)
+  - .product-card, .product-card__title, .product-card__price, .product-card__description
+- Shop filters:
+  - #category-filter (select), #sort-by (select)
+- Cart page:
+  - #cart-items (container), .cart-item (each row), #cart-total
+- Product detail page:
+  - #product-detail (container), .product-detail__image, .product-detail__specs, #add-to-cart
+- Footer:
+  - .footer
+
+PRODUCTS DATA (products.json)
+- Store ALL product data in a single file: products.json (in the same directory as index.html).
+- Format: { "products": [ { "id", "name", "description", "category", "price", "image" } ] }.
+- JavaScript MUST load products via fetch: fetch('products.json').then(r => r.json()).then(data => ...).
+- Do NOT hardcode the products array inside app.js or HTML. Only products.json holds the list.
+- All pages that show products (index, shop, product-detail) use this loaded data.
+
+JS RULES: (1) Guard optional elements: only use #category-filter, #sort-by, #cart-items if element exists. (2) Product detail: read ?id= from URL, render product, wire #add-to-cart. (3) Cart page must have #cart-total; update it in updateCartDisplay(). (4) Product cards must link to product-detail.html?id=<id>. (5) Use consistent id type (Number/String) when comparing for cart.
+
+## Per-file Requirements (implement exactly these)
+]=> [
+
+## Modules / Components
+Components: header, footer, hero banner, product cards, cart items, search bar, category filter, sort options, add to cart button, product details container.
+
+## Implementation Notes
+Use vanilla JavaScript for all functionality. Store products in a JSON file (products.json) and load it via fetch(). Use localStorage for cart management.

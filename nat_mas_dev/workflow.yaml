@@ -41,82 +41,110 @@ general:
 #     return_messages: true
 
 # LLMs - Must be defined before functions that use them
-llms:  
-  reasoning_llm: 
-    _type: nim 
-    model_name: deepseek-ai/deepseek-r1
-    max_tokens: 8192
-    temperature: 0.2
-    api_key: $DEEPSEEK_R1_API_KEY
+# NVIDIA 2026: use new API base https://api.nvidia.com/v1 (NIM / AI Foundation Models)
+llms:
+  # nim_llm:
+  #   _type: nim
+  #   base_url: "https://api.nvidia.com/v1"
+  #   model_name: meta/llama-3.1-70b-instruct
+  #   max_tokens: 4096
+  #   api_key: $NVIDIA_API_KEY
+  # reasoning_llm:
+  #   _type: nim
+  #   base_url: "https://api.nvidia.com/v1"
+  #   model_name: meta/llama-3.1-70b-instruct
+  #   max_tokens: 8192
+  #   temperature: 0.2
+  #   api_key: $LLAMA3_1_70B_INSTRUCT_API_KEY
+  # code_generation_llm:
+  #   _type: nim
+  #   base_url: "https://api.nvidia.com/v1"
+  #   model_name: meta/llama-3.1-70b-instruct
+  #   max_tokens: 4096
+  #   api_key: $QWEN2_5_CODER_32B_INSTRUCT_API_KEY
+  reasoning_llm:
+    _type: openai
+    base_url: http://localhost:11434/v1
+    api_key: dummy
+    model_name: llama3.1:latest
   code_generation_llm:
-    _type: nim 
-    model_name: qwen/qwen2.5-coder-32b-instruct 
-    max_tokens: 4096
-    api_key: $QWEN2_5_CODER_32B_INSTRUCT_API_KEY
-  nim_llm:
-    _type: nim
-    model_name: meta/llama-3.1-70b-instruct
-    max_tokens: 4096
-    api_key: $NVIDIA_API_KEY
-  general_llm:
-    _type: nim 
-    model_name: meta/llama-3.1-8b-instruct  
-    max_tokens: 4096
-    api_key: $LLAMA3_1_8B_INSTRUCT_API_KEY
+    _type: openai
+    base_url: http://localhost:11434/v1
+    api_key: dummy
+    model_name: qwen2.5-coder:7b
 
 functions:
-  wikipedia_search:
-    _type: wiki_search
-    max_results: 2
-  web_search:
-    _type: nat.plugins.langchain.tools/tavily_internet_search
-  # my_retriever_tool:
-  #   _type: nat_retriever
-  #   retriever: my_retriever
-  #   topic: Retrieve company documents
-  code_generation_tool:
-    _type: code_generation
-    llm_name: code_generation_llm
-    verbose: true
-    programming_language: ["Python", "JavaScript", "TypeScript", "Java", "C++", "C#", "Go", "Rust", "Swift", "Kotlin", "PHP", "Ruby", "Scala", "Haskell", "Clojure", "R", "MATLAB", "Julia", "Dart", "Lua", "Perl", "Shell", "Bash", "PowerShell", "SQL", "HTML", "CSS", "XML", "YAML", "JSON"]
-    description: "Multi-language code generation tool. Supports Python, JavaScript, TypeScript, Java, C++, C#, Go, Rust, Swift, Kotlin, PHP, Ruby, Scala, Haskell, and many more programming languages. For any questions about code generation, you must only use this tool!"
-
-  save_file_code:
-    _type: save_file_code
-    description: "Save successfully executed and debugged code to a file. Use this AFTER code has been tested and works correctly. Files will be saved to output/project_name/"
-    verbose: true
   file_reader:
     _type: file_reader
     description: "Read text content from a file path for downstream agents."
 
-# Multi-Agent System (MAS) V2 - Coding loop workflow
-# Uses nat_mas_agents_v2 plugin with Planner → Worker → Executor → Critic loop
+  # Code generation tool (dedicated code LLM) - used by worker_step for .js/.css
+  code_generation_tool:
+    _type: code_generation
+    llm_name: code_generation_llm
+    verbose: true
+    programming_language: ["JavaScript", "HTML", "CSS", "JSON"]
+    description: "High-quality front-end code generator for HTML/CSS/JS/JSON. Always returns full, production-ready files with no explanations."
 
-  # MAS V2 Step Functions
+# Multi-Agent System (MAS) V2 - Full flow: Product → Architect → Planner → Worker → Executor → Critic
+
+  # Product Agent (Requirement): clarify request, PRD, acceptance criteria
+  product_step:
+    _type: product_step
+    llm_name: reasoning_llm
+    description: "Clarify user request, write short PRD, define acceptance criteria"
+
+  # Architect Agent (Design): file structure, modules, API
+  architect_step:
+    _type: architect_step
+    llm_name: reasoning_llm
+    description: "Design modules, file structure, and API from requirement doc"
+
+  # MAS V2 Code Loop Step Functions
   planner_step:
-    _type: nat_mas_agents_v2/planner_step
+    _type: planner_step
     llm_name: reasoning_llm
     description: "Decompose objective into incremental subtasks or refine plan from critique using reasoning LLM"
 
   worker_step:
-    _type: nat_mas_agents_v2/worker_step
+    _type: worker_step
     llm_name: code_generation_llm
     description: "Read files, call LLM to generate or edit code, apply via write_file, update TaskState artifacts"
 
   executor_step:
-    _type: nat_mas_agents_v2/executor_step
+    _type: executor_step
     description: "Run tests/shell and record results in TaskState execution_log and last_tests"
+    enable_tests: false
 
   critic_step:
-    _type: nat_mas_agents_v2/critic_step
+    _type: critic_step
     description: "Analyze execution_log and last_tests; produce structured Critique (root_cause, affected_files, suggested_fix, confidence)"
 
-# Multi-Agent System Workflow V2
+  # MAS V2 tools (used by worker_step and executor_step)
+  list_files:
+    _type: nat_mas_agents_v2/list_files
+  read_file:
+    _type: nat_mas_agents_v2/read_file
+  write_file:
+    _type: nat_mas_agents_v2/write_file
+  run_shell:
+    _type: nat_mas_agents_v2/run_shell
+  run_test:
+    _type: nat_mas_agents_v2/run_test
+
+  # Code loop (Planner → Worker → Executor → Critic) - used inside full_mas_workflow
+  code_loop_workflow:
+    _type: code_loop_workflow
+    planner: planner_step
+    worker: worker_step
+    executor: executor_step
+    critic: critic_step
+    max_iterations: 15
+
+# Full MAS Workflow: Product → Architect → Planner → Worker → Executor → Critic
 workflow:
-  _type: nat_mas_agents_v2/code_loop_workflow
-  description: "MAS V2 coding loop: Planner → Worker → Executor → Critic until success or failed"
-  planner: planner_step
-  worker: worker_step
-  executor: executor_step
-  critic: critic_step
-  max_iterations: 15
+  _type: full_mas_workflow
+  description: "Full MAS: Product (PRD) → Architect (Design) → code loop until success or failed"
+  product: product_step
+  architect: architect_step
+  code_loop: code_loop_workflow

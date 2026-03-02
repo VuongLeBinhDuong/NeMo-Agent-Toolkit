@@ -16,7 +16,6 @@
 """Code loop workflow: orchestration only. Planner → Worker → Executor → Critic until success or failed."""
 
 import logging
-from pathlib import Path
 
 from nat.builder.builder import Builder
 from nat.builder.function_info import FunctionInfo
@@ -26,7 +25,6 @@ from nat.data_models.function import FunctionBaseConfig
 from pydantic import Field
 
 from ..models import TaskState
-from ..reliability import is_stuck, restore_from_backup
 
 log = logging.getLogger(__name__)
 
@@ -88,23 +86,10 @@ async def code_loop_workflow(config: CodeLoopWorkflowConfig, builder: Builder):
                 return state
             state = await critic_fn.ainvoke(state)
 
-            # Reliability: rollback code when test fail nặng (fatal)
-            if state.status == "failed" and state.backup_dir:
-                try:
-                    restore_from_backup(Path(state.backup_dir), Path(state.repo_root or "."))
-                except Exception as e:
-                    log.warning("Rollback failed: %s", e)
-
             if state.status in ("success", "failed", "partial_success"):
                 return state
             if not state.should_continue():
                 return state
-
-            # Reliability: detect stuck / loop (same verdict continue repeatedly)
-            if is_stuck(state, window=config.stuck_window):
-                log.warning("Stuck detected (last %s verdicts all continue), stopping", config.stuck_window)
-                state = state.model_copy(update={"status": "failed"})
-                break
 
         if state.status == "in_progress":
             state = state.model_copy(update={"status": "failed"})

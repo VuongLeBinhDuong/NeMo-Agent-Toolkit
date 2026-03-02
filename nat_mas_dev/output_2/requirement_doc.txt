@@ -1,0 +1,19 @@
+# Product Requirements (PRD)
+
+## Summary
+Create a multi-page Tech Gadget Store website using only HTML, CSS, and vanilla JavaScript, with features including responsive layout, category filtering, live search, product details, cart management, and shared header/footer.
+
+## Acceptance Criteria
+1. The website has 4 pages: homepage, shop page, product detail page, and cart page.
+2. Each page loads correctly in a desktop browser and a mobile browser.
+3. Responsive layout adjusts from three columns to one on smaller screens.
+4. Shop page includes category filtering dropdowns and sorting options (e.g. price, name).
+5. Live search function allows users to find products by name or description.
+6. Product detail page displays product images, specifications, badges, and an Add to Cart button.
+7. Cart page shows items stored in localStorage with quantity controls and totals.
+8. Shared header includes logo, menu, search bar, cart section showing item count and subtotal, and footer.
+9. All functionality works without using any icons or special symbols.
+10. Products are hardcoded directly in HTML.
+
+## Scope / Constraints
+The website will only use HTML, CSS, and vanilla JavaScript. No external libraries or frameworks will be used. Products will be hardcoded in HTML. The website must work without any icons or special symbols.

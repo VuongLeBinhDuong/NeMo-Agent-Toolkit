@@ -215,6 +215,22 @@ class TaskState(BaseModel):
         default=".",
         description="Root directory of the repository/project",
     )
+    output_dir: Optional[str] = Field(
+        default=None,
+        description="If set (e.g. 'output'), all LLM-generated artifacts are written under repo_root/output_dir.",
+    )
+
+    # Product Agent output: clarified requirements, PRD, acceptance criteria
+    requirement_doc: Optional[str] = Field(
+        default=None,
+        description="Structured requirement doc (PRD) from Product Agent: clarified scope, acceptance criteria",
+    )
+    # Architect Agent output: module design, file structure, API
+    design_spec: Optional[str] = Field(
+        default=None,
+        description="Design spec from Architect Agent: file structure, modules, API/contracts",
+    )
+
     status: Literal["pending", "in_progress", "success", "failed", "partial_success"] = Field(
         default="pending",
         description="Overall status of the task (partial_success = some work done but failed to complete)",

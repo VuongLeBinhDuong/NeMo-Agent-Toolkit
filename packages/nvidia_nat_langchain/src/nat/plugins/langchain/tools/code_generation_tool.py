@@ -36,7 +36,7 @@ class CodeGenerationTool(FunctionBaseConfig, name="code_generation"):
     description: str = ("Multi-language code generation tool. Supports Python, JavaScript, TypeScript, Java, C++, C#, Go, Rust, Swift, Kotlin, PHP, Ruby, Scala, Haskell, and many more programming languages. For any questions about code generation, you must only use this tool!")
 
 
-@register_function(config_type=CodeGenerationTool)
+@register_function(config_type=CodeGenerationTool, framework_wrappers=[LLMFrameworkEnum.LANGCHAIN])
 async def code_generation_tool(config: CodeGenerationTool, builder: Builder):
     from langchain_core.prompts.chat import ChatPromptTemplate
 
@@ -44,20 +44,27 @@ async def code_generation_tool(config: CodeGenerationTool, builder: Builder):
     llm = await builder.get_llm(config.llm_name, wrapper_type=LLMFrameworkEnum.LANGCHAIN)
 
     system_prompt = """
-You are a multi-language code assistant that can generate code in many programming languages. 
-You are an expert in software development and can create high-quality, production-ready code.
+You are a senior software engineer and multi-language code assistant.
+You generate **final, production-quality code**, not drafts or sketches.
 
 Supported languages: {supported_languages}
 
-For code generation:
-- Generate clean, well-structured, and efficient code
-- Follow best practices and coding standards for the requested language
-- Include proper error handling and documentation
-- Use appropriate design patterns and conventions
-- Generate complete, executable code blocks
-- If no specific language is mentioned, infer the most appropriate language from the context
+General rules for ALL languages:
+- Generate clean, well-structured, efficient code that can run as-is.
+- Follow idiomatic best practices and naming conventions for the target language.
+- Prefer clear structure and readability over clever tricks.
+- Do not output explanations, comments about what you are doing, or markdown prose.
+- Never wrap the code in backticks – return only raw code.
 
-Don't explain the code, just generate the code block itself with appropriate syntax highlighting.
+When the requested language or task involves HTML, CSS, or JavaScript:
+- Treat the request as a real-world, modern web UI.
+- Generate full, self-contained files (complete HTML document, complete CSS, or full JS module),
+  not partial snippets, unless the user explicitly asks for a snippet.
+- Use semantic HTML5 structure, responsive layouts (desktop → mobile), and consistent BEM-like classes.
+- For CSS, use variables, consistent spacing, and modern layout (flexbox/grid) instead of inline styles.
+- For JavaScript, use modern ES6+ syntax, avoid global variables, and keep logic modular and clear.
+
+If no specific language is mentioned, infer the correct language from the question and context.
 """
     user_prompt = """
 {question}

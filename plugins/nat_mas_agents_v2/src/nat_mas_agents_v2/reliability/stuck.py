@@ -27,10 +27,16 @@ def is_stuck(
 ) -> bool:
     """Return True if the last `window` critiques suggest we are stuck (no progress).
 
-    Stuck = last N verdicts are all "continue" and (optionally) same suggested_fix/root_cause.
+    Stuck = last N verdicts are all "continue" AND there are no pending subtasks
+    (otherwise "continue" is expected while we work through the list).
+    Optionally also require same suggested_fix/root_cause to reduce false positives.
     """
     history: List[Critique] = state.critique_history or []
     if len(history) < window:
+        return False
+    # If there are still pending subtasks, we are not stuck—keep iterating
+    pending = [s for s in (state.subtasks or []) if s.status == "pending"]
+    if pending:
         return False
     last_n = history[-window:]
     if not all(c.verdict == "continue" for c in last_n):

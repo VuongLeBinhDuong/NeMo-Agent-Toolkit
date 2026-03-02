@@ -1,0 +1,52 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "iPhone 13",
+      "description": "The iPhone 13 features a Super Retina XDR display, A15 Bionic chip, and 12MP Ultra Wide camera.",
+      "category": "Smartphones",
+      "price": 799,
+      "image": "iphone-13.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Samsung Galaxy S21",
+      "description": "The Samsung Galaxy S21 has a Dynamic AMOLED 2X display, Exynos 2100 chip, and 108MP primary camera.",
+      "category": "Smartphones",
+      "price": 999,
+      "image": "samsung-galaxy-s21.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Apple MacBook Air M1",
+      "description": "The MacBook Air features an M1 chip, Liquid Retina display, and Magic Keyboard.",
+      "category": "Laptops",
+      "price": 999,
+      "image": "macbook-air-m1.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Dell XPS 13",
+      "description": "The Dell XPS 13 has a QHD+ display, Intel Core i7 processor, and NVIDIA GeForce MX350 graphics.",
+      "category": "Laptops",
+      "price": 1299,
+      "image": "dell-xps-13.jpg"
+    },
+    {
+      "id": 5,
+      "name": "Apple Watch Series 7",
+      "description": "The Apple Watch Series 7 features a larger display, Always-On Retina display, and improved battery life.",
+      "category": "Wearables",
+      "price": 399,
+      "image": "apple-watch-series-7.jpg"
+    },
+    {
+      "id": 6,
+      "name": "Fitbit Versa 3",
+      "description": "The Fitbit Versa 3 offers a variety of fitness tracking features, heart rate monitoring, and sleep analysis.",
+      "category": "Wearables",
+      "price": 199,
+      "image": "fitbit-versa-3.jpg"
+    }
+  ]
+}

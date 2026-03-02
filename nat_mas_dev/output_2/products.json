@@ -1,0 +1,52 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "iPhone 13",
+      "description": "The iPhone 13 features a Super Retina XDR display, A15 Bionic chip, and 12MP Ultra Wide camera.",
+      "category": "Smartphones",
+      "price": 799,
+      "image": "https://example.com/iphone-13.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Samsung Galaxy S21",
+      "description": "The Samsung Galaxy S21 has a Dynamic AMOLED 2X display, Exynos 2100 chip, and 108MP primary camera.",
+      "category": "Smartphones",
+      "price": 999,
+      "image": "https://example.com/samsung-galaxy-s21.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Apple MacBook Air M1",
+      "description": "The MacBook Air features the M1 chip, a Liquid Retina display, and up to 16GB of RAM.",
+      "category": "Laptops",
+      "price": 999,
+      "image": "https://example.com/macbook-air-m1.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Dell XPS 13",
+      "description": "The Dell XPS 13 has a QHD+ display, Intel Core i7 processor, and up to 16GB of RAM.",
+      "category": "Laptops",
+      "price": 1299,
+      "image": "https://example.com/dell-xps-13.jpg"
+    },
+    {
+      "id": 5,
+      "name": "Apple Watch Series 7",
+      "description": "The Apple Watch Series 7 features a larger display, improved battery life, and new health features.",
+      "category": "Wearables",
+      "price": 399,
+      "image": "https://example.com/apple-watch-series-7.jpg"
+    },
+    {
+      "id": 6,
+      "name": "Fitbit Versa 3",
+      "description": "The Fitbit Versa 3 offers a full-day battery, heart rate monitoring, and sleep tracking.",
+      "category": "Wearables",
+      "price": 199,
+      "image": "https://example.com/fitbit-versa-3.jpg"
+    }
+  ]
+}

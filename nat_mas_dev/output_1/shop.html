@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Gadget Store</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header__logo"><a href="index.html">TechGadgets</a></div>
+        <nav class="header__nav">
+            <select id="category-filter">
+                <option value="">All Categories</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Computers">Computers</option>
+                <option value="Gadgets">Gadgets</option>
+            </select>
+            <input type="text" id="search-input" placeholder="Search products...">
+        </nav>
+        <div class="header__cart">
+            <span id="cart-count">0</span> items - $<span id="cart-subtotal">0.00</span>
+        </div>
+    </header>
+
+    <main>
+        <h1>Shop</h1>
+        <select id="sort-by">
+            <option value="">Sort by...</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+        </select>
+
+        <div id="products-container"></div>
+    </main>
+
+    <footer class="footer">
+        &copy; 2023 Tech Gadget Store. All rights reserved.
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
